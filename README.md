@@ -6,7 +6,7 @@ So you can vagrant box update to get the new box that is created from this each 
 
 Based on vagrants help command (displayed below), this should destroy/delete anything from before the box was upgraded. 
 
-```bash
+```
 $ vagrant box update --help
 Usage: vagrant box update [options]
 
