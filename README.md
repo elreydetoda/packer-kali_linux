@@ -22,7 +22,8 @@ To update a specific box (not tied to a Vagrant environment), use the
 So to get the new up to date kali box you would have to `vagrant destroy` and `vagrant up` it again. Then everything would be based on your Vagrantfile for provisioning.
 
 ### things to consider before `vagrant destroy`
-- did you backup all your metasploit data?
+- did you backup all your metasploit data? - `msfconsole -q -x "db_export -f xml /root/pentesting/metasploit-backups/general/metasploit-backup-main.xml; exit"`
+- did you backup all your metasploit creds (doesn't get exported by metasploit by default...)? - `msfconsole -q -x "creds -o /root/pentesting/metasploit-backups/creds/metasploit-backup-creds.csv; exit"`
 - do you have any customizations that could be automated in your Vagrantfile?
 - linking your `/vagrant` folder to your home (in your Vagrantfile) to keep everything shared and doesn't get lost when destroying boxes (because it is on your local machine as a shared folder)
 
