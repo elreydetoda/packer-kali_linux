@@ -35,4 +35,4 @@ So to get the new up to date kali box you would have to `vagrant destroy` and `v
 ### Future plans
 - [ ] Create different kali box automations (i.e. with empire and other frameworks)
 - [ ] docs...eventually :D
-- [ ] different virtualization platforms
+- [ ] different virtualization platforms (virtualbox)
