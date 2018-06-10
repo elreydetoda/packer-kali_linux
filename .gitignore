@@ -1,0 +1,4 @@
+packer_cache/
+tmp/
+.vagrant/
+variables.json

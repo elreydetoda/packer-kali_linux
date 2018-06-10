@@ -13,7 +13,7 @@
       "disk_size":"40960",
       "http_directory": "./",
       "shutdown_command": "echo 'packer' | sudo -S shutdown -P now",
-      "vm_name": "kali-amd64-packer",
+      "vm_name": "49thsd-kali-amd64-packer",
       "vboxmanage": [
         [
           "modifyvm",
@@ -39,39 +39,32 @@
   "provisioners":[
     {
       "type":"shell",
-      "scripts": [ 
-	      "{{user `scripts_dir`}}/update.sh",
-	      "{{user `scripts_dir`}}/docker.sh"
+      "inline": [ 
+        "logz='packer-upgrade.log'",
+        "echo 'deb http://http.kali.org/kali kali-rolling main contrib non-free' > /etc/apt/sources.list",
+	"echo 'deb-src http://http.kali.org/kali kali-rolling main contrib non-free' >> /etc/apt/sources.list",
+        "apt-get update | tee -a $logz",
+        "DEBIAN_FRONTEND=noninteractive apt-get upgrade -y --force-yes -o Dpkg::Options::='--force-confnew'| tee -a $logz",
+        "DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade -y --force-yes -o Dpkg::Options::='--force-confnew'| tee -a $logz",
+        "DEBIAN_FRONTEND=noninteractive apt-get virtualbox-guest-x11 --force-yes -o Dpkg::Options::='--force-confnew'| tee -a $logz"
       ]
     }
   ],
   "post-processors": [
-  	[
-  	  {
-  	      "type": "vagrant",
-  	      "keep_input_artifact": false,
-  	      "output": "red-{{.Provider}}.box",
-  	      "vagrantfile_template": "{{ user `vagrantfile` }}"
-  	  },
-  	  {
-  	      "type": "vagrant-cloud",
-  	      "box_tag": "{{user `vm_name` }}",
-  	      "access_token": "{{user `vagrant_cloud_token`}}",
-  	      "version": "{{user `vm_version`}}"
-  	  }
-  	]
+    {
+        "type": "vagrant",
+        "keep_input_artifact": false,
+        "output": "red-{{.Provider}}.box",
+        "vagrantfile_template": "vagrantfile-kali_linux.template"
+    }
   ],
   "description": "{{user `description`}}",
   "variables":{
-    "iso_url": "",
-    "iso_checksum": "",
-    "iso_checksum_type":"sha256",
-    "preseed_file": "install/kali-linux-rolling-preseed.cfg",
-    "scripts_dir": "./scripts",
-    "vagrantfile":"install/vagrantfile-kali_linux.template",
-    "vm_name": "",
-    "vm_version":"",
-    "vagrant_cloud_token":"",
+    "iso_url": "https://cdimage.kali.org/kali-images/kali-weekly/kali-linux-2018-W22-amd64.iso",
+    "iso_checksum": "a9b7c9233b49260fcc0a6da3d50ea18ca56b06ab",
+    "iso_checksum_type":"sha1",
+    "preseed_file": "kali-linux-rolling-preseed.cfg",
+    "vm_name": "49thsd/kali-linux-2017.2-amd64",
     "description": "This is not a base box!!! This is a fully up to date Kali Linux rolling release 64 bit architecture. It also has a connecting internal network which will be used for a small pentesting environment. That was automatically created with packer"
   }
 }        
