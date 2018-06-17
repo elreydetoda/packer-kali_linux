@@ -1,5 +1,11 @@
 # Automated Kali Hashcorp Box
 
+## Presentation
+
+* Slideshow - https://slides.com/elrey741/2018-self
+* Video (coming soon) - https://www.youtube.com/user/southeastlinuxfest/playlists
+
+
 ## Overview
 ### what this repo will be for
 So you can vagrant box update to get the new box that is created from this each month by a cron job on my server. This will allow for a fresh new image of Kali with the most up to date tools through the ease of vagrant and however you want to provision my kali box.
