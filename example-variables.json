@@ -1,0 +1,7 @@
+{
+  "iso_url": "https://cdimage.kali.org/kali-weekly/kali-linux-2018-W22-amd64.iso",
+  "iso_checksum": "02addb4317497594ef8bb6cf0a5f834147b64d093ea31058ff5ad3ece877faa0",
+  "vm_name": "$(yourVagrantCloudName)/kali-linux-2018.2-amd64",
+  "vm_version": "0.0.1",
+  "vagrant_cloud_token": "$(yourVagrantCloudToken)"
+}
