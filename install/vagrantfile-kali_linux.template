@@ -4,13 +4,10 @@
 Vagrant.require_version ">= 1.6.2"
 
 Vagrant.configure("2") do |config|
-    config.vm.define "vagrant-49th-kali-linux-amd64"
-    config.vm.box = "49thsd/kali-linux-2017.2-amd64"
     config.vm.network "private_network", ip: "192.168.55.2", virtualbox__intnet: "red_net"
 
     # Admin user name and password
     config.ssh.username = "root"
-    config.ssh.password = "vagrant"
 
     config.vm.provider :virtualbox do |v, override|
         v.customize ["modifyvm", :id, "--memory", 2048]
