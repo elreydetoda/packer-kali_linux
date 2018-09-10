@@ -7,6 +7,13 @@
 
 
 ## Overview
+### VM info
+- user: root
+- pass: toor
+
+#### Installed software
+listed in the scripts directory: [here](https://github.com/elreydetoda/packer-kali_linux/tree/master/scripts)
+
 ### what this repo will be for
 So you can vagrant box update to get the new box that is created from this each month by a cron job on my server. This will allow for a fresh new image of Kali with the most up to date tools through the ease of vagrant and however you want to provision my kali box.
 
@@ -31,7 +38,7 @@ So to get the new up to date kali box you would have to `vagrant destroy` and `v
 - did you backup all your metasploit data? - `msfconsole -q -x "db_export -f xml /root/pentesting/metasploit-backups/general/metasploit-backup-main.xml; exit"`
 - did you backup all your metasploit creds (doesn't get exported by metasploit by default...)? - `msfconsole -q -x "creds -o /root/pentesting/metasploit-backups/creds/metasploit-backup-creds.csv; exit"`
 - do you have any customizations that could be automated in your Vagrantfile?
-- linking your `/vagrant` folder to your home (in your Vagrantfile) to keep everything shared and doesn't get lost when destroying boxes (because it is on your local machine as a shared folder)
+- putting all your data in your `/vagrant` folder is ideal, to keep everything shared and making sure it doesn't get lost when destroying boxes (because it is on your local machine as a shared folder)
 
 ## Dependencies
 - vagrant
