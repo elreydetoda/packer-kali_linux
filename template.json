@@ -53,14 +53,15 @@
       "expect_disconnect": true,
       "scripts": [ 
 	      "{{user `scripts_dir`}}/update.sh",
-        "{{user `scripts_dir`}}/sshd.sh",
-        "{{user `scripts_dir`}}/vagrant.sh",
+              "{{user `scripts_dir`}}/sshd.sh",
+              "{{user `scripts_dir`}}/vagrant.sh",
 	      "{{user `scripts_dir`}}/docker.sh",
 	      "{{user `scripts_dir`}}/networking.sh",
 	      "{{user `scripts_dir`}}/customization.sh",
 	      "{{user `scripts_dir`}}/virtualbox.sh",
+	      "{{user `scripts_dir`}}/virtualbox-kali.sh",
 	      "{{user `scripts_dir`}}/update.sh",
-        "{{user `scripts_dir`}}/minimize.sh"
+              "{{user `scripts_dir`}}/minimize.sh"
       ],
       "type":"shell"
     }
