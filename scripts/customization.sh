@@ -8,7 +8,7 @@ gsettings set org.gnome.desktop.session idle-delay 0
 
 ## installing http-screenshot.nse
 raw_github_url='https://raw.githubusercontent.com/SpiderLabs/Nmap-Tools/master/NSE/http-screenshot.nse'
-nse_location='/usr/share/nmap/nse'
+nse_location='/usr/share/nmap/scripts'
 apt install -y wkhtmltopdf
-curl --location ${nse_location}/http-screenshot.nse ${raw_github_url}
+curl -sSL ${nse_location}/http-screenshot.nse ${raw_github_url}
 nmap --script-updatedb
