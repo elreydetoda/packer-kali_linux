@@ -4,6 +4,6 @@ jobs:
     machine: true
     steps:
       - checkout
-      - run: env
+      - run: ./new-kali.sh
       - run: ls
 
