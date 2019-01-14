@@ -10,6 +10,7 @@
       "ssh_username": "root",
       "ssh_password": "toor",
       "ssh_wait_timeout": "30m",
+      "headless": "",
       "disk_size":"40960",
       "http_directory": "{{user `http_path` }}",
       "shutdown_command": "echo 'packer' | sudo -S /sbin/shutdown -hP now",
@@ -95,7 +96,7 @@
     "vagrant_cloud_token":"",
     "post_shutdown_time": "2m",
     "cpus":"1",
-    "memory": "4096",
+    "memory": "2048",
     "description": "This is not a base box!!! This is a fully up to date Kali Linux rolling release 64 bit architecture. It also has a connecting internal network which will be used for a small pentesting environment. That was automatically created with packer"
   }
 }        
