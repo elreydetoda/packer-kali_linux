@@ -31,9 +31,12 @@ currentKali=$(curl -s $kaliBaseUrl | grep 'kali-' | grep -oE 'href.*' | cut -d '
 
 namez="kali-linux_amd64"
 
-if [[ -f $secretFileFullPath ]]; then
+if [[ -f $secretFileFullPath ]] ; then
 	hashiName=$(grep vagrant_cloud $secretFileFullPath | cut -d ':' -f 2)
 	vagrant_cloud_token=$(grep vagrant_cloud $secretFileFullPath | cut -d ':' -f 3-)
+elif [[ $CIRCLECI ]] ; then
+	hashiName="${VAGRANT_CLOUD_USER}"
+	vagrant_cloud_token="${VAGRANT_CLOUD_TOKEN}"
 fi
 
 if [[ ! -z $hashiName ]]; then
@@ -45,8 +48,13 @@ if [[ ! -z $hashiName ]]; then
 		vm_version='0.0.1'
 	else
 		currentVersion=$($curl $vagrantBoxUrl | jq '{versions}[][0]["version"]' | cut -d '"' -f 2)
-		echo -e "The current version is $currentVersion, what version would you like?\nPlease keep similar formatting as the current example."
-		read vm_version
+		if [[ $CIRCLECI ]] ; then
+			patch_release_version=$(( $(echo $currentVersion | cut -d '.' -f 3) + 1 ))
+			vm_version="${MAJOR_RELEASE_VERSION}.${MINOR_RELEASE_VERSION}.${patch_release_version}"
+		else
+			echo -e "The current version is $currentVersion, what version would you like?\nPlease keep similar formatting as the current example."
+			read vm_version
+		fi
 	fi
 fi
 
@@ -54,6 +62,9 @@ fi
 currentKaliISOUrl="${kaliCurrentUrl}${currentKaliISO}"
 hashAlgOut=$(echo $hashAlg | rev | cut -d 'S' -f 3- | rev | tr '[:upper:]' '[:lower:]')
 
-printf '{"iso_url":"%s","iso_checksum_type":"%s","iso_checksum":"%s","vm_name":"%s","vm_version":"%s","vagrant_cloud_token":"%s"}\n' "$currentKaliISOUrl" "$hashAlgOut" "$currentHashAlg" "$namez" "$vm_version" "$vagrant_cloud_token" | jq . | tee variables.json
-
+if [[ $CIRCLECI ]] ; then
+	printf '{"iso_url":"%s","iso_checksum_type":"%s","iso_checksum":"%s","vm_name":"%s","vm_version":"%s","vagrant_cloud_token":"%s"}\n' "$currentKaliISOUrl" "$hashAlgOut" "$currentHashAlg" "$namez" "$vm_version" "$vagrant_cloud_token" | jq . > variables.json
+else
+	printf '{"iso_url":"%s","iso_checksum_type":"%s","iso_checksum":"%s","vm_name":"%s","vm_version":"%s","vagrant_cloud_token":"%s"}\n' "$currentKaliISOUrl" "$hashAlgOut" "$currentHashAlg" "$namez" "$vm_version" "$vagrant_cloud_token" | jq . | tee variables.json
+fi
 rm -rf $tmpDir
