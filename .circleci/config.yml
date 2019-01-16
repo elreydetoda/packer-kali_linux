@@ -5,6 +5,6 @@ jobs:
     steps:
       - checkout
       - run: ./scripts/new-kali.sh
-      - run: ls
+      - run: pwd
       - run: cat variables.json
 
