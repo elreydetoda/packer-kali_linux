@@ -69,15 +69,15 @@
   "post-processors": [
   	[
   	  {
-  	      "type": "vagrant",
-  	      "output": "red-{{.Provider}}.box",
-  	      "vagrantfile_template": "{{ user `vagrantfile` }}"
+  	    "type": "vagrant",
+  	    "output": "red-{{.Provider}}.box",
+  	    "vagrantfile_template": "{{ user `vagrantfile` }}"
   	  },
       {
-          "type": "vagrant-cloud",
-          "box_tag": "{{user `vm_name` }}",
-          "access_token": "{{user `vagrant_cloud_token`}}",
-          "version": "{{user `vm_version`}}"
+        "type": "vagrant-cloud",
+        "box_tag": "{{user `vm_name` }}",
+        "access_token": "{{user `vagrant_cloud_token`}}",
+        "version": "{{user `vm_version`}}"
       }
   	]
   ],
@@ -88,7 +88,7 @@
     "iso_checksum_type":"",
     "http_path": "install/http",
     "preseed_file": "kali-linux-rolling-preseed.cfg",
-    "scripts_dir": "./scripts",
+    "scripts_dir": "./prov_packer",
     "vagrantfile":"install/vagrantfile-kali_linux.template",
     "vm_name": "",
     "vm_version":"",
