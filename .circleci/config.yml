@@ -1,7 +1,8 @@
 version: 2
 jobs:
   build:
-    machine: true
+    docker:
+      - image: ubuntu:latest
     steps:
       - checkout
       - run: . ./prov_vagrant/circleci.sh
