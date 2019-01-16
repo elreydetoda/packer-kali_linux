@@ -11,6 +11,26 @@ kaliCurrentSHAUrl="${kaliCurrentUrl}${hashAlg}"
 curl='curl -fsSL'
 secretFileFullPath="${HOME}/src/mine/secrets/access_data"
 
+# # dependencies
+# deps_install(){
+#   case $(grep '^ID' /etc/os-release | cut -d '=' -f 2) in
+#     ubuntu)
+#       packages=("gpg" "wget" "curl" "jq")
+#       package_manager="apt"
+#   esac
+# }
+#
+# deps=("gpg" "wget" "curl" "jq")
+# for dep in "${deps[@]}" ; do
+#   if ! which ${dep} ; then
+#     echo "need to install ${dep}"
+#     deps_install
+#     break
+#   fi
+# done
+
+
+
 mkdir -p $tmpDir
 
 # kali stable iso
