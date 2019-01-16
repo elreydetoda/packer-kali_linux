@@ -4,16 +4,10 @@ set -e
 
 ## Project setup functions
 circle_ci(){
-  circle_ci_array=( "CIRCLECI=true" "MAJOR_RELEASE_VERSION=0" "MINOR_RELEASE_VERSION=0" )
   env_file='/etc/profile.d/circleci.sh'
-  for env_var in "${circle_ci_array[@]}" ; do
-    echo "export ${env_var}" >> ${env_file}
-  done
+  echo "export CIRCLECI=true" | sudo tee -a ${env_file} 1>/dev/null
 
   . ${env_file}
-  echo
-  env
-  echo
   variables_gen
 }
 

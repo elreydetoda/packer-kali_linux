@@ -21,7 +21,11 @@ create_server(){
 		os="$3"
 	fi
 	# Creating machine to build kali image in packet's vps
-	echo "Creating "
+	echo "Creating new server for a packer host."
+  packet_service_url="projects/${PACKET_PROJECT_UUID/devices"
+	curl -X GET "${packet_base_url}/${packet_service_url}" \
+		-H "X-Auth-Token: ${PACKET_API_KEY}"
+  
 }
 
 packet_get_service(){
@@ -70,6 +74,7 @@ main(){
 	if [[ $CIRCLECI ]] ; then
 		# create artifact directory
 		artifacts_dir='/tmp/artifacts'
+    PACKET_
 		create_server
 	else
 		artifacts_dir='./artifacts'

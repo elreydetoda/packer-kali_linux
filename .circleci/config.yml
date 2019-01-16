@@ -4,6 +4,8 @@ jobs:
     machine: true
     steps:
       - checkout
-      - run: ./new-kali.sh
+      - run: . ./prov_vagrant/circleci.sh
+      - run: ./prov_vagrant/new-kali.sh
       - run: ls
+      - run: cat variables.json
 
