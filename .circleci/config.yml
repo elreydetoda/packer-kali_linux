@@ -1,11 +1,9 @@
 version: 2
 jobs:
   build:
-    docker:
-      - image: ubuntu:latest
+    machine: true
     steps:
       - checkout
-      - run: . ./prov_vagrant/circleci.sh
       - run: ./scripts/new-kali.sh
       - run: ls
       - run: cat variables.json
