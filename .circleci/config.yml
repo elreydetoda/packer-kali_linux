@@ -5,6 +5,5 @@ jobs:
     steps:
       - checkout
       - run: ./scripts/new-kali.sh
-      - run: pwd
-      - run: cat variables.json
+      - run: ./ci/packer_build.sh
 
