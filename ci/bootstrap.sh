@@ -64,6 +64,7 @@ get_software(){
 dependencies(){
   case $(grep "^ID" /etc/*release | cut -d '=' -f 2 | tr '[:upper:]' '[:lower:]') in
     ubuntu | debian)
+      echo "${FUNCNAME[0]} + case"
       packages_array=( "gpgv" "curl" "wget" "jq" "unzip" )
       package_manager='apt-get'
       package_cmds_array=("update" "upgrade" "dist-upgrade")
@@ -72,6 +73,7 @@ dependencies(){
       ;;
   esac
 
+  echo hello
   # updating cache and upgrading packages that need to
   for cmd in "${package_cmds_array[@]}" ; do
     if [[ "${cmd}" == 'update' ]] ; then
@@ -87,7 +89,7 @@ dependencies(){
 
 main(){
   software_array=( "virtualbox" "packer" "vagrant" )
-
+  echo "${FUNCNAME[0]}"
   dependencies
 
   # for software in "${software_array[@]}" ; do
