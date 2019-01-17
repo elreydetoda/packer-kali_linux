@@ -127,9 +127,14 @@ run_remote(){
   user=root
   private_key_location="${HOME}/.ssh/id_rsa"
   project_folder="/opt/packer_kali"
-  ssh_args="-i ${private_key_location} ${user}@${1}"
+  if [[ -z $CI ]] ; then
+    ssh_identity_args="-i ${private_key_location}"
+  else
+    ssh_identity_args=""
+  fi
+  ssh_args="${ssh_identity_args} ${user}@${1}"
 
-  rsync -Pav -e "ssh -i ~/.ssh/id_rsa" ~/project/ ${user}@"$1":${project_folder}
+  rsync -Pav -e "ssh ${ssh_identity_args}" ~/project/ ${user}@"$1":${project_folder}
 
   ssh ${ssh_args} -t "ls ${project_folder}"
   ssh ${ssh_args} -t "${project_folder}/bootstrap.sh"
