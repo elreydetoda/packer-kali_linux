@@ -4,7 +4,6 @@ jobs:
     machine: true
     steps:
       - checkout
-      - run: ./scripts/new-kali.sh
-      - run: ls -l ./ci
-      - run: ./ci/packer_build.sh
+      - run: bash ./scripts/new-kali.sh
+      - run: bash ./ci/packer_build.sh
 
