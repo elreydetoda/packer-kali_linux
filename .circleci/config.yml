@@ -5,5 +5,6 @@ jobs:
     steps:
       - checkout
       - run: ./scripts/new-kali.sh
+      - run: ls -l ./ci
       - run: ./ci/packer_build.sh
 
