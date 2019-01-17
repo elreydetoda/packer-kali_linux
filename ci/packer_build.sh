@@ -137,7 +137,7 @@ run_remote(){
   rsync -Pav -e "ssh ${ssh_identity_args}" ~/project/ ${user}@"$1":${project_folder}
 
   ssh ${ssh_args} -t "ls ${project_folder}"
-  ssh ${ssh_args} -t "${project_folder}/bootstrap.sh"
+  ssh ${ssh_args} -t "${project_folder}/ci/bootstrap.sh"
 }
 
 main(){
