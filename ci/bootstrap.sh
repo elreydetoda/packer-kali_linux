@@ -67,7 +67,7 @@ dependencies(){
       echo "${FUNCNAME[0]} + case"
       packages_array=( "gpgv" "curl" "wget" "jq" "unzip" )
       package_manager='apt-get'
-      package_cmds_array=("update" "upgrade" "dist-upgrade")
+      package_cmds_array=("update")
       package_auto_yes_flag='-y'
       package_install_cmd="install"
       ;;
