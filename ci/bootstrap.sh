@@ -62,7 +62,7 @@ get_software(){
 }
 
 dependencies(){
-  case $(grep "^ID" /etc/*release | cut -d '=' -f 2 | tr '[:upper:]' '[:lower:]') in
+  case $(grep "^ID=" /etc/*release | cut -d '=' -f 2 | tr '[:upper:]' '[:lower:]') in
     ubuntu | debian)
       echo "${FUNCNAME[0]} + case"
       packages_array=( "gpgv" "curl" "wget" "jq" "unzip" )
