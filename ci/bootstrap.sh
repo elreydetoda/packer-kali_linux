@@ -175,6 +175,7 @@ dependencies(){
 
 
 main(){
+  env
   echo ${FUNCNAME[0]}
   software_array=( "virtualbox" "vagrant" "packer" )
   dependencies
