@@ -126,11 +126,10 @@ run_remote(){
   
   user=root
   project_folder="/opt/packer_kali"
-  ssh_args="${ssh_identity_args} -oStrictHostKeyChecking=no ${user}@${1}"
+  ssh_args="-o SendEnv=CIRCLECI -oStrictHostKeyChecking=no ${user}@${1}"
 
-  rsync -Pav -e "ssh ${ssh_identity_args}" ~/project/ ${user}@"$1":${project_folder}
+  rsync -Pav -e "ssh " ~/project/ ${user}@"$1":${project_folder}
 
-  ssh ${ssh_args} -t "ls ${project_folder}"
   ssh ${ssh_args} -t "bash ${project_folder}/ci/bootstrap.sh"
 }
 

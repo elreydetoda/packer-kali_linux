@@ -173,6 +173,7 @@ dependencies(){
   sudo ${package_manager} ${package_install_cmd} ${package_auto_yes_flag} "${packages_array[@]}"
 }
 
+
 main(){
   echo ${FUNCNAME[0]}
   software_array=( "virtualbox" "vagrant" "packer" )
@@ -182,6 +183,7 @@ main(){
     get_software ${software}
     setup_software ${software}
   done
+  setup_packer_config
   echo done
 }
 
