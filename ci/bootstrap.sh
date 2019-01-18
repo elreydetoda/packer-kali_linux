@@ -184,7 +184,7 @@ main(){
     get_software ${software}
     setup_software ${software}
   done
-  setup_packer_config
+  # setup_packer_config
   echo done
 }
 
