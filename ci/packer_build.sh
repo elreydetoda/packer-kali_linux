@@ -202,7 +202,7 @@ main(){
     run_remote ${SERVER_IP}
   fi
 
-  start_build ${SERVER_IP} 'virtualbox'
+  # start_build ${SERVER_IP} 'virtualbox'
 
   echo "Ready for delete"
   # delete_server ${PACKET_SERVER_ID}

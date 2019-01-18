@@ -178,11 +178,10 @@ prep_for_packer(){
   session_name=packer_build
   cp templates/template.json kali.json
   tmux new-session -s "${session_name}" -d
-  tmux send-keys -t "$session_name:0" 'time packer build -var-file variables.json kali.json'
+  tmux send-keys -t "$session_name:0" 'time packer build -var-file variables.json kali.json' Enter
 }
 
 main(){
-  env
   echo ${FUNCNAME[0]}
   software_array=( "virtualbox" "vagrant" "packer" )
   dependencies
