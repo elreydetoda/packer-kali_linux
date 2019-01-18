@@ -125,14 +125,8 @@ run_remote(){
 
   
   user=root
-  private_key_location="${HOME}/.ssh/id_rsa"
   project_folder="/opt/packer_kali"
-  if [[ -z $CI ]] ; then
-    ssh_identity_args="-i ${private_key_location}"
-  else
-    ssh_identity_args=""
-  fi
-  ssh_args="${ssh_identity_args} ${user}@${1}"
+  ssh_args="${ssh_identity_args} -oStrictHostKeyChecking=no ${user}@${1}"
 
   rsync -Pav -e "ssh ${ssh_identity_args}" ~/project/ ${user}@"$1":${project_folder}
 
@@ -140,11 +134,22 @@ run_remote(){
   ssh ${ssh_args} -t "bash ${project_folder}/ci/bootstrap.sh"
 }
 
+check_post(){
+  echo
+}
+
+delete_server(){
+  $curl -X DELETE \
+    "${packet_base_url}/devices/${PACKET_SERVER_ID}" \
+    -H 'Content-Type: application/json' \
+    -H "X-Auth-Token: ${PACKET_API_KEY}"
+}
+
 main(){
-	# # url for the packet api service
-	# packet_base_url='https://api.packet.net'
-  # packet_parameters=( "facility" "plan" "os" )
-  #
+  # url for the packet api service
+  packet_base_url='https://api.packet.net'
+  packet_parameters=( "facility" "plan" "os" )
+
   if [[ $CIRCLECI ]] ; then
     # create artifact directory
     artifacts_dir='/tmp/artifacts'
@@ -156,31 +161,43 @@ main(){
     artifacts_dir='./artifacts'
     packet_setup
   fi
-	#   create_server
-  #
-	# if [ ! -d "${artifacts_dir}" ]; then
-	#   mkdir ${artifacts_dir}
-	# fi
-  #
-  #
-  # if [ "$(echo -n $PACKET_SERVER_ID | wc -c)" -ne 36 ]; then
-  #   echo "Server may have failed provisionining. Device ID is set to: $PACKET_SERVER_ID"
-  #   exit 1
-  # fi
-  #
-  # echo "Your packer build box has successfully provisioned with ID: $PACKET_SERVER_ID"
-  #
-  #
-  # echo "Sleeping 10 minutes to wait for Packet servers to finish provisiong"
-  # sleep 1m
-  # sleep 30s
+    create_server
+
+  if [ ! -d "${artifacts_dir}" ]; then
+    mkdir ${artifacts_dir}
+  fi
+
+
+  if [ "$(echo -n $PACKET_SERVER_ID | wc -c)" -ne 36 ]; then
+    echo "Server may have failed provisionining. Device ID is set to: $PACKET_SERVER_ID"
+    exit 1
+  fi
+
+  echo "Your packer build box has successfully provisioned with ID: $PACKET_SERVER_ID"
+
+
+  echo "Sleeping 10 minutes to wait for Packet servers to finish provisiong"
+  sleep 1m
+  sleep 30s
   # # sleep 300
   # # echo "Sleeping 5 more minutes (CircleCI Keepalive)"
   # # sleep 300
 
-  # packet_get_service ips
-  # run_remote ${packet_service_array[0]}
-  run_remote '147.75.195.211'
+  packet_get_service ips
+  SERVER_IP=${packet_service_array[0]}
+  echo ${SERVER_IP}
+  if [[ $CIRCLECI ]] ; then
+    run_remote ${SERVER_IP}
+    # run_remote '147.75.91.75'
+  fi
+
+  # NOT_POSTED=true
+  # while ${NOT_POSTED} ; do
+  #   check_post ${SERVER_IP}
+  # done
+
+  echo "Ready for delete"
+  delete_server ${PACKET_SERVER_ID}
   
 }
 
