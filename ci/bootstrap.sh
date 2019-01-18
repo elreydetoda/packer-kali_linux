@@ -173,6 +173,13 @@ dependencies(){
   sudo ${package_manager} ${package_install_cmd} ${package_auto_yes_flag} "${packages_array[@]}"
 }
 
+prep_for_packer(){
+  pushd /opt/packer_kali
+  session_name=packer_build
+  cp templates/template.json kali.json
+  tmux new-session -s "${session_name}" -d
+  tmux send-keys -t "$session_name:0" 'time packer build -var-file variables.json kali.json'
+}
 
 main(){
   env
@@ -184,7 +191,7 @@ main(){
     get_software ${software}
     setup_software ${software}
   done
-  # setup_packer_config
+  prep_for_packer
   echo done
 }
 

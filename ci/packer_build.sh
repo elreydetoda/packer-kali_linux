@@ -123,14 +123,19 @@ run_remote(){
     exit 1
   fi
 
-  
   user=root
   project_folder="/opt/packer_kali"
   ssh_args="-oStrictHostKeyChecking=no ${user}@${1}"
 
-  rsync -Pav -e "ssh " ~/project/ ${user}@"$1":${project_folder}
+  if [[ $# -eq 1 ]] ; then
+  
 
-  ssh ${ssh_args} -t "CIRCLECI=true bash ${project_folder}/ci/bootstrap.sh"
+    rsync -Pav -e "ssh " ~/project/ ${user}@"$1":${project_folder}
+
+    ssh ${ssh_args} -t "CIRCLECI=true bash ${project_folder}/ci/bootstrap.sh"
+  else
+    ssh ${ssh_args} -t "CIRCLECI=true bash ${project_folder}/build.sh ${2}"
+  fi
 }
 
 check_post(){
@@ -142,6 +147,15 @@ delete_server(){
     "${packet_base_url}/devices/${PACKET_SERVER_ID}" \
     -H 'Content-Type: application/json' \
     -H "X-Auth-Token: ${PACKET_API_KEY}"
+}
+
+start_build(){
+  # case $2 in
+  #   virtualbox)
+  #
+  #     ;;
+  # esac
+  run_remote $1 $2
 }
 
 main(){
@@ -186,16 +200,12 @@ main(){
   echo ${SERVER_IP}
   if [[ $CIRCLECI ]] ; then
     run_remote ${SERVER_IP}
-    # run_remote '147.75.91.75'
   fi
 
-  # NOT_POSTED=true
-  # while ${NOT_POSTED} ; do
-  #   check_post ${SERVER_IP}
-  # done
+  start_build ${SERVER_IP} 'virtualbox'
 
   echo "Ready for delete"
-  delete_server ${PACKET_SERVER_ID}
+  # delete_server ${PACKET_SERVER_ID}
   
 }
 
