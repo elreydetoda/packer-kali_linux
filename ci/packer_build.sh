@@ -177,8 +177,7 @@ main(){
 
 
   echo "Sleeping 10 minutes to wait for Packet servers to finish provisiong"
-  sleep 1m
-  sleep 30s
+  sleep 2m
   # # sleep 300
   # # echo "Sleeping 5 more minutes (CircleCI Keepalive)"
   # # sleep 300
