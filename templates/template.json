@@ -17,7 +17,7 @@
       "post_shutdown_delay": "{{ user `post_shutdown_time` }}",
       "vm_name": "packerAutoKali",
       "virtualbox_version_file": ".vbox_version",
-      "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
+      "guest_additions_mode": "disable",
       "vboxmanage": [
         [
           "modifyvm",
