@@ -178,7 +178,7 @@ prep_for_packer(){
   session_name=packer_build
   cp templates/template.json kali.json
   tmux new-session -s "${session_name}" -d
-  tmux send-keys -t "$session_name:0" 'export PACKER_LOG=1; time packer build -var-file variables.json kali.json | tee packer.log' Enter
+  tmux send-keys -t "$session_name:0" 'export PACKER_LOG=1; time packer build -var-file variables.json kali.json &> packer.log' Enter
 }
 
 main(){
