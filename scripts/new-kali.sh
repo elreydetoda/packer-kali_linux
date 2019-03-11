@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 
+set -e
+
 hashiName=''
 tmpDir='./tmp'
 kaliKeyUrl='https://www.kali.org/archive-key.asc'
 hashAlg='SHA256SUMS'
 kaliBaseUrl='https://cdimage.kali.org/'
 # current
+kaliCurrentYear="$(date +%Y)"
 kaliCurrentUrl="${kaliBaseUrl}current/"
 kaliCurrentSHAUrl="${kaliCurrentUrl}${hashAlg}"
 curl='curl -fsSL'
@@ -43,13 +46,15 @@ kaliKey=$($curl $kaliKeyUrl  | gpg --import 2>&1 | grep key | cut -d ' ' -f 3 | 
 gpg --verify ${tmpDir}/${hashAlg}.gpg ${tmpDir}/$hashAlg
 
 # current
-currentKaliISO=$(curl -s $kaliCurrentUrl | grep -E 'linux-2018.*amd64' | grep -oE 'href.*' | cut -d '"' -f 2)
+currentKaliISO=$(curl -s $kaliCurrentUrl | grep -E "linux-${kaliCurrentYear}.*amd64" | grep -oE 'href.*' | cut -d '"' -f 2)
 
+echo $currentKaliISO
 currentHashAlg=$(grep $currentKaliISO ${tmpDir}/$hashAlg | cut -d ' ' -f 1)
 
 currentKali=$(curl -s $kaliBaseUrl | grep 'kali-' | grep -oE 'href.*' | cut -d '"' -f 2 | cut -d '/' -f 1 | grep -v 'kali-weekly' | tail -n 1 | cut -d '-' -f 2- )
 
 namez="kali-linux_amd64"
+
 
 if [[ -f $secretFileFullPath ]] ; then
 	hashiName=$(grep vagrant_cloud $secretFileFullPath | cut -d ':' -f 2)
