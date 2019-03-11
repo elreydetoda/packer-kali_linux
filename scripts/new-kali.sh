@@ -48,7 +48,6 @@ gpg --verify ${tmpDir}/${hashAlg}.gpg ${tmpDir}/$hashAlg
 # current
 currentKaliISO=$(curl -s $kaliCurrentUrl | grep -E "linux-${kaliCurrentYear}.*amd64" | grep -oE 'href.*' | cut -d '"' -f 2)
 
-echo $currentKaliISO
 currentHashAlg=$(grep $currentKaliISO ${tmpDir}/$hashAlg | cut -d ' ' -f 1)
 
 currentKali=$(curl -s $kaliBaseUrl | grep 'kali-' | grep -oE 'href.*' | cut -d '"' -f 2 | cut -d '/' -f 1 | grep -v 'kali-weekly' | tail -n 1 | cut -d '-' -f 2- )
