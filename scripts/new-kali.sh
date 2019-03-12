@@ -73,9 +73,7 @@ fi
 if [[ ! -z $hashiName ]]; then
 	namez="${hashiName}/${namez}"
 	vagrantBoxUrl="https://app.vagrantup.com/$namez"
-	getVersion=$(curl -sSL $vagrantBoxUrl | grep 'false')
-	getVersionStatus=$?
-	if [[ $getVersionStatus  -eq 0 ]] ; then
+	if curl -sSL $vagrantBoxUrl | grep 'false' 1> /dev/null ; then
 		vm_version='0.0.1'
 	else
 		currentVersion=$($curl $vagrantBoxUrl | jq '{versions}[][0]["version"]' | cut -d '"' -f 2)
