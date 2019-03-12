@@ -43,6 +43,10 @@ $curl "${kaliCurrentSHAUrl}.gpg" -o "${tmpDir}/${hashAlg}.gpg"
 kaliKey=$($curl $kaliKeyUrl  | gpg --import 2>&1 | grep key | cut -d ' ' -f 3 | cut -d ':' -f 1 )
 
 #gpg --fingerprint $kaliKey
+echo "gpg key"
+cat ${tmpDir}/${hashAlg}.gpg
+echo "hashes"
+cat ${tmpDir}/$hashAlg
 gpg --verify ${tmpDir}/${hashAlg}.gpg ${tmpDir}/$hashAlg
 
 # current
@@ -87,6 +91,10 @@ currentKaliISOUrl="${kaliCurrentUrl}${currentKaliISO}"
 hashAlgOut=$(echo $hashAlg | rev | cut -d 'S' -f 3- | rev | tr '[:upper:]' '[:lower:]')
 
 if [[ $CIRCLECI ]] ; then
+  echo "current iso url: $currentKaliISOUrl"
+  echo "current iso $hashAlgOut"
+  echo "current iso checksum: $currentHashAlg"
+  echo "current version: $vm_version"
 	printf '{"iso_url":"%s","iso_checksum_type":"%s","iso_checksum":"%s","vm_name":"%s","vm_version":"%s","vagrant_cloud_token":"%s","headless":"true"}\n' "$currentKaliISOUrl" "$hashAlgOut" "$currentHashAlg" "$namez" "$vm_version" "$vagrant_cloud_token" | jq . > variables.json
 else
 	printf '{"iso_url":"%s","iso_checksum_type":"%s","iso_checksum":"%s","vm_name":"%s","vm_version":"%s","vagrant_cloud_token":"%s"}\n' "$currentKaliISOUrl" "$hashAlgOut" "$currentHashAlg" "$namez" "$vm_version" "$vagrant_cloud_token" | jq . | tee variables.json
