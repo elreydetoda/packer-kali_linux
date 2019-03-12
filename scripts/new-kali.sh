@@ -37,6 +37,7 @@ secretFileFullPath="${HOME}/src/mine/secrets/access_data"
 mkdir -p $tmpDir
 
 # kali stable iso
+echo curl url: $(curl -sS $kaliCurrentSHAUrl -o - | grep -oP 'href=".*"' | tr -d '"' | cut -d '=' -f 2)
 $curl $kaliCurrentSHAUrl -o ${tmpDir}/$hashAlg
 $curl "${kaliCurrentSHAUrl}.gpg" -o "${tmpDir}/${hashAlg}.gpg"
 
