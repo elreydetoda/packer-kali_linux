@@ -44,10 +44,6 @@ $curl "${kaliCurrentSHAUrl}.gpg" -o "${tmpDir}/${hashAlg}.gpg"
 kaliKey=$($curl $kaliKeyUrl  | gpg --import 2>&1 | grep key | cut -d ' ' -f 3 | cut -d ':' -f 1 )
 
 gpg --fingerprint $kaliKey
-echo "gpg key"
-cat ${tmpDir}/${hashAlg}.gpg
-echo "hashes"
-cat ${tmpDir}/$hashAlg
 echo "verifying shasums "
 gpg --verify ${tmpDir}/${hashAlg}.gpg ${tmpDir}/$hashAlg
 
@@ -56,6 +52,7 @@ echo "getting current kali iso url"
 currentKaliISO=$(curl -s $kaliCurrentUrl | grep -E "linux-${kaliCurrentYear}.*amd64" | grep -oE 'href.*' | cut -d '"' -f 2)
 
 currentHashAlg=$(grep $currentKaliISO ${tmpDir}/$hashAlg | cut -d ' ' -f 1)
+
 
 currentKali=$(curl -s $kaliBaseUrl | grep 'kali-' | grep -oE 'href.*' | cut -d '"' -f 2 | cut -d '/' -f 1 | grep -v 'kali-weekly' | tail -n 1 | cut -d '-' -f 2- )
 
