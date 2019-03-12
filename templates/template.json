@@ -71,7 +71,7 @@
   	  {
   	    "type": "vagrant",
   	    "output": "red-{{.Provider}}.box",
-        "compression":9,
+        "compression_level":9,
   	    "vagrantfile_template": "{{ user `vagrantfile` }}"
   	  },
       {
