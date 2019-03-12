@@ -10,14 +10,14 @@
       "ssh_username": "root",
       "ssh_password": "toor",
       "ssh_wait_timeout": "30m",
-      "headless": "",
+      "headless": "{{user `headless` }}",
       "disk_size":"40960",
       "http_directory": "{{user `http_path` }}",
       "shutdown_command": "echo 'packer' | sudo -S /sbin/shutdown -hP now",
       "post_shutdown_delay": "{{ user `post_shutdown_time` }}",
       "vm_name": "packerAutoKali",
       "virtualbox_version_file": ".vbox_version",
-      "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
+      "guest_additions_mode": "disable",
       "vboxmanage": [
         [
           "modifyvm",
@@ -70,15 +70,16 @@
   "post-processors": [
   	[
   	  {
-  	      "type": "vagrant",
-  	      "output": "red-{{.Provider}}.box",
-  	      "vagrantfile_template": "{{ user `vagrantfile` }}"
+  	    "type": "vagrant",
+  	    "output": "red-{{.Provider}}.box",
+        "compression_level":9,
+  	    "vagrantfile_template": "{{ user `vagrantfile` }}"
   	  },
       {
-          "type": "vagrant-cloud",
-          "box_tag": "{{user `vm_name` }}",
-          "access_token": "{{user `vagrant_cloud_token`}}",
-          "version": "{{user `vm_version`}}"
+        "type": "vagrant-cloud",
+        "box_tag": "{{user `vm_name` }}",
+        "access_token": "{{user `vagrant_cloud_token`}}",
+        "version": "{{user `vm_version`}}"
       }
   	]
   ],
@@ -89,10 +90,11 @@
     "iso_checksum_type":"",
     "http_path": "install/http",
     "preseed_file": "kali-linux-rolling-preseed.cfg",
-    "scripts_dir": "./scripts",
+    "scripts_dir": "./prov_packer",
     "vagrantfile":"install/vagrantfile-kali_linux.template",
     "vm_name": "",
     "vm_version":"",
+    "headless":"",
     "vagrant_cloud_token":"",
     "post_shutdown_time": "2m",
     "cpus":"1",
