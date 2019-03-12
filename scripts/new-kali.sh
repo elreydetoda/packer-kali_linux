@@ -43,7 +43,7 @@ $curl "${kaliCurrentSHAUrl}.gpg" -o "${tmpDir}/${hashAlg}.gpg"
 
 kaliKey=$($curl $kaliKeyUrl  | gpg --import 2>&1 | grep key | cut -d ' ' -f 3 | cut -d ':' -f 1 )
 
-#gpg --fingerprint $kaliKey
+gpg --fingerprint $kaliKey
 echo "gpg key"
 cat ${tmpDir}/${hashAlg}.gpg
 echo "hashes"
