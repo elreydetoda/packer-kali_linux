@@ -48,9 +48,11 @@ echo "gpg key"
 cat ${tmpDir}/${hashAlg}.gpg
 echo "hashes"
 cat ${tmpDir}/$hashAlg
+echo "verifying shasums "
 gpg --verify ${tmpDir}/${hashAlg}.gpg ${tmpDir}/$hashAlg
 
 # current
+echo "getting current kali iso url"
 currentKaliISO=$(curl -s $kaliCurrentUrl | grep -E "linux-${kaliCurrentYear}.*amd64" | grep -oE 'href.*' | cut -d '"' -f 2)
 
 currentHashAlg=$(grep $currentKaliISO ${tmpDir}/$hashAlg | cut -d ' ' -f 1)
