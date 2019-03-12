@@ -15,7 +15,7 @@ circle_ci(){
   . ${env_file}
   variables_gen
 
-  cp /vagrant/variables.json ${HOME}/project
+  cp ${HOME}/project/variables.json /vagrant
   get_secret
 }
 
