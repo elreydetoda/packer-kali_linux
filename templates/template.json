@@ -40,7 +40,7 @@
         "hostname={{ .Name }} ",
         "auto=true ",
         "interface=auto ",
-        "domain='' ",
+        "domain=vm",
         "initrd=/install/initrd.gz -- <enter>"
       ]
     }
