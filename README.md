@@ -14,7 +14,7 @@
 - pass: toor
 
 #### Installed software
-listed in the scripts directory: [here](https://github.com/elreydetoda/packer-kali_linux/tree/master/scripts)
+listed in the scripts directory: [here](https://github.com/elreydetoda/packer-kali_linux/tree/master/prov_packer)
 
 ### what this repo will be for
 So you can vagrant box update to get the new box that is created from this each month by a cron job on my server. This will allow for a fresh new image of Kali with the most up to date tools through the ease of vagrant and however you want to provision my kali box.
