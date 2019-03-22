@@ -23,4 +23,4 @@ fi
 ## personal touches
 # removing root password login
 PERMIT_ROOT="PermitRootLogin without-password"
-sed "s/PermitRootLogin.*/${PERMIT_ROOT}/" "$SSHD_CONFIG"
+sed "s/^PermitRootLogin.*/${PERMIT_ROOT}/" "$SSHD_CONFIG"
