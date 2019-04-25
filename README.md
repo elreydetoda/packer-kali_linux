@@ -2,7 +2,7 @@
 
 ## Presentation
 
-* Slideshow - https://slides.com/elrey741/2018-self
+* Slideshow - https://slides.com/elrey741/redops
 * Video
   * (coming soon)[SELF (Southeast Linuxfest)](https://www.youtube.com/user/southeastlinuxfest/playlists)
   * [bsides chs](http://youtu.be/9EnDotVmcl8)
