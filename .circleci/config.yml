@@ -6,4 +6,5 @@ jobs:
       - checkout
       - run: bash ./scripts/new-kali.sh
       - run: bash ./ci/packer_build.sh
-
+      - store_artifacts:
+          path: /tmp/artifacts
