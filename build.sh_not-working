@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+# for i in $(grep run .circleci/config.yml | rev | awk '{print $1}' | rev) ; do bash $i ; done
