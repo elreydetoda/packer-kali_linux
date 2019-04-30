@@ -9,6 +9,13 @@ jobs:
       - store_artifacts:
           path: /tmp/artifacts
 workflows:
+  workflow:
+    jobs:
+      - hold:
+          type: approval
+      - build:
+          requires:
+            - hold
   version: 2
   weekly-build:
     jobs:
