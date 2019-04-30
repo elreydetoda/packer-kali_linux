@@ -15,9 +15,9 @@ workflows:
       - build
     triggers:
       - schedule:
-        cron: "0 0 * * 0"
-        filters:
-          branches:
-            only:
-              # keep updated every week
-              - master
+          cron: "0 0 * * 0"
+          filters:
+            branches:
+              only:
+                # keep updated every week
+                - master
