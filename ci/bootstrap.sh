@@ -152,7 +152,7 @@ dependencies(){
   echo ${FUNCNAME[0]}
   case $(grep "^ID=" /etc/*release | cut -d '=' -f 2 | tr '[:upper:]' '[:lower:]') in
     ubuntu | debian)
-      packages_array=( "gpgv" "curl" "jq" "unzip" "linux-headers-$(uname -r)" "gcc" "make" "perl" )
+      packages_array=( "gpgv" "curl" "jq" "unzip" "linux-headers-$(uname -r)" "gcc" "make" "perl" "ufw" )
       package_manager='DEBIAN_FRONTEND=noninteractive apt-get'
       package_cmds_array=("update")
       package_auto_yes_flag='-y'
@@ -173,12 +173,20 @@ dependencies(){
   sudo ${package_manager} ${package_install_cmd} ${package_auto_yes_flag} "${packages_array[@]}"
 }
 
+ufw_setup(){
+  echo "Setting firewall rules to only allow ssh, because sekurity :D"
+  ufw allow ssh
+  ufw default allow outgoing
+  ufw --force enable
+}
+
 prep_for_packer(){
   pushd /opt/packer_kali
+  echo 'building' | tee /opt/packer_kali/status.txt
   session_name=packer_build
   cp templates/template.json kali.json
   tmux new-session -s "${session_name}" -d
-  tmux send-keys -t "$session_name:0" 'export PACKER_LOG=1; time packer build -var-file variables.json kali.json &> packer.log' Enter
+  tmux send-keys -t "$session_name:0" 'time packer build -var-file variables.json kali.json &> packer.log && echo "success" > status.txt || echo "failed" > status.txt' Enter
 }
 
 main(){
@@ -190,6 +198,7 @@ main(){
     get_software ${software}
     setup_software ${software}
   done
+  ufw_setup
   prep_for_packer
   echo done
 }

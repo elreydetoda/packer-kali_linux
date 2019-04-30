@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
+set -euo pipefail
 
 curl="curl -sSL"
 
@@ -72,7 +72,9 @@ packet_get_service(){
 			;;
 
     ips)
-			packet_service_url="devices/$PACKET_SERVER_ID/ips"
+      # for some reason this is returning null....
+			# packet_service_url="devices/$PACKET_SERVER_ID/ips"
+			packet_service_url="devices/$PACKET_SERVER_ID"
       packet_service_headers="IP Address"
 			packet_post_jq_pattern='.ip_addresses[0].address'
       ;;
@@ -117,25 +119,118 @@ packet_setup(){
   done
 }
 
+retrieve(){
+  if ssh "${2}" -t "[ -f "${1}" ]" ; then
+    scp "${2}":"${1}" ${ARTIFACTS_DIR}
+  else
+    printf "Couldn't find: %s\n" "${1}"
+    delete_server
+    exit 1
+  fi
+}
+
+send_text(){
+  if [[ -z "${PERSONAL_NUM}" ]] ; then
+    echo "Number wasn't set, so no text for you..."
+  else
+    curl -X POST https://textbelt.com/text \
+      --data-urlencode phone="${PERSONAL_NUM}" \
+      --data-urlencode message="${1}" \
+      -d key="${TEXTBELT_KEY}"
+  fi
+}
+
+wait_to_finish(){
+  minutes_passed=0
+  project_folder="${1}"
+  ssh_args="${2}"
+  status_file="${project_folder}/status.txt"
+  # TODO: check if glob works for scp
+  logs="${project_folder}/packer.log"
+  too_much_time=120
+
+  if [[ $# -eq 3 ]] ; then
+    while [[ ${minutes_passed} -lt ${too_much_time} ]] ; do
+
+      statuz=$(ssh "${ssh_args}" -t cat ${status_file}  )
+      statuz=$(echo $statuz | tr -d '\r')
+
+
+      if [[ "${statuz}" == "building" ]] ; then
+        echo "$statuz"
+        retrieve "${logs}" "${ssh_args}"
+        sleep 5m
+        (( minutes_passed += 5 ))
+      else
+        break
+      fi
+
+    done
+
+    if [[ ${minutes_passed} -ge ${too_much_time} ]] ; then
+      msg="It took too long...so it failed...specifically: ${minutes_passed}"
+      echo "$msg"
+      send_text "${msg}"
+      delete_server
+      exit 1
+    fi
+
+    # getting artifacts
+    echo "status was: $statuz"
+    if [[ "${statuz}" == 'success' ]] ; then
+      msg='Build succeeded!'
+      echo "${msg}"
+      send_text "${msg}"
+      delete_server
+      exit 0
+    else
+      msg='Build failed, getting logs..."'
+      echo "${msg}"
+      retrieve "${logs}" "${ssh_args}"
+      send_text "${msg}"
+      delete_server
+      exit 1
+    fi
+
+  fi
+
+}
+
+add_ecdsa(){
+  echo "adding ecdsa key for host: ${1}"
+  ssh-keyscan $1 | tee -a ~/.ssh/known_hosts
+}
+
 run_remote(){
   if [[ -z $1 ]] ; then
     echo 'The ip address was not retrieved, please try again and delete the, possibly, old server.'
+    delete_server
     exit 1
   fi
 
   user=root
   project_folder="/opt/packer_kali"
-  ssh_args="-oStrictHostKeyChecking=no ${user}@${1}"
+  ssh_args="-oStrictHostKeyChecking=no"
+
+  add_ecdsa $1
 
   if [[ $# -eq 1 ]] ; then
   
 
     rsync -Pav -e "ssh " ~/project/ ${user}@"$1":${project_folder}
 
-    ssh ${ssh_args} -t "CIRCLECI=true bash ${project_folder}/ci/bootstrap.sh"
+    msg='starting build'
+    echo "${msg}"
+    send_text "${msg}"
+    ssh ${user}@${1} -t "CIRCLECI=true bash ${project_folder}/ci/bootstrap.sh"
   else
-    ssh ${ssh_args} -t "CIRCLECI=true bash ${project_folder}/build.sh ${2}"
+    ssh ${user}@${1} -t "CIRCLECI=true bash ${project_folder}/build.sh ${2}"
   fi
+  # waiting 5 minutes before continuing
+  sleep 5m
+
+  # closing function to see the status of the job
+  wait_to_finish "${project_folder}" "${user}@${1}" ${@}
 }
 
 check_post(){
@@ -143,6 +238,7 @@ check_post(){
 }
 
 delete_server(){
+  echo "Deleting server: ${PACKET_SERVER_ID}"
   $curl -X DELETE \
     "${packet_base_url}/devices/${PACKET_SERVER_ID}" \
     -H 'Content-Type: application/json' \
@@ -162,23 +258,28 @@ main(){
   # url for the packet api service
   packet_base_url='https://api.packet.net'
   packet_parameters=( "facility" "plan" "os" )
+  set +u
+  if [[ -z $PERSONAL_NUM ]] ; then
+    PERSONAL_NUM=''
+  fi
+  set -u
 
   if [[ $CIRCLECI ]] ; then
     # create artifact directory
-    artifacts_dir='/tmp/artifacts'
+    ARTIFACTS_DIR='/tmp/artifacts'
     tmp_folder='../'
     project_folder='project'
   else
     tmp_folder='./'
     project_folder='/vagrant'
-    artifacts_dir='./artifacts'
+    ARTIFACTS_DIR='./artifacts'
     packet_setup
   fi
-    create_server
+  export ARTIFACTS_DIR PERSONAL_NUM
 
-  if [ ! -d "${artifacts_dir}" ]; then
-    mkdir ${artifacts_dir}
-  fi
+  create_server
+
+  mkdir -p ${ARTIFACTS_DIR}
 
 
   if [ "$(echo -n $PACKET_SERVER_ID | wc -c)" -ne 36 ]; then

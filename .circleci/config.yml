@@ -6,4 +6,18 @@ jobs:
       - checkout
       - run: bash ./scripts/new-kali.sh
       - run: bash ./ci/packer_build.sh
-
+      - store_artifacts:
+          path: /tmp/artifacts
+workflows:
+  version: 2
+  weekly-build:
+    jobs:
+      - build
+    triggers:
+      - schedule:
+        cron: "0 0 * * 0"
+        filters:
+          branches:
+            only:
+              # keep updated every week
+              - master
