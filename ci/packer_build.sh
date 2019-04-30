@@ -290,11 +290,12 @@ main(){
   echo "Your packer build box has successfully provisioned with ID: $PACKET_SERVER_ID"
 
 
-  echo "Sleeping 10 minutes to wait for Packet servers to finish provisiong"
-  sleep 10m
-  # # sleep 300
-  # # echo "Sleeping 5 more minutes (CircleCI Keepalive)"
-  # # sleep 300
+  # have to do 8 minutes, there is a hard constraint of 10 minutes by circleci
+  # that if there is no output it will stop the build.
+  echo "Sleeping 5 minutes to wait for Packet servers to finish provisiong"
+  sleep 5m
+  echo "Sleeping 5 more minutes (CircleCI Keepalive)"
+  sleep 5m
 
   packet_get_service ips
   SERVER_IP=${packet_service_array[0]}
