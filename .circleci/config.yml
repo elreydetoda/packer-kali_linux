@@ -19,5 +19,4 @@ workflows:
           filters:
             branches:
               only:
-                # keep updated every week
                 - master
