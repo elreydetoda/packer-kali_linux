@@ -1,11 +1,18 @@
 # Automated Kali Hashcorp Box
 
+[![CircleCI](https://circleci.com/gh/elreydetoda/packer-kali_linux.svg?style=svg)](https://circleci.com/gh/elreydetoda/packer-kali_linux)
+
 ## Presentation
 
 * Slideshow - https://slides.com/elrey741/redops
 * Video
   * (coming soon)[SELF (Southeast Linuxfest)](https://www.youtube.com/user/southeastlinuxfest/playlists)
   * [bsides chs](http://youtu.be/9EnDotVmcl8)
+* Blog posts
+  * Part 1: https://blog.secureideas.com/2018/09/automating-red-team-homelabs-part-1-kali-automation.html
+    * This blog post is a high level overview as to what I want to use this repo for
+  * Part 2: https://blog.secureideas.com/2019/05/automating-red-team-homelabs-part-2-build-pentest-destroy-and-repeat.html
+    * This blog post is a deep dive into using packer and how I automated this github repo.
 
 
 ## Overview
