@@ -1,6 +1,7 @@
 # Automated Kali Hashcorp Box
 
 [![CircleCI](https://circleci.com/gh/elreydetoda/packer-kali_linux.svg?style=svg)](https://circleci.com/gh/elreydetoda/packer-kali_linux)
+[![CodeFactor](https://www.codefactor.io/repository/github/elreydetoda/packer-kali_linux/badge)](https://www.codefactor.io/repository/github/elreydetoda/packer-kali_linux)
 
 ## Presentation
 
