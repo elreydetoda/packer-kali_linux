@@ -5,7 +5,7 @@ apt-get -y autoremove;
 apt-get -y clean;
 
 # delete any logs that have built up during the install
-find /var/log/ -name *.log -exec rm -f {} \;
+find /var/log/ -name "*.log" -exec rm -f {} \;
 
 # Whiteout root
 count=$(df --sync -kP / | tail -n1  | awk -F ' ' '{print $4}')
@@ -20,7 +20,7 @@ dd if=/dev/zero of=/boot/whitespace bs=1M count=$count || echo "dd exit code $? 
 rm /boot/whitespace
 
 set +e
-swapuuid="`/sbin/blkid -o value -l -s UUID -t TYPE=swap`";
+swapuuid="$(/sbin/blkid -o value -l -s UUID -t TYPE=swap)";
 case "$?" in
     2|0) ;;
     *) exit 1 ;;
@@ -30,7 +30,7 @@ set -e
 if [ "x${swapuuid}" != "x" ]; then
     # Whiteout the swap partition to reduce box size
     # Swap is disabled till reboot
-    swappart="`readlink -f /dev/disk/by-uuid/$swapuuid`";
+    swappart="$(readlink -f /dev/disk/by-uuid/$swapuuid)";
     /sbin/swapoff "$swappart";
     dd if=/dev/zero of="$swappart" bs=1M || echo "dd exit code $? is suppressed";
     /sbin/mkswap -U "$swapuuid" "$swappart";

@@ -37,7 +37,7 @@ create_server(){
 }
 
 choose_packet_options(){
-  read packet_choice
+  read -r packet_choice
   eval "${1}=\"${packet_service_array[$packet_choice]}\""
   export $1
 }
@@ -107,9 +107,9 @@ packet_get_service(){
 packet_setup(){
 
 	echo "What is your packet api key?"
-	read PACKET_API_KEY
+	read -r PACKET_API_KEY
 	echo "What is your project uuid?"
-	read PACKET_PROJECT_UUID
+	read -r PACKET_PROJECT_UUID
 
   for param in "${packet_parameters[@]}" ; do
     echo
@@ -120,7 +120,7 @@ packet_setup(){
 }
 
 retrieve(){
-  if ssh "${2}" -t "[ -f "${1}" ]" ; then
+  if ssh "${2}" -t "[ -f \"${1}\" ]" ; then
     scp "${2}":"${1}" ${ARTIFACTS_DIR}
   else
     printf "Couldn't find: %s\n" "${1}"

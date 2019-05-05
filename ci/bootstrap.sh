@@ -31,7 +31,7 @@ get_version(){
   if [[ ! $CIRCLECI ]] ; then
 
     echo "Please choose a version (default = ${version_array[1]})"
-    read SOFTWARE_VERSION
+    read -r SOFTWARE_VERSION
 
     if [[ -z $SOFTWARE_VERSION ]] ; then
       SOFTWARE_VERSION=${version_array[1]}
@@ -200,7 +200,7 @@ main(){
   done
   ufw_setup
   prep_for_packer
-  echo done
+  echo 'done'
 }
 
 main

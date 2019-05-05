@@ -77,7 +77,7 @@ if [[ ! -z $hashiName ]]; then
 			vm_version="${MAJOR_RELEASE_VERSION}.${MINOR_RELEASE_VERSION}.${patch_release_version}"
 		else
 			echo -e "The current version is $currentVersion, what version would you like?\nPlease keep similar formatting as the current example."
-			read vm_version
+			read -r vm_version
 		fi
 	fi
 fi
