@@ -28,7 +28,7 @@ EOF
 # fix for old problem of not having the right repos
 # echo 'deb http://http.kali.org/kali kali-rolling main contrib non-free' > /etc/apt/sources.list
 # echo 'deb-src http://http.kali.org/kali kali-rolling main contrib non-free' >> /etc/apt/sources.list
-apt-get update | tee -a $logz
+apt-get update --fix-missing | tee -a $logz
 DEBIAN_FRONTEND=noninteractive apt-get upgrade -y -o Dpkg::Options::='--force-confnew'| tee -a $logz
 DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade -y -o Dpkg::Options::='--force-confnew'| tee -a $logz
 DEBIAN_FRONTEND=noninteractive apt-get autoremove -y -o Dpkg::Options::='--force-confnew'| tee -a $logz

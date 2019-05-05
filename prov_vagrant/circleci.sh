@@ -21,3 +21,14 @@ fi
 # versioning for vagrant cloud
 export MAJOR_RELEASE_VERSION=0
 export MINOR_RELEASE_VERSION=0
+
+# text info
+if [[ -z "${PERSONAL_NUM}" ]] ; then
+  echo "Vagrant cloud token is empty"
+  export VAGRANT_CLOUD_TOKEN="#{ENV['VAGRANT_CLOUD_TOKEN']}" 
+fi
+
+if [[ -z "${TEXTBELT_KEY}" ]] ; then
+  echo "Vagrant cloud token is empty"
+  export VAGRANT_CLOUD_TOKEN="#{ENV['VAGRANT_CLOUD_TOKEN']}" 
+fi

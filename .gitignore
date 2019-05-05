@@ -2,9 +2,12 @@ packer_cache/
 output-virtualbox-iso/
 tmp/
 .vagrant/
-variables.json
-secrets.txt
 *.swp
 *.swo
 *.box
 *.log
+
+# secret files
+variables.json
+secrets.txt
+prov_vagrant/env_vars

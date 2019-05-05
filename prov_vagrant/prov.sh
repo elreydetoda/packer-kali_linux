@@ -9,13 +9,19 @@ circle_ci(){
 
   echo "export CIRCLECI=true" | sudo tee -a ${env_file} 1>/dev/null
 
-  git clone ${project_url} ${HOME}/project
+  if [[ -d /vagrant ]] ; then
+    ln -sf /vagrant/ ${HOME}/project
+  else
+    git clone ${project_url} ${HOME}/project
+  fi
   echo "cd ${HOME}/project" >> ${HOME}/.bashrc
 
   . ${env_file}
   variables_gen
 
-  cp ${HOME}/project/variables.json /vagrant
+  if [[ ! -f ${HOME}/project/variables.json  ]] ; then
+    cp ${HOME}/project/variables.json /vagrant
+  fi
   get_secret
 }
 

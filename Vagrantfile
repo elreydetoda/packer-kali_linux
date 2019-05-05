@@ -14,6 +14,10 @@ export VAGRANT_CLOUD_TOKEN="#{ENV['VAGRANT_CLOUD_TOKEN']}"
 # versioning for vagrant cloud
 export MAJOR_RELEASE_VERSION=0
 export MINOR_RELEASE_VERSION=0
+
+# text info
+export PERSONAL_NUM="#{ENV['PERSONAL_NUM']}"
+export TEXTBELT_KEY="#{ENV['TEXTBELT_KEY']}"
 EOF
 SCRIPT
 
