@@ -12,7 +12,12 @@ workflows:
   version: 2
   building:
     jobs:
-      - build
+      - build:
+          filters:
+            branches:
+              only:
+                - master
+                - develop
   weekly-build:
     jobs:
       - build
