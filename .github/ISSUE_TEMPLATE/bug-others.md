@@ -1,6 +1,8 @@
 ---
 name: Bug caused by others
 about: this is a template for when other people cause bugs that affect my automation
+labels: bug, others
+title: [OTHERS]
 
 ---
 
