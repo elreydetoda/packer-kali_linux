@@ -2,7 +2,7 @@
 name: Feature Request
 about: this is a template for when you would like to request a new tool or github project to be installed by default.
 labels: enhancement
-title: [FEATURE]
+title: "[FEATURE]"
 
 ---
 ### Disclaimer
