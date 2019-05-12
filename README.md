@@ -4,6 +4,8 @@
 [![CodeFactor](https://www.codefactor.io/repository/github/elreydetoda/packer-kali_linux/badge)](https://www.codefactor.io/repository/github/elreydetoda/packer-kali_linux)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/17c18e4c56b4477d8a21d10abbd94837)](https://app.codacy.com/app/unc741/packer-kali_linux?utm_source=github.com&utm_medium=referral&utm_content=elreydetoda/packer-kali_linux&utm_campaign=Badge_Grade_Dashboard)
 
+If the build status if failing please checkout [pinned issues](https://github.com/elreydetoda/packer-kali_linux/issues), and if there are no pinned issues then please file a detailed bug issue (template comming soon)
+
 ## Presentation
 
 * Slideshow - https://slides.com/elrey741/redops
