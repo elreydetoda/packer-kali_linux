@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
+# normal mode
+# set -euo pipefail
+# debug mode
+set -exuo pipefail
 
 curl="curl -sSL"
 
@@ -123,8 +126,10 @@ retrieve(){
   if ssh "${2}" -t "[ -f \"${1}\" ]" ; then
     scp "${2}":"${1}" ${ARTIFACTS_DIR}
   else
-    printf "Couldn't find: %s\n" "${1}"
+    # msg="Couldn't find: ${1}"
+    # printf '%s\n' "${1}"
     delete_server
+    # echo "exiting"
     exit 1
   fi
 }
@@ -137,6 +142,9 @@ send_text(){
       --data-urlencode phone="${PERSONAL_NUM}" \
       --data-urlencode message="${1}" \
       -d key="${TEXTBELT_KEY}"
+    # putting echo here so there is a new line appended to output to allow
+    # for easier readability for commands that follow
+    echo
   fi
 }
 
@@ -147,6 +155,9 @@ wait_to_finish(){
   status_file="${project_folder}/status.txt"
   # TODO: check if glob works for scp
   logs="${project_folder}/packer.log"
+  output_dir="${project_folder}"
+  outputs=("red-virtualbox.box")
+
   too_much_time=120
 
   if [[ $# -eq 3 ]] ; then
@@ -170,7 +181,6 @@ wait_to_finish(){
     if [[ ${minutes_passed} -ge ${too_much_time} ]] ; then
       msg="It took too long...so it failed...specifically: ${minutes_passed}"
       echo "$msg"
-      send_text "${msg}"
       delete_server
       exit 1
     fi
@@ -181,6 +191,13 @@ wait_to_finish(){
       msg='Build succeeded!'
       echo "${msg}"
       send_text "${msg}"
+
+      for outputz in "${outputs[@]}" ; do
+        current_vagrant_box="${output_dir}/${outputz}"
+        # print 'Getting %s' "${current_vagrant_box}"
+        retrieve "${current_vagrant_box}"  "${ssh_args}"
+      done
+
       delete_server
       exit 0
     else
@@ -238,7 +255,9 @@ check_post(){
 }
 
 delete_server(){
-  echo "Deleting server: ${PACKET_SERVER_ID}"
+  msg="Deleting server: ${PACKET_SERVER_ID}"
+  echo "$msg"
+  send_text "$msg"
   $curl -X DELETE \
     "${packet_base_url}/devices/${PACKET_SERVER_ID}" \
     -H 'Content-Type: application/json' \
@@ -307,7 +326,7 @@ main(){
   # start_build ${SERVER_IP} 'virtualbox'
 
   echo "Ready for delete"
-  # delete_server ${PACKET_SERVER_ID}
+  delete_server ${PACKET_SERVER_ID}
   
 }
 
