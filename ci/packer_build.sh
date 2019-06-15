@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 # normal mode
-# set -euo pipefail
+set -euo pipefail
 # debug mode
-set -exuo pipefail
+# set -exuo pipefail
 
 curl="curl -sSL"
 
