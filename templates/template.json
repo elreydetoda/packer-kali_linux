@@ -1,6 +1,46 @@
 {
   "builders": [
     {
+      "type": "vmware-iso",
+      "guest_os_type": "debian8-64",
+      "iso_url": "{{user `iso_url`}}",
+      "iso_checksum": "{{user `iso_checksum`}}",
+      "iso_checksum_type": "{{user `iso_checksum_type`}}",
+      "disk_size":"40960",
+      "headless": "{{ user `headless` }}",
+      "http_directory": "{{user `http_path` }}",
+      "shutdown_command": "echo 'vagrant' | sudo -S /sbin/shutdown -hP now",
+      "communicator": "ssh",
+      "ssh_password": "toor",
+      "ssh_port": 22,
+      "ssh_username": "root",
+      "ssh_wait_timeout": "10000s",
+      "tools_upload_flavor": "linux",
+      "vm_name": "{{ user `template` }}",
+      "cpus": "{{user `cpus`}}",
+      "memory": "{{user `memory`}}",
+      "vmx_remove_ethernet_interfaces": true,
+      "boot_wait": "10s",
+      "boot_command": [
+        "<esc><wait>",
+        "install <wait>",
+        " preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/{{user `preseed_file`}} <wait>",
+        "debian-installer=en_US.UTF-8 <wait>",
+        "auto <wait>",
+        "locale=en_US.UTF-8 <wait>",
+        "kbd-chooser/method=us <wait>",
+        "keyboard-configuration/xkb-keymap=us <wait>",
+        "netcfg/get_hostname={{ .Name }} <wait>",
+        "netcfg/get_domain=vm <wait>",
+        "fb=false <wait>",
+        "debconf/frontend=noninteractive <wait>",
+        "console-setup/ask_detect=false <wait>",
+        "console-keymaps-at/keymap=us <wait>",
+        "grub-installer/bootdev=/dev/sda <wait>",
+        "<enter><wait>"
+      ]
+    },
+    {
       "type": "virtualbox-iso",
       "guest_os_type": "Debian_64",
       "iso_url": "{{user `iso_url`}}",
@@ -96,8 +136,8 @@
     "headless":"",
     "vagrant_cloud_token":"",
     "post_shutdown_time": "2m",
-    "cpus":"1",
-    "memory": "2048",
+    "cpus":"2",
+    "memory": "4096",
     "description": "This is not a base box!!! This is a fully up to date Kali Linux rolling release 64 bit architecture. It also has a connecting internal network which will be used for a small pentesting environment. That was automatically created with packer"
   }
 }        
