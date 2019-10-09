@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
 set -e
+env_file='/etc/profile.d/circleci.sh'
 
 ## Project setup functions
 circle_ci(){
-  env_file='/etc/profile.d/circleci.sh'
   project_url='https://github.com/elreydetoda/packer-kali_linux.git'
 
   echo "export CIRCLECI=true" | sudo tee -a ${env_file} 1>/dev/null
@@ -31,6 +31,8 @@ variables_gen(){
     project_dir="${HOME}/project"
   else
     project_dir='/vagrant'
+    . ${env_file}
+    export CIRCLECI=''
   fi
   # installing deps
   echo 'Installing dependencies...'
@@ -103,6 +105,7 @@ check_done(){
 }
 donez=true
 while $donez ; do
+  export CIRCLECI=''
   sudo apt-get update
   sudo apt-get install -y git tmux screen
   # for spacing
