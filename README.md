@@ -76,7 +76,7 @@ To update a specific box (not tied to a Vagrant environment), use the
 ```
 
 ### grand scheme
-![packer vagrant eco](images/packer_vagrant_eco.png)
+![packer vagrant eco](https://blog.secureideas.com/wp-content/uploads/2018/09/packer_vagrant_eco.png)
 So to get the new up to date kali box you would have to `vagrant destroy` and `vagrant up` it again. Then everything would be based on your Vagrantfile for provisioning.
 
 ### things to consider
