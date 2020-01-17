@@ -22,6 +22,11 @@ If the build status if failing please checkout [pinned issues](https://github.co
 
 
 ## Overview
+### Vagrant Cloud Image
+here is my account on vagrant cloud (which should list all the packer builds for this repo): https://app.vagrantup.com/elrey741/
+
+and specifically here is the vagrant box for the master branch: https://app.vagrantup.com/elrey741/boxes/kali-linux_amd64
+
 ### VM info
 - user: root
 - pass: toor
