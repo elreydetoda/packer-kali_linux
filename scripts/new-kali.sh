@@ -2,13 +2,13 @@
 
 
 set -euo pipefail
+set -x
 
 tmpDir='./tmp'
 kaliKeyUrl='https://www.kali.org/archive-key.asc'
 hashAlg='SHA256SUMS'
 kaliBaseUrl='https://cdimage.kali.org/'
 # current
-kaliCurrentYear="$(date +%Y)"
 kaliCurrentUrl="${kaliBaseUrl}current/"
 kaliCurrentSHAUrl="${kaliCurrentUrl}${hashAlg}"
 curl='curl -fsSL'
@@ -49,7 +49,7 @@ gpg --verify ${tmpDir}/${hashAlg}.gpg ${tmpDir}/$hashAlg
 
 # current
 echo "getting current kali iso url"
-currentKaliISO=$(curl -s $kaliCurrentUrl | grep -P "linux-${kaliCurrentYear}.\d-amd64" | grep -oE 'href.*' | cut -d '"' -f 2)
+currentKaliISO=$(curl -s $kaliCurrentUrl | grep -P "linux-\d+.\d-amd64" | grep -oE 'href.*' | cut -d '"' -f 2)
 
 currentHashAlg=$(grep $currentKaliISO ${tmpDir}/$hashAlg | cut -d ' ' -f 1)
 
