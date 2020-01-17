@@ -20,6 +20,30 @@ If the build status if failing please checkout [pinned issues](https://github.co
   * Part 2: https://blog.secureideas.com/2019/05/automating-red-team-homelabs-part-2-build-pentest-destroy-and-repeat.html
     * This blog post is a deep dive into using packer and how I automated this github repo.
 
+## Quick Start
+
+### Use case #1
+
+This will be if you just simply want to use this image and use my build of Kali Linux that gets built weekly on Saturdays. (For best user experience I will be using another repo of mine that has some additional provisioning (even if you don't want to use mine you can still look at what I am doing, in case you want to do something similar), which will be [here](https://github.com/elreydetoda/vagrant-files/tree/master/elrey741_kali-linux_amd64). Feel free to do your own thing if you know what you are doing: https://app.vagrantup.com/elrey741/boxes/kali-linux_amd64)
+
+* make sure you have all the software installed that is needed.
+  * [vagrant](https://www.vagrantup.com/downloads.html)
+  * [virtualbox](https://www.virtualbox.org/wiki/Downloads) or vmware\*
+    * \* - for vmware you need additional vagrant specific [plugins](https://www.vagrantup.com/docs/vmware/installation.html), also not providing a download link for vmware because if you know about it you most likely already have it installed.
+  * git (optional) (if you want to clone the software instead of just download)
+* Download necessary files- simply git or wget the files
+  * wget https://github.com/elreydetoda/vagrant-files/archive/master.zip`
+  * git clone https://github.com/elreydetoda/vagrant-files.git
+* cd into the necessary directory
+  * `cd vagrant-files/elrey741_kali-linux_amd64`
+* start download
+  * `vagrant up`
+* start use
+  * `vagrant ssh`
+*NOTE*: for general use condsiderations, please checkout the [things to consider](#things_to_consider)
+
+### Use case #2
+
 
 ## Overview
 ### Vagrant Cloud Image
@@ -55,7 +79,8 @@ To update a specific box (not tied to a Vagrant environment), use the
 ![packer vagrant eco](images/packer_vagrant_eco.png)
 So to get the new up to date kali box you would have to `vagrant destroy` and `vagrant up` it again. Then everything would be based on your Vagrantfile for provisioning.
 
-### things to consider before `vagrant destroy`
+### things to consider
+before `vagrant destroy`
 - did you backup all your metasploit data? - `msfconsole -q -x "db_export -f xml /root/pentesting/metasploit-backups/general/metasploit-backup-main.xml; exit"`
 - did you backup all your metasploit creds (doesn't get exported by metasploit by default...)? - `msfconsole -q -x "creds -o /root/pentesting/metasploit-backups/creds/metasploit-backup-creds.csv; exit"`
 - do you have any customizations that could be automated in your Vagrantfile?

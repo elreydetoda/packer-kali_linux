@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
 
-hashiName=''
+set -euo pipefail
+set -x
+
 tmpDir='./tmp'
 kaliKeyUrl='https://www.kali.org/archive-key.asc'
 hashAlg='SHA256SUMS'
 kaliBaseUrl='https://cdimage.kali.org/'
 # current
-kaliCurrentYear="$(date +%Y)"
 kaliCurrentUrl="${kaliBaseUrl}current/"
 kaliCurrentSHAUrl="${kaliCurrentUrl}${hashAlg}"
 curl='curl -fsSL'
@@ -49,7 +49,7 @@ gpg --verify ${tmpDir}/${hashAlg}.gpg ${tmpDir}/$hashAlg
 
 # current
 echo "getting current kali iso url"
-currentKaliISO=$(curl -s $kaliCurrentUrl | grep -E "linux-${kaliCurrentYear}.*amd64" | grep -oE 'href.*' | cut -d '"' -f 2)
+currentKaliISO=$(curl -s $kaliCurrentUrl | grep -P "linux-\d+.\d-amd64" | grep -oE 'href.*' | cut -d '"' -f 2)
 
 currentHashAlg=$(grep $currentKaliISO ${tmpDir}/$hashAlg | cut -d ' ' -f 1)
 
@@ -62,6 +62,9 @@ if [[ -f $secretFileFullPath ]] ; then
 	vagrant_cloud_token=$(grep vagrant_cloud $secretFileFullPath | cut -d ':' -f 3-)
 elif [[ $CIRCLECI ]] ; then
 	hashiName="${VAGRANT_CLOUD_USER}"
+	vagrant_cloud_token="${VAGRANT_CLOUD_TOKEN}"
+elif [[ "$(whoami)" == 'vagrant' ]] ; then
+  hashiName="${VAGRANT_CLOUD_USER}"
 	vagrant_cloud_token="${VAGRANT_CLOUD_TOKEN}"
 fi
 
