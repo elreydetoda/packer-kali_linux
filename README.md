@@ -1,4 +1,4 @@
-# Automated Kali Hashcorp Box
+# Automated Kali Vagrant Box
 
 [![CircleCI](https://circleci.com/gh/elreydetoda/packer-kali_linux/tree/master.svg?style=svg)](https://circleci.com/gh/elreydetoda/packer-kali_linux/tree/master)
 [![CodeFactor](https://www.codefactor.io/repository/github/elreydetoda/packer-kali_linux/badge)](https://www.codefactor.io/repository/github/elreydetoda/packer-kali_linux)
@@ -19,7 +19,7 @@ If the build status if failing please checkout [pinned issues](https://github.co
     * This blog post is a high level overview as to what I want to use this repo for
   * Part 2: https://blog.secureideas.com/2019/05/automating-red-team-homelabs-part-2-build-pentest-destroy-and-repeat.html
     * This blog post is a deep dive into using packer and how I automated this github repo.
-
+<!--
 ## Quick Start
 
 ### Use case #1
@@ -43,7 +43,7 @@ This will be if you just simply want to use this image and use my build of Kali 
 *NOTE*: for general use condsiderations, please checkout the [things to consider](#things_to_consider)
 
 ### Use case #2
-
+-->
 
 ## Overview
 ### Vagrant Cloud Image
