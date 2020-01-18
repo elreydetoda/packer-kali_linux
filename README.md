@@ -2,13 +2,15 @@
 
 [![Kali Vagrant img](https://www.kali.org/wp-content/uploads/2018/10/kali-on-vagrant-768x273.png)](https://github.com/elreydetoda/packer-kali_linux)
 
+**NOTE:** not Officially OffSec implementation of Vagrant and Kali.
+
 [![CircleCI](https://circleci.com/gh/elreydetoda/packer-kali_linux/tree/master.svg?style=svg)](https://circleci.com/gh/elreydetoda/packer-kali_linux/tree/master)
 [![CodeFactor](https://www.codefactor.io/repository/github/elreydetoda/packer-kali_linux/badge)](https://www.codefactor.io/repository/github/elreydetoda/packer-kali_linux)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/17c18e4c56b4477d8a21d10abbd94837)](https://app.codacy.com/app/unc741/packer-kali_linux?utm_source=github.com&utm_medium=referral&utm_content=elreydetoda/packer-kali_linux&utm_campaign=Badge_Grade_Dashboard)
 [![Gitter](https://img.shields.io/gitter/room/elreydetoda/packer-kali_linux.svg?color=red)](https://gitter.im/packer-kali_linux/community)
 [![Release Version](https://img.shields.io/github/release/elreydetoda/packer-kali_linux.svg)](https://github.com/elreydetoda/packer-kali_linux/releases/latest)
 
-If the build status if failing please checkout [pinned issues](https://github.com/elreydetoda/packer-kali_linux/issues), and if there are no pinned issues then please file a detailed bug issue (template comming soon).
+<!-- If the build status if failing please checkout [pinned issues](https://github.com/elreydetoda/packer-kali_linux/issues), and if there are no pinned issues then please file a detailed bug issue (template comming soon). -->
 
 ## Presentation
 
