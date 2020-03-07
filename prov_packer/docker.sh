@@ -10,3 +10,6 @@ apt-get update
 # be careful this will remove your current docker
 apt-get remove docker docker-engine docker.io -y
 apt-get install docker-ce -y
+
+# adding user to docker group
+usermod -aG docker vagrant
