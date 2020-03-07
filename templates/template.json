@@ -58,20 +58,8 @@
       "vm_name": "packerAutoKali",
       "virtualbox_version_file": ".vbox_version",
       "guest_additions_mode": "disable",
-      "vboxmanage": [
-        [
-          "modifyvm",
-          "{{.Name}}",
-          "--memory",
-          "{{user `memory`}}"
-        ],
-        [
-          "modifyvm",
-          "{{.Name}}",
-          "--cpus",
-          "{{ user `cpus` }}"
-        ]
-      ],
+      "cpus": "{{user `cpus`}}",
+      "memory": "{{user `memory`}}",
       "boot_wait": "5s",
       "boot_command": [
         "<esc><wait>",
