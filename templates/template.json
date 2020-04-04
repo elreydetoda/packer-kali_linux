@@ -14,7 +14,7 @@
       "ssh_password": "vagrant",
       "ssh_port": 22,
       "ssh_username": "vagrant",
-      "ssh_wait_timeout": "10000s",
+      "ssh_timeout": "10000s",
       "tools_upload_flavor": "linux",
       "vm_name": "{{ user `template` }}",
       "cpus": "{{user `cpus`}}",
