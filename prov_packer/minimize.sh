@@ -37,7 +37,7 @@ if [ "x${swapuuid}" != "x" ]; then
 fi
 
 if ls "${HOME}/*.iso" ; then
-  rm -f /root/*.iso
+  rm -f /home/vagrant/*.iso
 fi
 
 sync;

@@ -28,3 +28,8 @@ workflows:
             branches:
               only:
                 - master
+notify:
+  webhooks:
+    # A list of hook hashes, containing the url field
+    # gitter hook
+    - url: https://webhooks.gitter.im/e/328863f5c67fb6135a75
