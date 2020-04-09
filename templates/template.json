@@ -49,7 +49,7 @@
       "communicator": "ssh",
       "ssh_username": "vagrant",
       "ssh_password": "vagrant",
-      "ssh_wait_timeout": "30m",
+      "ssh_timeout": "30m",
       "headless": "{{user `headless` }}",
       "disk_size":"40960",
       "http_directory": "{{user `http_path` }}",
