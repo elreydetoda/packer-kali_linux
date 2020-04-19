@@ -2,6 +2,7 @@ packer_cache/
 output-virtualbox-iso/
 tmp/
 .vagrant/
+.terraform/
 *.swp
 *.swo
 *.box
@@ -11,3 +12,4 @@ tmp/
 variables.json
 secrets.txt
 prov_vagrant/env_vars
+*.tfstate*
