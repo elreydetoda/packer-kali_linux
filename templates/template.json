@@ -1,6 +1,16 @@
 {
   "builders": [
     {
+      "type": "amazon-ebs",
+      "access_key": "{{user `aws_access_key`}}",
+      "secret_key": "{{user `aws_secret_key`}}",
+      "region": "{{user `aws_region`}}",
+      "source_ami": "{{user `kali_aws_ami`}}",
+      "instance_type": "t2.medium",
+      "ssh_username": "ec2-user",
+      "ami_name": "elrey741-{{user `ami_name`}}"
+    },
+    {
       "type": "vmware-iso",
       "guest_os_type": "debian8-64",
       "iso_url": "{{user `iso_url`}}",
@@ -130,12 +140,18 @@
     "scripts_dir": "./prov_packer",
     "vagrantfile":"install/vagrantfile-kali_linux.template",
     "vm_name": "",
+    "ami_name": "",
     "vm_version":"",
     "headless":"",
     "vagrant_cloud_token":"",
+    "aws_access_key":"",
+    "aws_secret_key":"",
+    "aws_region":"",
+    "kali_aws_ami":"",
     "post_shutdown_time": "2m",
     "cpus":"2",
     "memory": "4096",
     "description": "This is not a base box!!! This is a fully up to date Kali Linux rolling release 64 bit architecture. It also has a connecting internal network which will be used for a small pentesting environment. That was automatically created with packer"
-  }
+  },
+  "sensitive-variables": [ "vagrant_cloud_token", "aws-access-key", "aws-secret-key" ]
 }        

@@ -1,5 +1,9 @@
 #!/bin/sh -eux
 
+case "$PACKER_BUILDER_TYPE" in
+  amazon-*) exit 0 ;;
+esac
+
 # thanks to bento project for this script
 SSHD_CONFIG="/etc/ssh/sshd_config"
 
