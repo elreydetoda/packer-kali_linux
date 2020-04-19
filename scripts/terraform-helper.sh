@@ -25,6 +25,9 @@ function terraform_stuff(){
         apply)
             extra_args=( "-state" "${state_file}" "${plan_file}" )
         ;;
+        apply-plan)
+            extra_args=( "-state" "${state_file}" "${plan_file}" )
+        ;;
         output)
             extra_args=( "-state" "${state_file}" )
             set +u
@@ -87,7 +90,7 @@ function main(){
 
     elif [[ "${1}" == "auto-build" ]] ; then
 
-        steps_array=( 'init' 'plan' 'apply' )
+        steps_array=( 'init' 'plan' 'apply-plan' )
 
         for step in "${steps_array[@]}" ; do
             terraform_stuff "${step}" "${2}"
