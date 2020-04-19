@@ -4,11 +4,18 @@
 $CIRCLECI=<<SCRIPT
 tee "/etc/profile.d/circleci.sh">"/dev/null"<<EOF
 # packet info
-export PACKET_API_KEY="#{ENV['PACKET_API_KEY']}"
-export PACKET_PROJECT_UUID="#{ENV['PACKET_PROJECT_UUID']}"
+export PACKET_API_KEY="#{ENV['TF_VAR_auth_token']}"
+export PACKET_PROJECT_UUID="#{ENV['TF_VAR_project_id']}"
+export TF_VAR_auth_token="#{ENV['TF_VAR_auth_token']}"
+export TF_VAR_project_id="#{ENV['TF_VAR_project_id']}"
+
+# aws info
+export TF_VAR_aws_access_key="#{ENV['TF_VAR_aws_access_key']}"
+export TF_VAR_aws_secret_key="#{ENV['TF_VAR_aws_secret_key']}"
+export TF_VAR_aws_region="#{ENV['TF_VAR_aws_region']}"
 
 # vagrant cloud info
-export VAGRANT_CLOUD_USER="elrey741"
+export VAGRANT_CLOUD_USER="#{ENV['VAGRANT_CLOUD_USER']}" 
 export VAGRANT_CLOUD_TOKEN="#{ENV['VAGRANT_CLOUD_TOKEN']}" 
 
 # versioning for vagrant cloud
