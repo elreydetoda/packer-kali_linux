@@ -1,10 +1,15 @@
 # packet info
-export PACKET_API_KEY=""
-export PACKET_PROJECT_UUID=""
+export TF_VAR_auth_token=''
+export TF_VAR_project_id=''
+
+# AWS info
+export TF_VAR_aws_access_key=''
+export TF_VAR_aws_secret_key=''
+export TF_VAR_aws_region=''
 
 # vagrant cloud info
-export VAGRANT_CLOUD_USER=""
-export VAGRANT_CLOUD_TOKEN="" 
+export VAGRANT_CLOUD_USER=''
+export VAGRANT_CLOUD_TOKEN='' 
 
 # versioning for vagrant cloud
 export MAJOR_RELEASE_VERSION=0
