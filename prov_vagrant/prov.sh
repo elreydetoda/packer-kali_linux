@@ -37,6 +37,7 @@ variables_gen(){
   # installing deps
   echo 'Installing dependencies...'
   sudo apt-get install -y jq screen dirmngr 
+  sudo sudo addgroup --system docker && sudo adduser vagrant docker && sudo snap install docker
   
   pushd ${project_dir}
   chmod +x ${path_to_new_kali_shell_script}
