@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
 set -$-eu${DEBUG+xv}o pipefail
-# set -euo pipefail
-# set -x
 
 if [[ $# -lt 1 ]] ; then
     printf 'Please enter at one terraform directive: %s %s\n' "${0}" "<init|plan|apply|destroy>"
