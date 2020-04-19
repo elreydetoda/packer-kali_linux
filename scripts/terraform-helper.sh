@@ -26,7 +26,14 @@ function terraform_stuff(){
             extra_args=( "-state" "${state_file}" "${plan_file}" )
         ;;
         output)
-            extra_args=( "-state" "${state_file}" "${2}" )
+            extra_args=( "-state" "${state_file}" )
+            set +u
+            if [[ -z  "${2}" ]] ; then
+                extra_args+=()
+            elif [[ -n  "${2}" ]] ; then
+                extra_args+=( "${2}" )
+            fi
+            set -u
             terraform_provider='none'
         ;;
         destroy)
