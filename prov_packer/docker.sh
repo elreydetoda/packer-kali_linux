@@ -1,5 +1,14 @@
 #!/bin/bash
 
+case "$PACKER_BUILDER_TYPE" in
+  amazon-*)
+    userz='ec2-user'
+  ;;
+  *)
+    userz='vagrant'
+  ;;
+esac
+
 # getting docker
 curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
 echo 'deb https://download.docker.com/linux/debian stretch stable' > /etc/apt/sources.list.d/docker.list
@@ -12,4 +21,4 @@ apt-get remove docker docker-engine docker.io -y
 apt-get install docker-ce -y
 
 # adding user to docker group
-usermod -aG docker vagrant
+usermod -aG docker "${userz}"

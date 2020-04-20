@@ -1,8 +1,17 @@
 #!/bin/sh -eux
 
+case "$PACKER_BUILDER_TYPE" in
+  amazon-*)
+    userz='ec2-user'
+  ;;
+  *)
+    userz='vagrant'
+  ;;
+esac
+
 # thanks to bento project for this script
 # set a default HOME_DIR environment variable if not set
-HOME_DIR="${HOME_DIR:-/home/vagrant}";
+HOME_DIR="${HOME_DIR:-/home/${userz}}";
 
 pubkey_url="https://raw.githubusercontent.com/mitchellh/vagrant/master/keys/vagrant.pub";
 mkdir -p $HOME_DIR/.ssh;
@@ -16,5 +25,5 @@ else
     echo "Cannot download vagrant public key";
     exit 1;
 fi
-chown -R vagrant $HOME_DIR/.ssh;
+chown -R "${userz}" $HOME_DIR/.ssh;
 chmod -R go-rwsx $HOME_DIR/.ssh;

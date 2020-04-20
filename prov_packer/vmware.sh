@@ -2,6 +2,7 @@
 
 case "$PACKER_BUILDER_TYPE" in
 vmware-iso|vmware-vmx)
+    HOME_DIR="${HOME_DIR:-/home/vagrant}";
     mkdir -p /tmp/vmware
     mkdir -p /tmp/vmware-archive
     mount -o loop "$HOME_DIR/linux.iso" /tmp/vmware
