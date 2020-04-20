@@ -10,6 +10,7 @@ fi
 function terraform_stuff(){
 
     terraform_action="${1}"
+    # gottent from the bento project
     terraform_provider="${2:-''}"
     terraform_folder='/terraform'
     plan_file="${terraform_folder}/main.plan"
@@ -23,9 +24,12 @@ function terraform_stuff(){
             extra_args=( "-out" "${plan_file}" "${terraform_folder}/" )
         ;;
         apply)
-            extra_args=( "-state" "${state_file}" "${plan_file}" )
+            extra_args=( "-state" "${state_file}" )
         ;;
         apply-plan)
+            # gotten from: https://stackoverflow.com/questions/19482123/extract-part-of-a-string-using-bash-cut-split#answer-19482947
+            # wbm: https://web.archive.org/web/20161121105825/http://stackoverflow.com/questions/19482123/extract-part-of-a-string-using-bash-cut-split#answer-19482947
+            terraform_action="${terraform_action%-*}"
             extra_args=( "-state" "${state_file}" "${plan_file}" )
         ;;
         output)
