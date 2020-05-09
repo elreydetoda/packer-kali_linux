@@ -51,7 +51,7 @@ data "http" "current_ip" {
 # querying for LTS based on server OS and type
 data "packet_operating_system" "ubuntu_lts" {
     distro              = "ubuntu"
-    version             = "18.04"
+    version             = "20.04"
     provisionable_on    = var.provision_plan
 }
 
