@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
-
-set -euo pipefail
-set -x
+set -${-//[s]/}eu${DEBUG+xv}o pipefail
 
 tmpDir='./tmp'
 kaliKeyUrl='https://www.kali.org/archive-key.asc'
@@ -49,7 +47,7 @@ gpg --verify ${tmpDir}/${hashAlg}.gpg ${tmpDir}/$hashAlg
 
 # current
 echo "getting current kali iso url"
-currentKaliISO=$(curl -s $kaliCurrentUrl | grep -P "linux-\d+\.\d[\w|]+-installer-netinst-amd64" | grep -oE 'href.*' | cut -d '"' -f 2)
+currentKaliISO=$(curl -s $kaliCurrentUrl | grep -P "linux-\d+\.\d(\w|)+-installer-netinst-amd64" | grep -oE 'href.*' | cut -d '"' -f 2)
 
 currentHashAlg=$(grep $currentKaliISO ${tmpDir}/$hashAlg | cut -d ' ' -f 1)
 
