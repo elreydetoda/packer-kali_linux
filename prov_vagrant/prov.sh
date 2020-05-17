@@ -99,10 +99,12 @@ check_done(){
   echo 'Will that be all? (Y/n)'
   read -r donez_ans
   donez_ans=$(echo $donez_ans | tr '[:upper:]' '[:lower:]')
-  if [[ !($donez_ans == 'n') ]] ; then
-    donez=false
-    cleanup
-  fi
+  case "${donez_ans}" in
+    y|Y)
+        donez=false
+        cleanup
+      ;;
+  esac
 }
 donez=true
 while $donez ; do
