@@ -247,7 +247,7 @@ run_remote(){
   sleep 5m
 
   # closing function to see the status of the job
-  wait_to_finish "${project_folder}" "${user}@${1}" ${@}
+  wait_to_finish "${project_folder}" "${user}@${1}" "${@}"
 }
 
 check_post(){
