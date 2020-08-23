@@ -39,7 +39,40 @@ commands:
       - run: shellcheck --version
       - run: bash << parameters.script-path >> '<< parameters.severity >>|<< parameters.optional >>|<< parameters.format >>'
 
+  terraform-lint:
+    description: "Run the terraform orb for linting."
+    parameters:
+      code-path:
+        description: the folder where th code is at
+        type: string
+    steps:
+      - checkout
+      - terraform/fmt:
+          path: "<< parameters.code-path >>"
+      - terraform/validate:
+          path: "<< parameters.code-path >>"
+
+  # terraform-deploy:
+  #   description: "Run the terraform orb for deploying."
+  #   steps:
+  #     - terraform/fmt:
+  #         checkout: true
+  #         path: "./ci/packet_terraform/"
+  #     - terraform/validate:
+  #         checkout: true
+  #         path: "./ci/packet_terraform/"
+  
 jobs:
+  terraform-linting:
+    executor: terraform/default
+    steps:
+      - run: terraform --version
+      # linting the packet terraform files
+      - terraform-lint:
+          code-path: ci/packet_terraform
+      # linting the aws terraform files
+      # - terraform-lint:
+      #     code-path: ci/kali_aws_info
   linting-base:
     description: this is the bare minimum that linting NEEDS to pass
     docker:
@@ -47,6 +80,7 @@ jobs:
     steps:
         - checkout
         - run-shellcheck
+
   linting-warning:
     description: this is the degree of linting that might cause warnings
     docker:
@@ -73,13 +107,15 @@ jobs:
 #       - run: bash ./ci/packer_build.sh
 #       - store_artifacts:
 #           path: /tmp/artifacts
+
 workflows:
   version: 2
-  building:
+  linting:
       jobs:
         - linting-base
         - linting-warning
         - linting-desired
+        - terraform-linting
 #     jobs:
 #       - build:
 #           filters:
