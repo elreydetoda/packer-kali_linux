@@ -65,16 +65,16 @@ jobs:
       # linting the aws terraform files
       # - terraform-lint:
       #     code-path: ci/kali_aws_info
-  shellcheck-base:
-    description: this is the bare minimum that shellcheck NEEDS to pass
-    docker:
-      - image: 'cimg/base:stable'
-    steps:
-        - checkout
-        - run-shellcheck
+  # shellcheck-base:
+  #   description: this is the bare minimum that shellcheck NEEDS to pass
+  #   docker:
+  #     - image: 'cimg/base:stable'
+  #   steps:
+  #       - checkout
+  #       - run-shellcheck
 
   shellcheck-warning:
-    description: this is the degree of shellcheck that might cause warnings
+    description: this is the bare minimum that shellcheck NEEDS to pass
     docker:
       - image: 'cimg/base:stable'
     steps:
@@ -102,12 +102,13 @@ jobs:
 
 workflows:
   version: 2
-  linting:
+  linting-required:
       jobs:
-        - shellcheck-base
         - shellcheck-warning
-        - shellcheck-desired
         - terraform-linting
+  linting-wanted:
+      jobs:
+        - shellcheck-desired
 #     jobs:
 #       - build:
 #           filters:
