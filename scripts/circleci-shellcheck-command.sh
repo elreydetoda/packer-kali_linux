@@ -3,6 +3,8 @@
 # https://elrey.casa/bash/scripting/harden
 set -${-//[s]/}eu${DEBUG+xv}o pipefail
 
+# TODO: functionalize all the different parts
+
 function check_empty(){
   if [[ -z "${1}" ]] ; then
     return 1
