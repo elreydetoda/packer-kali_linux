@@ -68,6 +68,7 @@ set -${-//[s]/}eu${DEBUG+xv}o pipefail
 # fi
 # rm -rf $tmpDir
 
+
 function cryptographical_verification(){
 
   # showing the hash signature url
@@ -93,13 +94,17 @@ function cryptographical_verification(){
 
 function info_enum(){
 
-  echo "getting filename of the kali iso:"
-  # sed command, came from here: https://github.com/SamuraiWTF/samuraiwtf/pull/103#commitcomment-35941962
-  currentKaliISO=$($curl "${kaliCurrentUrl}" | sed -n '/href=".*installer-netinst-amd64.iso"/p' | awk -F'["]' '{print $8}')
+  # getting the current kali iso filename
+  #   sed command, came from here: https://github.com/SamuraiWTF/samuraiwtf/pull/103#commitcomment-35941962
+  #   NOTE: this is only compatible for >= 2020.1
+  currentKaliISO=$( $curl "${kaliCurrentUrl}" | sed -n '/href=".*netinst-amd64.iso"/p' | awk -F'["]' '{print $8}' )
+  printf '\ngetting filename of the kali iso: %s\n' "${currentKaliISO}"
 
-  currentHashAlg=$(grep $currentKaliISO ${tmpDir}/$hashAlg | cut -d ' ' -f 1)
+  currentHashSum=$( grep "${currentKaliISO}" "${tmpDir}/${hashAlg}" | cut -d ' ' -f 1 )
+  printf '\nthe current hash for that file is: %s\n' "${currentHashSum}"
 
-  currentKali=$(curl -s $kaliBaseUrl | grep 'kali-' | grep -oE 'href.*' | cut -d '"' -f 2 | cut -d '/' -f 1 | grep -v 'kali-weekly' | tail -n 1 | cut -d '-' -f 2- )
+  currentKaliReleaseVersion=$(grep -oP '\d{4}\.\w' <<< "${currentKaliISO}" )
+  printf '\nthe selected release for kali is: %s\n' "${currentKaliReleaseVersion}"
 
 }
 
@@ -135,7 +140,7 @@ function main(){
   curl='curl -fsSL'
 
   cryptographical_verification
-  # info_enum
+  info_enum
 
 }
 
