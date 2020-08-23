@@ -7,14 +7,6 @@ orbs:
   # terraform: circleci/terraform@1.0.1
 
 commands:
-  # sayhello:
-  #   description: "A very simple command for demonstration purposes"
-  #   parameters:
-  #     to:
-  #       type: string
-  #       default: "Hello World"
-  #   steps:
-  #     - run: echo << parameters.to >>
   run-shellcheck:
     description: "Run the shellcheck orb in a very specific way."
     parameters:
