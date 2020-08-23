@@ -1,35 +1,106 @@
-version: 2
+version: 2.1
+
+orbs:
+  shellcheck: circleci/shellcheck@volatile
+  terraform: circleci/terraform@volatile
+  # shellcheck: circleci/shellcheck@2.0.0
+  # terraform: circleci/terraform@1.0.1
+
+commands:
+  # sayhello:
+  #   description: "A very simple command for demonstration purposes"
+  #   parameters:
+  #     to:
+  #       type: string
+  #       default: "Hello World"
+  #   steps:
+  #     - run: echo << parameters.to >>
+  run-shellcheck:
+    description: "Run the shellcheck orb in a very specific way."
+    parameters:
+      script-path:
+        description: the path to where the script is to run shellcheck
+        type: string
+        default: scripts/circleci-shellcheck-command.sh
+      severity:
+        description: the severity for what shellcheck should lint with
+        type: string
+        default: error
+      optional:
+        description: the optional checks that shellcheck should include
+        type: string
+        default: ''
+      format:
+        description: the output format that shellcheck should use
+        type: string
+        default: ''
+    steps:
+      - shellcheck/install
+      - run: shellcheck --version
+      - run: bash << parameters.script-path >> '<< parameters.severity >>|<< parameters.optional >>|<< parameters.format >>'
+
 jobs:
-  build:
-    machine: true
+  linting-base:
+    description: this is the bare minimum that linting NEEDS to pass
+    docker:
+      - image: 'cimg/base:stable'
+    steps:
+        - checkout
+        - run-shellcheck
+  linting-warning:
+    description: this is the degree of linting that might cause warnings
+    docker:
+      - image: 'cimg/base:stable'
     steps:
       - checkout
-      - run: bash ./scripts/new-kali.sh
-      - run: bash ./ci/packer_build.sh
-      - store_artifacts:
-          path: /tmp/artifacts
+      - run-shellcheck:
+          severity: warning
+  linting-desired:
+    description: this is the desired degree of linting
+    docker:
+      - image: 'cimg/base:stable'
+    steps:
+      - checkout
+      - run-shellcheck:
+          severity: style
+          optional: all
+          format: gcc
+#   build:
+#     machine: true
+#     steps:
+#       - checkout
+#       - run: bash ./scripts/new-kali.sh
+#       - run: bash ./ci/packer_build.sh
+#       - store_artifacts:
+#           path: /tmp/artifacts
 workflows:
   version: 2
   building:
-    jobs:
-      - build:
-          filters:
-            branches:
-              only:
-                - master
-                - develop
-  weekly-build:
-    jobs:
-      - build
-    triggers:
-      - schedule:
-          cron: "0 0 * * 0"
-          filters:
-            branches:
-              only:
-                - master
-notify:
-  webhooks:
-    # A list of hook hashes, containing the url field
-    # gitter hook
-    - url: https://webhooks.gitter.im/e/328863f5c67fb6135a75
+      jobs:
+        - linting-base
+        - linting-warning
+        - linting-desired
+#     jobs:
+#       - build:
+#           filters:
+#             branches:
+#               only:
+#                 - master
+#                 - develop
+#       - linting:
+      
+#   weekly-build:
+#     jobs:
+#       - build
+#     triggers:
+#       - schedule:
+#           cron: "0 0 * * 0"
+#           filters:
+#             branches:
+#               only:
+#                 - master
+# notify:
+#   webhooks:
+#     # A list of hook hashes, containing the url field
+#     # gitter hook
+#     - url: https://webhooks.gitter.im/e/328863f5c67fb6135a75
