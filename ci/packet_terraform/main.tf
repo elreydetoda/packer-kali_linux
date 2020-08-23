@@ -79,3 +79,15 @@ output "current_ip" {
   value = jsondecode(data.http.current_ip.body).ip
 }
 ##################################################
+
+terraform {
+  required_providers {
+    http = {
+      source = "hashicorp/http"
+    }
+    packet = {
+      source = "terraform-providers/packet"
+    }
+  }
+  required_version = ">= 0.13"
+}
