@@ -68,28 +68,39 @@ set -${-//[s]/}eu${DEBUG+xv}o pipefail
 # fi
 # rm -rf $tmpDir
 
+function cryptographical_verification(){
+
+  # showing the hash signature url
+  printf '\ncurrent url for hash algorithm for the %s version is:\n%s\n\n' "${kaliInstallVersion}"  "${kaliCurrentHashUrl}"
+
+  echo "Starting ISO signature validation process."
+  # downloading the hash algorithm file contents
+  $curl "${kaliCurrentHashUrl}" -o "${tmpDir}/$hashAlg"
+  # downloading the hash algorithms signature file contents
+  $curl "${kaliCurrentHashUrl}.gpg" -o "${tmpDir}/${hashAlg}.gpg"
+  # import gpg key to system keys
+  $curl "${kaliKeyUrl}"  | gpg --import
+
+  # printing out the fingerprint for the key
+  echo "showing gpg key info"
+  gpg --fingerprint
+
+  # checking the hash for it's integrity
+  echo "verifying hash signature "
+  gpg --verify "${tmpDir}/${hashAlg}.gpg" "${tmpDir}/${hashAlg}"
+
+}
+
 function info_enum(){
 
-  # kali stable iso
-  echo curl url: $(curl -sS $kaliCurrentHashUrl -o - | grep -oP 'href=".*"' | tr -d '"' | cut -d '=' -f 2)
-  $curl $kaliCurrentHashUrl -o ${tmpDir}/$hashAlg
-  $curl "${kaliCurrentHashUrl}.gpg" -o "${tmpDir}/${hashAlg}.gpg"
-
-  kaliKey=$($curl $kaliKeyUrl  | gpg --import 2>&1 | grep key | cut -d ' ' -f 3 | cut -d ':' -f 1 )
-
-  gpg --fingerprint $kaliKey
-  echo "verifying shasums "
-  gpg --verify ${tmpDir}/${hashAlg}.gpg ${tmpDir}/$hashAlg
-
-  # current
-  echo "getting current kali iso url"
-  currentKaliISO=$(curl -s $kaliCurrentUrl | grep -P "linux-\d+\.\d(\w|)+-installer-netinst-amd64" | grep -oE 'href.*' | cut -d '"' -f 2)
+  echo "getting filename of the kali iso:"
+  # sed command, came from here: https://github.com/SamuraiWTF/samuraiwtf/pull/103#commitcomment-35941962
+  currentKaliISO=$($curl "${kaliCurrentUrl}" | sed -n '/href=".*installer-netinst-amd64.iso"/p' | awk -F'["]' '{print $8}')
 
   currentHashAlg=$(grep $currentKaliISO ${tmpDir}/$hashAlg | cut -d ' ' -f 1)
 
   currentKali=$(curl -s $kaliBaseUrl | grep 'kali-' | grep -oE 'href.*' | cut -d '"' -f 2 | cut -d '/' -f 1 | grep -v 'kali-weekly' | tail -n 1 | cut -d '-' -f 2- )
 
-  namez="kali-linux_amd64"
 }
 
 function main(){
@@ -110,6 +121,9 @@ function main(){
   # the url for the gpg key that is used to sign the hashes for the ISOs
   kaliKeyUrl='https://www.kali.org/archive-key.asc'
 
+  ## vagrant box information
+  # name of the vagrant box
+  namez="kali-linux_amd64"
 
   ## commands and combined variables
   # current version of kali's url combined with the base path
@@ -119,6 +133,9 @@ function main(){
   kaliCurrentHashUrl="${kaliCurrentUrl}/${hashAlg}"
   # re-defining curl to have some extra flags by default (essentially a bash alias)
   curl='curl -fsSL'
+
+  cryptographical_verification
+  # info_enum
 
 }
 
