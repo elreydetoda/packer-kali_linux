@@ -44,15 +44,16 @@ commands:
       - terraform/validate:
           path: "<< parameters.code-path >>"
 
-  # terraform-deploy:
-  #   description: "Run the terraform orb for deploying."
-  #   steps:
-  #     - terraform/fmt:
-  #         checkout: true
-  #         path: "./ci/packet_terraform/"
-  #     - terraform/validate:
-  #         checkout: true
-  #         path: "./ci/packet_terraform/"
+  terraform-deploy:
+    description: "Run the terraform orb for deploying."
+    parameters:
+      code-path:
+        description: the folder where th code is at
+        type: string
+    steps:
+      - checkout
+      - terraform/fmt:
+          path: "<< parameters.code-path >>"
   
 jobs:
   terraform-linting:
@@ -65,6 +66,15 @@ jobs:
       # linting the aws terraform files
       # - terraform-lint:
       #     code-path: ci/kali_aws_info
+
+  terraform-packet_deploy:
+    executor: terraform/default
+    steps:
+        - run: terraform --version
+        - terraform-deploy:
+            code-path: ci/packet_terraform
+        # TODO: setup actual deployment
+
   # shellcheck-base:
   #   description: this is the bare minimum that shellcheck NEEDS to pass
   #   docker:
@@ -102,10 +112,16 @@ jobs:
 
 workflows:
   version: 2
-  linting-required:
+  # this is the workflow that will build the local image
+  #   (i.e. the vagrant box w/local providers (i.e. Vbox, VMWare, etc..))
+  dev-build_local-image:
       jobs:
         - shellcheck-warning
         - terraform-linting
+        - terraform-packet_deploy:
+            requires:
+              - shellcheck-warning
+              - terraform-linting
   linting-wanted:
       jobs:
         - shellcheck-desired
