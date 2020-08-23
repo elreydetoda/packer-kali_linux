@@ -12,27 +12,27 @@
 #   set the PACKET_AUTH_TOKEN env variable for auth
 #   or the auth_token is required
 variable "auth_token" {
-  description   = "The auth token for the account"
-  type          = string
+  description = "The auth token for the account"
+  type        = string
 }
 
 variable "project_id" {
-  description   = "The ID of the project the device (server) belongs to."
-  type          = string
+  description = "The ID of the project the device (server) belongs to."
+  type        = string
 }
 
 variable "server_hostname" {
-  description   = "The hostname of the device (server) getting assigned."
-  type          = string
-  default       = "packer-build-box"
+  description = "The hostname of the device (server) getting assigned."
+  type        = string
+  default     = "packer-build-box"
 }
 
 # NOTE: this needs to be a baremetal host
 #   or else packer won't work
 variable "provision_plan" {
-  description   = "The type of the device (server) getting assigned."
-  type          = string
-  default       = "baremetal_1"
+  description = "The type of the device (server) getting assigned."
+  type        = string
+  default     = "baremetal_1"
 }
 
 ##################################################
@@ -50,19 +50,19 @@ data "http" "current_ip" {
 
 # querying for LTS based on server OS and type
 data "packet_operating_system" "ubuntu_lts" {
-    distro              = "ubuntu"
-    version             = "20.04"
-    provisionable_on    = var.provision_plan
+  distro           = "ubuntu"
+  version          = "20.04"
+  provisionable_on = var.provision_plan
 }
 
 # provisioning the actual server based on above info
 resource "packet_device" "packer_build_server" {
-  hostname          = var.server_hostname
-  project_id        = var.project_id
-  operating_system  = data.packet_operating_system.ubuntu_lts.id
-  plan              = var.provision_plan
-  facilities        = [ "any" ]
-  billing_cycle     = "hourly"
+  hostname         = var.server_hostname
+  project_id       = var.project_id
+  operating_system = data.packet_operating_system.ubuntu_lts.id
+  plan             = var.provision_plan
+  facilities       = ["any"]
+  billing_cycle    = "hourly"
 
 }
 ##################################################
