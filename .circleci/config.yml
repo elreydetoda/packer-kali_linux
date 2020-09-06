@@ -107,6 +107,18 @@ jobs:
           severity: style
           optional: all
           format: gcc
+  markdown-linting:
+    description: linting markdown files
+    docker:
+      - image: cimg/ruby:2.7.1
+    steps:
+      - checkout
+      # installing markdownlint
+      - run: gem install mdl --no-document
+      - run:  |
+          find . -type f -iname '*.md' | xargs -t mdl -s .linting-configs/markdown-lint.rb
+
+
 #   build:
 #     machine: true
 #     steps:
@@ -124,6 +136,7 @@ workflows:
       jobs:
         - shellcheck-warning
         - terraform-linting
+        - markdown-linting
         - terraform-packet_deploy:
             requires:
               - shellcheck-warning
