@@ -1,53 +1,63 @@
 #!/usr/bin/env bash
 
-if [[ -z "${CIRCLECI}" ]] ; then
-  CIRCLECI=''
-fi
-
 # https://elrey.casa/bash/scripting/harden
 set -${-//[s]/}eu${DEBUG+xv}o pipefail
 
 
-# # dependencies
-# deps_install(){
-#   case $(grep '^ID' /etc/os-release | cut -d '=' -f 2) in
-#     ubuntu)
-#       packages=("gpg" "wget" "curl" "jq")
-#       package_manager="apt"
-#   esac
-# }
-#
-# deps=("gpg" "wget" "curl" "jq")
-# for dep in "${deps[@]}" ; do
-#   if ! which ${dep} ; then
-#     echo "need to install ${dep}"
-#     deps_install
-#     break
-#   fi
-# done
+# dependencies
+deps_install(){
+  case $(grep '^ID_LIKE=' /etc/os-release | cut -d '=' -f 2) in
+    debian)
+      packages=("gpg" "wget" "curl" "jq")
+      package_manager="apt"
+  esac
 
-# # current
-# currentKaliISOUrl="${kaliCurrentUrl}${currentKaliISO}"
-# hashAlgOut=$(echo $hashAlg | rev | cut -d 'S' -f 3- | rev | tr '[:upper:]' '[:lower:]')
+  need_to_install=''
+  needs=()
+  for package in "${packages[@]}" ; do
+    if ! command -v "${package}" > /dev/null ; then
+      needs+=( "${package}" )
+      need_to_install='true'
+    fi
+  done
 
-# if [[ $CIRCLECI ]] ; then
-#   echo "current iso url: $currentKaliISOUrl"
-#   echo "current iso $hashAlgOut"
-#   echo "current iso checksum: $currentHashAlg"
-#   echo "current version: $vm_version"
-#   printf '{"iso_url":"%s","iso_checksum_type":"%s","iso_checksum":"%s","vm_name":"%s","vm_version":"%s","vagrant_cloud_token":"%s","headless":"true"}\n' "$currentKaliISOUrl" "$hashAlgOut" "$currentHashAlg" "$namez" "$vm_version" "$vagrant_cloud_token" | jq . > variables.json
-# else
-#   printf '{"iso_url":"%s","iso_checksum_type":"%s","iso_checksum":"%s","vm_name":"%s","vm_version":"%s","vagrant_cloud_token":"%s"}\n' "$currentKaliISOUrl" "$hashAlgOut" "$currentHashAlg" "$namez" "$vm_version" "$vagrant_cloud_token" | jq . | tee variables.json
-# fi
-# rm -rf $tmpDir
+  if [[ -n "${need_to_install}" ]] ; then
+    printf 'need to install: %s\n' "${needs[@]}"
+    sudo ${package_manager} install -y "${packages[@]}"
+  fi
+}
+
+function packer_out(){
+
+  packer_var_json_string+=",$(printf '"vagrant_cloud_token":"%s"' "${vagrant_cloud_token}" )"
+
+  if [[ -z "${CIRCLECI}" ]] ; then
+    read -n 1 -r -p 'Would you like this to be headless?[Y/n] ' set_headless
+    # creating newline after read
+    echo
+    set_headless="${set_headless:-y}"
+  else
+    set_headless=''
+  fi
+
+  set_headless="$(printf '%s' "${set_headless}" | tr '[:upper:]' '[:lower:]')"
+  if [[ -n "${CIRCLECI}" ]] || [[ "${set_headless}" == 'y' ]] ; then
+    packer_var_json_string+=",$(printf '"headless":"%s"' "true" )"
+  fi
+
+  packer_var_json_string+='}'
+
+  if [[ -n "${CIRCLECI}" ]] ; then
+    printf '%s' "${packer_var_json_string}" | jq '.' | grep -v 'vagrant_cloud_token' | tee "${variables_out_file}"
+  else
+    printf '%s' "${packer_var_json_string}" | jq '.' | tee "${variables_out_file}"
+  fi
+}
 
 function hashicorp_setup_env(){
-  if [[ "${CIRCLECI}" ]] ; then
-    hashiName="${vagrant_cloud_user}"
-    vagrant_cloud_token="${vagrant_cloud_token}"
-  elif [[ "$(whoami)" == 'vagrant' ]] ; then
-    hashiName="${vagrant_cloud_user}"
-    vagrant_cloud_token="${vagrant_cloud_token}"
+  if [[ -n "${CIRCLECI}" ]] || [[ "$(whoami)" == 'vagrant' ]] ; then
+    hashiName="${VAGRANT_CLOUD_USER-''}"
+    vagrant_cloud_token="${VAGRANT_CLOUD_TOKEN-''}"
   fi
 
   if [[ -n "${hashiName}" ]]; then
@@ -61,7 +71,7 @@ function hashicorp_setup_env(){
               patch_release_version=$(( $(echo "${currentVersion}" | cut -d '.' -f 3) + 1 ))
               vm_version="${MAJOR_RELEASE_VERSION}.${MINOR_RELEASE_VERSION}.${patch_release_version}"
           else
-              printf 'The current version is %s, what version would you like?\nPlease keep similar formatting as the current example.' "${currentVersion}"
+              printf '\n\nThe current version is %s, what version would you like?\nPlease keep similar formatting as the current example.\n' "${currentVersion}"
               read -r vm_version
           fi
       fi
@@ -93,23 +103,32 @@ function cryptographical_verification(){
 
 function info_enum(){
 
+  printf '\nthe current version of the box is: %s\n' "${namez}"
+  packer_var_json_string+="$(printf '"vm_name":"%s",' "${namez}" )"
+
   # getting the current kali iso filename
   #   sed command, came from here: https://github.com/SamuraiWTF/samuraiwtf/pull/103#commitcomment-35941962
   #   NOTE: this is only compatible for >= 2020.1
   currentKaliISO=$( $curl "${kaliCurrentUrl}" | sed -n '/href=".*netinst-amd64.iso"/p' | awk -F'["]' '{print $8}' )
   printf '\ngetting filename of the kali iso: %s\n' "${currentKaliISO}"
 
+  currentKaliISOUrl="${kaliCurrentUrl}/${currentKaliISO}"
+  printf '\nthe selected release url is: %s\n' "${currentKaliISOUrl}"
+  packer_var_json_string+="$(printf '"iso_url":"%s",' "${currentKaliISOUrl}" )"
+
+  printf '\nthe current hash alg chosen: %s\n' "${hashAlgOut}"
+  packer_var_json_string+="$(printf '"iso_checksum_type":"%s",' "${hashAlgOut}" )"
+
   currentHashSum=$( grep "${currentKaliISO}" "${tmpDir}/${hashAlg}" | cut -d ' ' -f 1 )
   printf '\nthe current hash for that file is: %s\n' "${currentHashSum}"
+  packer_var_json_string+="$(printf '"iso_checksum":"%s",' "${currentHashSum}" )"
 
   currentKaliReleaseVersion=$(grep -oP '\d{4}\.\w' <<< "${currentKaliISO}" )
-  printf '\nthe selected release for kali is: %s\n\n' "${currentKaliReleaseVersion}"
+  printf '\nthe selected release for kali is: %s\n' "${currentKaliReleaseVersion}"
 
-}
+  printf '\nthe current version of the box is: %s\n\n' "${vm_version}"
+  packer_var_json_string+="$(printf '"vm_version":"%s"' "${vm_version}" )"
 
-function non_ci_setup(){
-  vagrant_cloud_user=''
-  vagrant_cloud_token=''
 }
 
 function main(){
@@ -127,12 +146,15 @@ function main(){
   # the hash algorithm wanted for the kali version
   #   NOTE: try and always make this the best it can be
   hashAlg='SHA256SUMS'
+  # doing this because if hash alg changes it should still get everything except the SUMS
+  hashAlgOut=$(printf '%s' "${hashAlg}" | rev | cut -d 'S' -f 3- | rev | tr '[:upper:]' '[:lower:]')
   # the url for the gpg key that is used to sign the hashes for the ISOs
   kaliKeyUrl='https://www.kali.org/archive-key.asc'
 
   ## vagrant box information
   # name of the vagrant box
   namez="kali-linux_amd64"
+  variables_out_file='variables.json'
 
   ## commands and combined variables
   # current version of kali's url combined with the base path
@@ -142,13 +164,15 @@ function main(){
   kaliCurrentHashUrl="${kaliCurrentUrl}/${hashAlg}"
   # re-defining curl to have some extra flags by default (essentially a bash alias)
   curl='curl -fsSL'
+  CIRCLECI="${CIRCLECI:-}"
 
-  if [[ -z "${CIRCLECI}" ]] ; then
-    non_ci_setup
-  fi
+  packer_var_json_string='{'
 
+  deps_install
   cryptographical_verification
+  hashicorp_setup_env
   info_enum
+  packer_out
 
 }
 
