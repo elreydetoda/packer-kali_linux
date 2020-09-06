@@ -2,7 +2,6 @@ version: 2.1
 
 orbs:
   shellcheck: circleci/shellcheck@volatile
-  terraform: circleci/terraform@volatile
   python: circleci/python@volatile
   bats: circleci/bats@volatile
   codecov: codecov/codecov@volatile
@@ -46,8 +45,9 @@ commands:
     steps:
       - checkout
       - run: |
+          set -eux
           terraform init "<< parameters.code-path >>"
-          terraform fmt -check "<< parameters.code-path >>"
+          terraform fmt -check -diff "<< parameters.code-path >>"
           terraform validate "<< parameters.code-path >>"
       # - terraform/fmt:
       #     path: "<< parameters.code-path >>"
@@ -62,8 +62,10 @@ commands:
         type: string
     steps:
       - checkout
-      - terraform/fmt:
-          path: "<< parameters.code-path >>"
+      - run: |
+          set -eux
+      # - terraform/fmt:
+      #     path: "<< parameters.code-path >>"
   
 jobs:
   terraform-linting:
@@ -80,7 +82,9 @@ jobs:
       #     code-path: ci/kali_aws_info
 
   terraform-packet_deploy:
-    executor: terraform/default
+    # executor: terraform/default
+    docker:
+      - image: 'hashicorp/terraform:light'
     steps:
         - run: terraform --version
         - terraform-deploy:
