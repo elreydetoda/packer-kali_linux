@@ -131,6 +131,10 @@ function info_enum(){
 
 }
 
+function cleanup(){
+  rm -rf "${tmpDir}"
+}
+
 function main(){
 
   ## all initial variables needed for script
@@ -173,6 +177,7 @@ function main(){
   hashicorp_setup_env
   info_enum
   packer_out
+  cleanup
 
 }
 
