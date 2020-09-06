@@ -45,10 +45,14 @@ commands:
         type: string
     steps:
       - checkout
-      - terraform/fmt:
-          path: "<< parameters.code-path >>"
-      - terraform/validate:
-          path: "<< parameters.code-path >>"
+      - run: |
+          terraform init "<< parameters.code-path >>"
+          terraform fmt -check "<< parameters.code-path >>"
+          terraform validate "<< parameters.code-path >>"
+      # - terraform/fmt:
+      #     path: "<< parameters.code-path >>"
+      # - terraform/validate:
+      #     path: "<< parameters.code-path >>"
 
   terraform-deploy:
     description: "Run the terraform orb for deploying."
@@ -63,7 +67,9 @@ commands:
   
 jobs:
   terraform-linting:
-    executor: terraform/default
+    # executor: terraform/default
+    docker:
+      - image: 'hashicorp/terraform:light'
     steps:
       - run: terraform --version
       # linting the packet terraform files
