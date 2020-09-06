@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+if [[ -z "${CIRCLECI}" ]] ; then
+  CIRCLECI=''
+fi
+
 # https://elrey.casa/bash/scripting/harden
 set -${-//[s]/}eu${DEBUG+xv}o pipefail
 
@@ -22,37 +26,6 @@ set -${-//[s]/}eu${DEBUG+xv}o pipefail
 #   fi
 # done
 
-
-
-
-# if [[ -f $secretFileFullPath ]] ; then
-#     hashiName=$(grep vagrant_cloud $secretFileFullPath | cut -d ':' -f 2)
-#     vagrant_cloud_token=$(grep vagrant_cloud $secretFileFullPath | cut -d ':' -f 3-)
-# elif [[ $CIRCLECI ]] ; then
-#     hashiName="${VAGRANT_CLOUD_USER}"
-#     vagrant_cloud_token="${VAGRANT_CLOUD_TOKEN}"
-# elif [[ "$(whoami)" == 'vagrant' ]] ; then
-#   hashiName="${VAGRANT_CLOUD_USER}"
-#     vagrant_cloud_token="${VAGRANT_CLOUD_TOKEN}"
-# fi
-
-# if [[ ! -z $hashiName ]]; then
-#     namez="${hashiName}/${namez}"
-#     vagrantBoxUrl="https://app.vagrantup.com/$namez"
-#     if curl -sSL $vagrantBoxUrl | grep 'false' 1> /dev/null ; then
-#         vm_version='0.0.1'
-#     else
-#         currentVersion=$($curl $vagrantBoxUrl | jq '{versions}[][0]["version"]' | cut -d '"' -f 2)
-#         if [[ $CIRCLECI ]] ; then
-#             patch_release_version=$(( $(echo $currentVersion | cut -d '.' -f 3) + 1 ))
-#             vm_version="${MAJOR_RELEASE_VERSION}.${MINOR_RELEASE_VERSION}.${patch_release_version}"
-#         else
-#             echo -e "The current version is $currentVersion, what version would you like?\nPlease keep similar formatting as the current example."
-#             read -r vm_version
-#         fi
-#     fi
-# fi
-
 # # current
 # currentKaliISOUrl="${kaliCurrentUrl}${currentKaliISO}"
 # hashAlgOut=$(echo $hashAlg | rev | cut -d 'S' -f 3- | rev | tr '[:upper:]' '[:lower:]')
@@ -68,6 +41,32 @@ set -${-//[s]/}eu${DEBUG+xv}o pipefail
 # fi
 # rm -rf $tmpDir
 
+function hashicorp_setup_env(){
+  if [[ "${CIRCLECI}" ]] ; then
+    hashiName="${vagrant_cloud_user}"
+    vagrant_cloud_token="${vagrant_cloud_token}"
+  elif [[ "$(whoami)" == 'vagrant' ]] ; then
+    hashiName="${vagrant_cloud_user}"
+    vagrant_cloud_token="${vagrant_cloud_token}"
+  fi
+
+  if [[ -n "${hashiName}" ]]; then
+      namez="${hashiName}/${namez}"
+      vagrantBoxUrl="https://app.vagrantup.com/${namez}"
+      if curl -sSL "${vagrantBoxUrl}" | grep 'false' 1> /dev/null ; then
+          vm_version='0.0.1'
+      else
+          currentVersion="$($curl "${vagrantBoxUrl}" | jq '{versions}[][0]["version"]' | cut -d '"' -f 2)"
+          if [[ "${CIRCLECI}" ]] ; then
+              patch_release_version=$(( $(echo "${currentVersion}" | cut -d '.' -f 3) + 1 ))
+              vm_version="${MAJOR_RELEASE_VERSION}.${MINOR_RELEASE_VERSION}.${patch_release_version}"
+          else
+              printf 'The current version is %s, what version would you like?\nPlease keep similar formatting as the current example.' "${currentVersion}"
+              read -r vm_version
+          fi
+      fi
+  fi
+}
 
 function cryptographical_verification(){
 
@@ -104,8 +103,13 @@ function info_enum(){
   printf '\nthe current hash for that file is: %s\n' "${currentHashSum}"
 
   currentKaliReleaseVersion=$(grep -oP '\d{4}\.\w' <<< "${currentKaliISO}" )
-  printf '\nthe selected release for kali is: %s\n' "${currentKaliReleaseVersion}"
+  printf '\nthe selected release for kali is: %s\n\n' "${currentKaliReleaseVersion}"
 
+}
+
+function non_ci_setup(){
+  vagrant_cloud_user=''
+  vagrant_cloud_token=''
 }
 
 function main(){
@@ -138,6 +142,10 @@ function main(){
   kaliCurrentHashUrl="${kaliCurrentUrl}/${hashAlg}"
   # re-defining curl to have some extra flags by default (essentially a bash alias)
   curl='curl -fsSL'
+
+  if [[ -z "${CIRCLECI}" ]] ; then
+    non_ci_setup
+  fi
 
   cryptographical_verification
   info_enum
