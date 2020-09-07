@@ -1,0 +1,18 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+pylint = "*"
+bandit = "*"
+black = "==20.8b1"
+ansible-lint = "*"
+
+[packages]
+bullet = "*"
+boto3 = "*"
+ansible = "*"
+
+[requires]
+python_version = "3"
