@@ -32,7 +32,7 @@
 
         - name: setup VirtualBox apt repository on Ubuntu
           apt_repository:
-            repo: "deb https://download.virtualbox.org/virtualbox/debian {{ ansible_facts['distribution_release'] }} contrib"
+            repo: "deb [arch=amd64] https://download.virtualbox.org/virtualbox/debian {{ ansible_facts['distribution_release'] }} contrib"
             state: present
 
         - name: getting most recent version of virtualbox
