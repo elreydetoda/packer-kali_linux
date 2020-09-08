@@ -1,11 +1,7 @@
 #!/usr/bin/env bash
 
-# normal mode
-set -euo pipefail
-# debug mode
-# set -exuo pipefail
-
-curl="curl -sSL"
+# https://blog.elreydetoda.site/cool-shell-tricks/#bashscriptingmodifiedscripthardening
+set -${-//[sc]/}eu${DEBUG+xv}o pipefail
 
 create_server(){
 	# checking to see if arguments got passed
@@ -275,13 +271,9 @@ start_build(){
 
 main(){
   # url for the packet api service
-  packet_base_url='https://api.packet.net'
   packet_parameters=( "facility" "plan" "os" )
-  set +u
-  if [[ -z $PERSONAL_NUM ]] ; then
-    PERSONAL_NUM=''
-  fi
-  set -u
+  curl="curl -sSL"
+  PERSONAL_NUM="${PERSONAL_NUM:-}"
 
   if [[ $CIRCLECI ]] ; then
     # create artifact directory
@@ -330,4 +322,6 @@ main(){
   
 }
 
-main
+if [[ "${0}" = "${BASH_SOURCE[0]}" ]] ; then
+  main "${@}"
+fi
