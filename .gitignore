@@ -9,6 +9,10 @@ tmp/
 *.box
 *.log
 
+# backup files
+*.bak*
+*.orig*
+
 # secret files
 *variables.json
 secrets.txt
@@ -17,3 +21,6 @@ prov_vagrant/env_vars
 
 # CIRCLECI local output
 process.yml
+
+# dynamically generated file(s)
+template.json*
