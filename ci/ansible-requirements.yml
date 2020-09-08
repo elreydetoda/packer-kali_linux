@@ -1,11 +1,5 @@
 # cmd:ansible-galaxy "${ansible_type}" install -r
 
 collections:
-  - name: crivetimihai.virtualization
-    version: 1.0.33
-
-roles:
-  - name: diodonfrost.vagrant
-    version: 1.5.0
-  - name: geerlingguy.packer
-    version: 1.0.2
+  - name: elreydetoda.virtualization
+    version: 1.0.35
