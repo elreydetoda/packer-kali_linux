@@ -190,15 +190,15 @@ prep_for_packer(){
 }
 
 main(){
-  echo ${FUNCNAME[0]}
-  software_array=( "virtualbox" "vagrant" "packer" )
-  dependencies
+  # echo ${FUNCNAME[0]}
+  # software_array=( "virtualbox" "vagrant" "packer" )
+  # dependencies
 
-  for software in "${software_array[@]}" ; do
-    get_software ${software}
-    setup_software ${software}
-  done
-  ufw_setup
+  # for software in "${software_array[@]}" ; do
+  #   get_software ${software}
+  #   setup_software ${software}
+  # done
+  # ufw_setup
   prep_for_packer
   echo 'done'
 }
