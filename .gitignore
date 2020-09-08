@@ -14,3 +14,6 @@ variables.json
 secrets.txt
 prov_vagrant/env_vars
 *.tfstate*
+
+# CIRCLECI local output
+process.yml
