@@ -38,3 +38,15 @@
             - name: install vagrant
               include_role:
                 name: vagrant
+    
+    - name: ufw setup
+      block:
+
+        - name: adding ssh to allow
+          ufw:
+            rule: limit
+            name: OpenSSH
+
+        - name: enabling ufw
+          ufw:
+            state: enabled
