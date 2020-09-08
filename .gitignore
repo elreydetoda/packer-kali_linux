@@ -10,7 +10,7 @@ tmp/
 *.log
 
 # secret files
-variables.json
+*variables.json
 secrets.txt
 prov_vagrant/env_vars
 *.tfstate*
