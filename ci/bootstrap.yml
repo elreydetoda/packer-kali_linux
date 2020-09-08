@@ -11,7 +11,7 @@
       block:
 
         - name: installing hypervisors
-          block: 
+          block:
 
             - name: installation of virtualbox
               include_role:
@@ -38,7 +38,7 @@
             - name: install vagrant
               include_role:
                 name: vagrant
-    
+
     - name: ufw setup
       block:
 
