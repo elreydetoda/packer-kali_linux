@@ -7,21 +7,24 @@
     ansible_python_interpreter: '/usr/bin/python3'
   tasks:
 
-    - name: installation of virtualbox
-      include_role:
-        name: virtualbox
+    - name: installation software
+      block:
 
-    - name: installation of vmware workstation
-      import_role:
-        name: vmware
-      vars:
-        vmware_bundle_checksum: ''
-        # vmware_license_key: ''
+        - name: installation of virtualbox
+          include_role:
+            name: virtualbox
 
-    - name: installation of packer
-      include_role:
-        name: packer
+        - name: installation of vmware workstation
+          import_role:
+            name: vmware
+          vars:
+            vmware_bundle_checksum: ''
+            # vmware_license_key: ''
 
-    - name: install vagrant
-      include_role:
-        name: vagrant
+        - name: installation of packer
+          include_role:
+            name: packer
+
+        - name: install vagrant
+          include_role:
+            name: vagrant
