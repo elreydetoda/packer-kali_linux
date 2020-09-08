@@ -24,6 +24,10 @@
                 vmware_bundle_checksum: ''
                 # vmware_license_key: ''
 
+            - name: installation of kvm
+              import_role:
+                name: kvm
+
         - name: installing building software
           block:
 
