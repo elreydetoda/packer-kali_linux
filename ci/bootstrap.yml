@@ -2,113 +2,26 @@
 - hosts: all
   become: yes
   collections:
-   - crivetimihai.virtualization
+   - elreydetoda.virtualization
   vars:
     ansible_python_interpreter: '/usr/bin/python3'
   tasks:
 
-    # https://github.com/crivetimihai/ansible_virtualization/blob/master/roles/virtualbox/tasks/install_Ubuntu.yml
-    - name: installation of Virtualbox
-      block:
+    - name: installation of virtualbox
+      include_role:
+        name: virtualbox
 
-        - name: install pre-reqs
-          apt:
-            name: '{{ item }}'
-            state: present
-          loop:
-            - apt-transport-https
-            - ca-certificates
-            - curl
-            - gnupg-agent
-            - software-properties-common
-
-        - name: add Virtualbox apt signing key
-          apt_key:
-            url: "{{ item }}"
-            state: present
-          with_items:
-            - https://download.virtualbox.org/virtualbox/debian/oracle_vbox.asc
-            - https://download.virtualbox.org/virtualbox/debian/oracle_vbox_2016.asc
-
-        - name: setup VirtualBox apt repository on Ubuntu
-          apt_repository:
-            repo: "deb [arch=amd64] https://download.virtualbox.org/virtualbox/debian {{ ansible_facts['distribution_release'] }} contrib"
-            state: present
-
-        - name: getting most recent version of virtualbox
-          shell:
-            apt-cache search --names-only "virtualbox-[[:digit:]]+" |
-              grep '^virtualbox' | sort -t '-' -k2,2n | tail -n 1 | cut -d ' ' -f 1
-          register: virtualbox_version
-          changed_when: false
-
-        - name: installing virtualbox
-          package:
-            name: '{{ item }}'
-            state: present
-          loop:
-            - '{{ virtualbox_version.stdout }}'
-
-    - name: installation of vmware
-      block:
-
-        - name: pre-download vmware for hash
-          get_url:
-            url: 'https://www.vmware.com/go/getworkstation-linux'
-            dest: '/tmp/vmware_hash'
-
-        - name: getting hash
-          stat:
-            path: '/tmp/vmware_hash'
-            checksum_algorithm: sha256
-          register: vmware_hash
-
-        - debug:
-            msg: 'sha256:{{ vmware_hash.stat.checksum }}'
-
-        - name: importing vmware role
-          import_role:
-            name: vmware
-          vars:
-            vmware_bundle_checksum: 'sha256:{{ vmware_hash.stat.checksum }}'
-            # vmware_license_key: ''
-
-      # vars:
+    - name: installation of vmware workstation
+      import_role:
+        name: vmware
+      vars:
+        vmware_bundle_checksum: ''
         # vmware_license_key: ''
 
     - name: installation of packer
-      block:
-        # most of this is courtesy of this repo:
-        #   https://github.com/diodonfrost/ansible-role-vagrant
-        #   except his has the official method with python
-
-        - name: Linux | Find all versions of packer
-          uri:
-            url: https://releases.hashicorp.com/packer/index.json
-            return_content: yes
-          register: packer_index
-
-        - name: Linux | Finds the latest version of packer when latest var is define
-          shell:
-            cmd: |
-              set -${-//[sc]/}eu${DEBUG+xv}o pipefail
-              IFS=" " read -r -a arrayzz
-              IFS=$'\n' sorted=($( sort -t '.' -k1,1nr -k2,2nr -k3,3nr <<<"${arrayzz[*]}" ))
-              printf '%s' "${sorted[0]}"
-          args:
-            stdin: '{{ (packer_index.content | from_json).versions | list | join(" ") }}'
-            executable: /bin/bash
-          register: shell_output
-          changed_when: False
-
-        - name: Linux | Use the specified packer version from the previous command's register
-          set_fact:
-            packer_version_to_install: '{{ shell_output.stdout }}'
-
-        - name: installing latest packer
-          import_role:
-            name: geerlingguy.packer
-
-    - name: installation of vagrant
       include_role:
-          name: diodonfrost.vagrant
+        name: packer
+
+    - name: install vagrant
+      include_role:
+        name: vagrant
