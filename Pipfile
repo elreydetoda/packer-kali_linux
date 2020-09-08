@@ -4,14 +4,21 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+# for python dev
 pylint = "*"
 bandit = "*"
 black = "==20.8b1"
+# for ansible dev
 ansible-lint = "*"
+yamllint = "*"
+molecule = "*"
 
 [packages]
+# for python prompt
 bullet = "*"
+# for python aws mfa (sts)
 boto3 = "*"
+# for infra prov
 ansible = "*"
 
 [requires]
