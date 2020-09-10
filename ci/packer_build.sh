@@ -211,11 +211,13 @@ wait_to_finish(){
 
 add_ecdsa(){
   echo "adding ecdsa key for host: ${1}"
-  ssh-keyscan $1 | tee -a ~/.ssh/known_hosts
+  # from: https://youtu.be/uuszLnLhkHA?t=2921
+  # Thanks @eth3rmist
+  ssh-keyscan "${1}" | tee -a ~/.ssh/known_hosts
 }
 
 run_remote(){
-  if [[ -z $1 ]] ; then
+  if [[ -z "${1}" ]] ; then
     echo 'The ip address was not retrieved, please try again and delete the, possibly, old server.'
     delete_server
     exit 1
@@ -269,11 +271,26 @@ start_build(){
   run_remote $1 $2
 }
 
+function packet_terraform(){
+  action="${1}"
+  case "${action}" in
+    build)
+        "${scripts_dir}"/terraform-helper.sh auto-build packet
+        remote_packet_ip="$("${scripts_dir}"/terraform-helper.sh output server_ip)"
+        current_ip="$("${scripts_dir}"/terraform-helper.sh output current_ip)"
+      ;;
+    destroy)
+      "${scripts_dir}"/terraform-helper.sh auto-destroy packet
+      ;;
+  esac
+}
+
 main(){
   # url for the packet api service
   packet_parameters=( "facility" "plan" "os" )
   curl="curl -sSL"
   PERSONAL_NUM="${PERSONAL_NUM:-}"
+  scripts_dir="$( cd "$(dirname "scripts")" >/dev/null 2>&1 ; pwd -P )"
 
   if [[ $CIRCLECI ]] ; then
     # create artifact directory
