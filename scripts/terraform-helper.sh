@@ -1,11 +1,7 @@
 #!/usr/bin/env bash
 
-set -$-eu${DEBUG+xv}o pipefail
-
-if [[ $# -lt 1 ]] ; then
-    printf 'Please enter at one terraform directive: %s %s\n' "${0}" "<init|plan|apply|destroy>"
-    exit 1
-fi
+# https://blog.elreydetoda.site/cool-shell-tricks/#bashscriptingmodifiedscripthardening
+set -${-//[sc]/}eu${DEBUG+xv}o pipefail
 
 function terraform_stuff(){
 
@@ -88,6 +84,12 @@ function cleanup(){
 
 function main(){
 
+    if [[ $# -lt 1 ]] ; then
+        printf 'Please enter at one terraform directive: %s %s [aws|packet|]\n' "${0}" "<init|plan|apply|destroy>|<auto-build|auto-destroy|cleanup>"
+        exit 1
+    fi
+
+
     if [[ "${1}" == "clean" ]] || [[ "${1}" == "cleanup" ]] ; then
 
         cleanup
@@ -112,4 +114,7 @@ function main(){
     fi
 }
 
-main "${@}"
+# https://blog.elreydetoda.site/cool-shell-tricks/#bashscriptingbashsmain
+if [[ "${0}" = "${BASH_SOURCE[0]}" ]] ; then
+  main "${@}"
+fi
