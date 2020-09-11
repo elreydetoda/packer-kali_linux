@@ -1,4 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+# https://elrey.casa/bash/scripting/harden
+set -${-//[s]/}eu${DEBUG+xv}o pipefail
 
 # this sets the dock to a fixed width instead of autohiding.
 # no longer needed since 2019.4
@@ -21,3 +24,8 @@
 # apt install -y wkhtmltopdf
 # curl -sSL ${nse_location}/http-screenshot.nse ${raw_github_url}
 # nmap --script-updatedb
+
+# https://blog.elreydetoda.site/cool-shell-tricks/#bashscriptingbashsmain
+if [[ "${0}" = "${BASH_SOURCE[0]}" ]] ; then
+  main "${@}"
+fi
