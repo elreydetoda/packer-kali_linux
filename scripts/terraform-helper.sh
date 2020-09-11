@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# https://blog.elreydetoda.site/cool-shell-tricks/#bashscriptingmodifiedscripthardening
+# https://elrey.casa/bash/scripting/harden
 set -${-//[sc]/}eu${DEBUG+xv}o pipefail
 
 function terraform_stuff(){
