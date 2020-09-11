@@ -11,82 +11,106 @@ function check_empty(){
   fi
 }
 
-case "$#" in
-  1)
-    shellcheck_args="${1}"
-    path_to_check="${PWD}"
-    ;;
-  2)
-    shellcheck_args="${1}"
-    path_to_check="${2}"
-    ;;
-  0)
-    path_to_check="${PWD}"
-    ;;
-  *)
-    printf 'There where an unexpected amount of arguments, specifically: %d\n' "$#"
-    echo "Please set the correct amount of arguments."
-    exit 2
-esac
+function param_check(){
 
-# params for shellcheck arguments associative array
-declare -A shellcheck_args_organized
-counterz=0
-mapfile -t shellcheck_args_array < <( tr '|' '\n' <<< "${shellcheck_args}" )
-
-for argz in "${shellcheck_args_array[@]}" ; do
-
-  case "${counterz}" in
-
-    ## comments below are formatted as follows
-    ##  ARG<argument_position>: <small_description>
-
-    0)
-      # ARG0: setting the severity that shellcheck should check with
-      shellcheck_args_organized[sev]="${argz}"
-      ;;
+  case "$#" in
     1)
-      # ARG1: the optional extra checks shellcheck can do
-      shellcheck_args_organized[optional]="${argz}"
+      shellcheck_args="${1}"
+      path_to_check="${PWD}"
       ;;
     2)
-      # ARG1: the optional extra checks shellcheck can do
-      shellcheck_args_organized[format]="${argz}"
+      shellcheck_args="${1}"
+      path_to_check="${2}"
       ;;
-
-  esac
-
-  counterz=$(( counterz+1 ))
-
-done
-
-constructed_params=()
-
-for ((param=0; param<counterz; param++)) ; do
-
-  case "${param}" in
     0)
-      check_empty "${shellcheck_args_organized[sev]}" || break
-      constructed_params+=( '-S' "${shellcheck_args_organized[sev]}" )
+      path_to_check="${PWD}"
       ;;
-    1)
-      check_empty "${shellcheck_args_organized[optional]}" || break
-      constructed_params+=( '-o' "${shellcheck_args_organized[optional]}")
-      ;;
-    2)
-      check_empty "${shellcheck_args_organized[format]}" || break
-      constructed_params+=( '-f' "${shellcheck_args_organized[format]}")
-      ;;
+    *)
+      printf 'There where an unexpected amount of arguments, specifically: %d\n' "$#"
+      echo "Please set the correct amount of arguments."
+      exit 2
   esac
 
-done
+}
 
-# for debug
-# echo "${constructed_params[@]}"
+function parse_args(){
 
-# cmd for shellcheck
-find "${path_to_check}" -not -path "${path_to_check}/.git/*" \
-  -type f -exec file {} \; |
-  grep 'shell script' |
-  cut -d ':' -f 1 |
-  xargs -t shellcheck --external-sources "${constructed_params[@]}"
+  # params for shellcheck arguments associative array
+  counterz=0
+  mapfile -t shellcheck_args_array < <( tr '|' '\n' <<< "${shellcheck_args}" )
+
+  for argz in "${shellcheck_args_array[@]}" ; do
+
+    case "${counterz}" in
+
+      ## comments below are formatted as follows
+      ##  ARG<argument_position>: <small_description>
+
+      0)
+        # ARG0: setting the severity that shellcheck should check with
+        shellcheck_args_organized[sev]="${argz}"
+        ;;
+      1)
+        # ARG1: the optional extra checks shellcheck can do
+        shellcheck_args_organized[optional]="${argz}"
+        ;;
+      2)
+        # ARG1: the optional extra checks shellcheck can do
+        shellcheck_args_organized[format]="${argz}"
+        ;;
+
+    esac
+
+    counterz=$(( counterz+1 ))
+
+  done
+
+}
+
+function args_construct(){
+
+  constructed_params=()
+
+  for ((param=0; param<counterz; param++)) ; do
+
+    case "${param}" in
+      0)
+        check_empty "${shellcheck_args_organized[sev]}" || break
+        constructed_params+=( '-S' "${shellcheck_args_organized[sev]}" )
+        ;;
+      1)
+        check_empty "${shellcheck_args_organized[optional]}" || break
+        constructed_params+=( '-o' "${shellcheck_args_organized[optional]}")
+        ;;
+      2)
+        check_empty "${shellcheck_args_organized[format]}" || break
+        constructed_params+=( '-f' "${shellcheck_args_organized[format]}")
+        ;;
+    esac
+
+  done
+
+}
+
+function main(){
+
+  declare -A shellcheck_args_organized
+  param_check "${@}"
+  parse_args
+  args_construct
+
+  # for debug
+  # echo "${constructed_params[@]}"
+  
+  # cmd for shellcheck
+  find "${path_to_check}" -not -path "${path_to_check}/.git/*" \
+    -type f -exec file {} \; |
+    grep 'shell script' |
+    cut -d ':' -f 1 |
+    xargs -t shellcheck --external-sources "${constructed_params[@]}"
+}
+
+# https://blog.elreydetoda.site/cool-shell-tricks/#bashscriptingbashsmain
+if [[ "${0}" = "${BASH_SOURCE[0]}" ]] ; then
+  main "${@}"
+fi
