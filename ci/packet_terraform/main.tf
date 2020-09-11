@@ -45,7 +45,7 @@ provider "packet" {
 # querying current ip address, so it is able to only whitelist
 #   this ip address for incoming connections
 data "http" "current_ip" {
-  url = "https://ifconfig.co/json"
+  url = "https://api.ipify.org/?format=json"
 }
 
 # querying for LTS based on server OS and type
