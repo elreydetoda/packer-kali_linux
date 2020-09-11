@@ -29,10 +29,12 @@ variable "server_hostname" {
 
 # NOTE: this needs to be a baremetal host
 #   or else packer won't work
+#   https://www.packet.com/developers/os-compatibility/
+#   https://www.packet.com/developers/api/operatingsystems/
 variable "provision_plan" {
   description = "The type of the device (server) getting assigned."
   type        = string
-  default     = "baremetal_1"
+  default     = "c3.small.x86"
 }
 
 ##################################################
