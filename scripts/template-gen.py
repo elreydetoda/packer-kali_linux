@@ -10,6 +10,8 @@ from packerlicious import provisioner as packer_provisioner
 from packerlicious import builder as packer_builder
 from packerlicious import post_processor as packer_post_processor
 
+# TODO: add more + better logging, w/cli arg optional
+
 # start each section with a pre-defined message and it's name
 def section_meta(current_status: str, current_func: str) -> NoReturn:
     # adding extra spacing
