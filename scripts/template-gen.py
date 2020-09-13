@@ -4,6 +4,11 @@ import pathlib
 from inspect import getframeinfo, currentframe
 from pprint import pprint
 from typing import NoReturn
+from copy import deepcopy
+from packerlicious import Template as packer_template
+from packerlicious import provisioner as packer_provisioner
+from packerlicious import builder as packer_builder
+from packerlicious import post_processor as packer_post_provisioner
 
 # start each section with a pre-defined message and it's name
 def section_meta(current_status: str, current_func: str) -> NoReturn:
@@ -136,7 +141,24 @@ def builder_alterations(packer_template_data: dict, new_builder_data: dict) -> d
 
 def provisioner_alterations(packer_template_data: dict, new_prov_data: dict) -> dict:
     section_meta('starting', getframeinfo(currentframe()).function)
-    logging(packer_template_data)
+
+    packer_prov_list = packer_template_data['provisioners']
+    bento_prov = packer_prov_list[0]
+    # creating deepcopy of env to use later, so we can alter it and it not
+    #   mess up the original:
+    #   https://stackoverflow.com/questions/2612802/how-to-clone-or-copy-a-list
+
+    bento_copy_prov = deepcopy(bento_prov)
+
+    cleanup_scripts = []
+
+    # minimize.sh
+    cleanup_scripts.append(bento_prov['scripts'].pop())
+    # cleanup.sh
+    cleanup_scripts.append(bento_prov['scripts'].pop())
+
+    #  packer_provisioner()
+    # logging(packer_template_data)
     section_meta('exiting', getframeinfo(currentframe()).function)
     pass
 
@@ -167,9 +189,18 @@ def main():
     ## builders section of variables
     supported_builder_list = [ 'virtualbox-iso', 'vmware-iso' ]
     ## provisioner section of variables
-    my_script_list = [
-        ''
+    scripts_removal_list = [
+        'virtualbox.sh'
     ]
+    prov_packer_dir_str = str(prov_packer_dir)
+    scripts_custom_list = [
+        '{{{{ user `{}` }}}}/customization.sh'.format(prov_packer_dir_str),
+        '{{{{ user `{}` }}}}/docker.sh'.format(prov_packer_dir_str),
+        '{{{{ user `{}` }}}}/full-update.sh'.format(prov_packer_dir_str),
+        '{{{{ user `{}` }}}}/networking.sh'.format(prov_packer_dir_str),
+        '{{{{ user `{}` }}}}/virtualbox.sh'.format(prov_packer_dir_str)
+    ]
+
     ## Bento
 
     # bento dir
@@ -221,7 +252,9 @@ def main():
 
     ### provisioner alterations section
     prov_info_dict = {
-
+        'prov_packer_dir': prov_packer_dir,
+        'scripts_removal_list': scripts_removal_list,
+        'scripts_custom_list': scripts_custom_list
     }
     provisioner_alterations(updated_packer_data, prov_info_dict)
     # logging(updated_packer_data)
