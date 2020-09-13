@@ -20,6 +20,7 @@ bullet = "*"
 boto3 = "*"
 # for infra prov
 ansible = "*"
+packerlicious = "*"
 
 [requires]
 python_version = "3"
