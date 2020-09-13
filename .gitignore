@@ -23,5 +23,5 @@ prov_vagrant/env_vars
 process.yml
 
 # dynamically generated file(s)
-template.json*
+*template.json*
 packer-*
