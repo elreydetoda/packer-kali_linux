@@ -8,7 +8,7 @@ from copy import deepcopy
 from packerlicious import Template as packer_template
 from packerlicious import provisioner as packer_provisioner
 from packerlicious import builder as packer_builder
-from packerlicious import post_processor as packer_post_provisioner
+from packerlicious import post_processor as packer_post_processor
 
 # start each section with a pre-defined message and it's name
 def section_meta(current_status: str, current_func: str) -> NoReturn:
@@ -191,6 +191,23 @@ def provisioner_alterations(packer_template_data: dict, new_prov_data: dict) -> 
     section_meta('exiting', getframeinfo(currentframe()).function)
     return packer_template_data
 
+def post_processor_alterations(packer_template_data: dict, new_post_data: dict) -> dict:
+    section_meta('starting', getframeinfo(currentframe()).function)
+    post_processor_list = packer_template_data['post-processors']
+
+    # updating vagrant processor
+    post_processor_list[0].update(
+        { 'compression_level': 9 }
+    )
+
+    vagrant_cloud_post_processor = packer_post_processor.VagrantCloud().from_dict(title='VagrantCloudPP', d=new_post_data['vagrant-cloud'])
+
+    post_processor_list.append(vagrant_cloud_post_processor.to_dict())
+
+    # print(json.dumps(post_processor_list, indent=2))
+    section_meta('exiting', getframeinfo(currentframe()).function)
+    return packer_template_data
+
 def main():
 
     ### section with lots of variables to get used throughout the script
@@ -286,17 +303,21 @@ def main():
         'scripts_custom_list': scripts_custom_list
     }
     updated_packer_data = provisioner_alterations(updated_packer_data, prov_info_dict)
+
+    ### post provisioner alterations section
+    post_processor_dict = {
+        'vagrant-cloud': {
+            'box_tag': '{{user `vagrant_box_name`}}',
+            'access_token': '{{user `vagrant_cloud_token`}}',
+            'version': '{{user `vm_version`}}'
+            }
+    }
+    updated_packer_data = post_processor_alterations(updated_packer_data, post_processor_dict)
     logging(updated_packer_data)
     # print(type(old_packer_data))
     # print(old_packer_data)
     # pprint(old_packer_data, indent=2)
     # print(old_packer_data.exists())
-
-    # # altering builders section of packer json template
-    # updated_obj = builders_alterations(updated_obj)
-
-    # # altering provisioners section of packer json template
-    # updated_obj = prov_alterations(updated_obj)
 
     # # adding to post-processors
     # updated_obj = post_processor_alteration(updated_obj)
