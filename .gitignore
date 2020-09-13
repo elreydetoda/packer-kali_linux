@@ -24,3 +24,4 @@ process.yml
 
 # dynamically generated file(s)
 template.json*
+packer-*
