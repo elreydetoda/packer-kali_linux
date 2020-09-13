@@ -181,7 +181,7 @@ def provisioner_alterations(packer_template_data: dict, new_prov_data: dict) -> 
     del bento_copy_prov['type']
     # altering the the path for the cleanup.sh, so it
     # doesn't try to uninstall X11 packages
-    bento_copy_prov['scripts'][0] = '{{{{ user `{}` }}}}/cleanup.sh'.format(new_prov_data['prov_packer_dir'])
+    bento_copy_prov['scripts'][0] = '{}/cleanup.sh'.format(new_prov_data['prov_packer_dir'])
 
     packerlicious_prov = packer_provisioner.Shell().from_dict(title='CleanupBentoScripts', d=bento_copy_prov)
 
@@ -216,6 +216,9 @@ def write_packer_template(packer_template_path: pathlib, packer_template_data: d
 
     section_meta('exiting', getframeinfo(currentframe()).function)
 
+# TODO: adding aspirations
+# def add_builder_hyperv():
+
 def main():
 
     ### section with lots of variables to get used throughout the script
@@ -248,11 +251,11 @@ def main():
     ]
     prov_packer_dir_str = str(prov_packer_dir)
     scripts_custom_list = [
-        '{{{{ user `{}` }}}}/customization.sh'.format(prov_packer_dir_str),
-        '{{{{ user `{}` }}}}/docker.sh'.format(prov_packer_dir_str),
-        '{{{{ user `{}` }}}}/full-update.sh'.format(prov_packer_dir_str),
-        '{{{{ user `{}` }}}}/networking.sh'.format(prov_packer_dir_str),
-        '{{{{ user `{}` }}}}/virtualbox.sh'.format(prov_packer_dir_str)
+        '{}/customization.sh'.format(prov_packer_dir_str),
+        '{}/docker.sh'.format(prov_packer_dir_str),
+        '{}/full-update.sh'.format(prov_packer_dir_str),
+        '{}/networking.sh'.format(prov_packer_dir_str),
+        '{}/virtualbox.sh'.format(prov_packer_dir_str)
     ]
 
     ## Bento
@@ -315,7 +318,7 @@ def main():
     ### post provisioner alterations section
     post_processor_dict = {
         'vagrant-cloud': {
-            'box_tag': '{{user `vagrant_box_name`}}',
+            'box_tag': '{{user `vm_name`}}',
             'access_token': '{{user `vagrant_cloud_token`}}',
             'version': '{{user `vm_version`}}'
             }
