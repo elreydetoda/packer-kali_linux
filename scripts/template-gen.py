@@ -148,6 +148,9 @@ def provisioner_alterations(packer_template_data: dict, new_prov_data: dict) -> 
     #   mess up the original:
     #   https://stackoverflow.com/questions/2612802/how-to-clone-or-copy-a-list
 
+    bento_env_vars = bento_prov['environment_vars']
+    bento_exec_cmd = bento_prov['execute_command']
+    bash_exec_cmd = bento_prov['execute_command'].replace(' sh ', ' bash ')
     bento_copy_prov = deepcopy(bento_prov)
 
     cleanup_scripts = []
@@ -157,10 +160,36 @@ def provisioner_alterations(packer_template_data: dict, new_prov_data: dict) -> 
     # cleanup.sh
     cleanup_scripts.append(bento_prov['scripts'].pop())
 
-    #  packer_provisioner()
-    # logging(packer_template_data)
+    personal_script_dict = {
+        'environment_vars': bento_env_vars,
+        'execute_command': bash_exec_cmd,
+        'scripts': new_prov_data['scripts_custom_list']
+    }
+
+    packerlicious_prov = packer_provisioner.Shell().from_dict(title='CustomSystemScripts', d=personal_script_dict)
+    # adding my custom scripts
+    packer_prov_list.append(packerlicious_prov.to_dict())
+
+    ## SHELL: move last 2 scripts (cleanup) to bottom
+    # clearing scripts section of all previous scripts
+    bento_copy_prov['scripts'].clear()
+
+    for script in reversed(cleanup_scripts):
+        bento_copy_prov['scripts'].append(script)
+
+    # removing for packerlicious usage
+    del bento_copy_prov['type']
+    # altering the the path for the cleanup.sh, so it
+    # doesn't try to uninstall X11 packages
+    bento_copy_prov['scripts'][0] = '{{{{ user `{}` }}}}/cleanup.sh'.format(new_prov_data['prov_packer_dir'])
+
+    packerlicious_prov = packer_provisioner.Shell().from_dict(title='CleanupBentoScripts', d=bento_copy_prov)
+
+    packer_prov_list.append(packerlicious_prov.to_dict())
+
+    # print(json.dumps(packer_prov_list, indent=2))
     section_meta('exiting', getframeinfo(currentframe()).function)
-    pass
+    return packer_template_data
 
 def main():
 
@@ -248,7 +277,7 @@ def main():
     builder_info_dict = {
         'supported_builder_list': supported_builder_list       
     }
-    builder_alterations(updated_packer_data, builder_info_dict)
+    updated_packer_data = builder_alterations(updated_packer_data, builder_info_dict)
 
     ### provisioner alterations section
     prov_info_dict = {
@@ -256,8 +285,8 @@ def main():
         'scripts_removal_list': scripts_removal_list,
         'scripts_custom_list': scripts_custom_list
     }
-    provisioner_alterations(updated_packer_data, prov_info_dict)
-    # logging(updated_packer_data)
+    updated_packer_data = provisioner_alterations(updated_packer_data, prov_info_dict)
+    logging(updated_packer_data)
     # print(type(old_packer_data))
     # print(old_packer_data)
     # pprint(old_packer_data, indent=2)
