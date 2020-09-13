@@ -134,6 +134,12 @@ def builder_alterations(packer_template_data: dict, new_builder_data: dict) -> d
 
     return packer_template_data
 
+def provisioner_alterations(packer_template_data: dict, new_prov_data: dict) -> dict:
+    section_meta('starting', getframeinfo(currentframe()).function)
+    logging(packer_template_data)
+    section_meta('exiting', getframeinfo(currentframe()).function)
+    pass
+
 def main():
 
     ### section with lots of variables to get used throughout the script
@@ -160,6 +166,10 @@ def main():
 
     ## builders section of variables
     supported_builder_list = [ 'virtualbox-iso', 'vmware-iso' ]
+    ## provisioner section of variables
+    my_script_list = [
+        ''
+    ]
     ## Bento
 
     # bento dir
@@ -208,7 +218,13 @@ def main():
         'supported_builder_list': supported_builder_list       
     }
     builder_alterations(updated_packer_data, builder_info_dict)
-    logging(updated_packer_data)
+
+    ### provisioner alterations section
+    prov_info_dict = {
+
+    }
+    provisioner_alterations(updated_packer_data, prov_info_dict)
+    # logging(updated_packer_data)
     # print(type(old_packer_data))
     # print(old_packer_data)
     # pprint(old_packer_data, indent=2)
