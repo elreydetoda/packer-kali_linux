@@ -74,6 +74,7 @@ def variable_alterations(packer_template_data: dict, new_vars: dict) -> dict:
         'vm_name': ''
     }
 
+    logging('updating properties for variables, section')
     variables_section.update(sub_dict)
 
     # logging(variables_section)
