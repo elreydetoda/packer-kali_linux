@@ -124,9 +124,15 @@ def builder_alterations(packer_template_data: dict, new_builder_data: dict) -> d
         'iso_url': '{{ user `iso_url` }}'
     }
 
-    logging(packer_builder_list)
+    for builder_dict in packer_builder_list:
+        logging('updated property: {} in: {}'.format(prop_update, builder_dict['type']))
+        builder_dict.update(prop_update)
+
+    # logging(packer_builder_list)
 
     section_meta('exiting', getframeinfo(currentframe()).function)
+
+    return packer_template_data
 
 def main():
 
@@ -202,7 +208,7 @@ def main():
         'supported_builder_list': supported_builder_list       
     }
     builder_alterations(updated_packer_data, builder_info_dict)
-    # logging(updated_packer_data)
+    logging(updated_packer_data)
     # print(type(old_packer_data))
     # print(old_packer_data)
     # pprint(old_packer_data, indent=2)
