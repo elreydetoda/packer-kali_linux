@@ -208,6 +208,14 @@ def post_processor_alterations(packer_template_data: dict, new_post_data: dict) 
     section_meta('exiting', getframeinfo(currentframe()).function)
     return packer_template_data
 
+def write_packer_template(packer_template_path: pathlib, packer_template_data: dict) -> NoReturn:
+    section_meta('starting', getframeinfo(currentframe()).function)
+
+    # logging(packer_template_data)
+    packer_template_path.write_text(json.dumps(packer_template_data, indent=2), encoding='utf-8')
+
+    section_meta('exiting', getframeinfo(currentframe()).function)
+
 def main():
 
     ### section with lots of variables to get used throughout the script
@@ -313,20 +321,11 @@ def main():
             }
     }
     updated_packer_data = post_processor_alterations(updated_packer_data, post_processor_dict)
-    logging(updated_packer_data)
-    # print(type(old_packer_data))
-    # print(old_packer_data)
-    # pprint(old_packer_data, indent=2)
-    # print(old_packer_data.exists())
 
-    # # adding to post-processors
-    # updated_obj = post_processor_alteration(updated_obj)
+    # logging(updated_packer_data)
 
-    # # logging final object
-    # # logging(updated_obj)
-
-    # # writing out to file
-    # new_packer_template.write_text(json.dumps(old_packer_data, indent=2), encoding='utf-8')
+    # writing out to file
+    write_packer_template(new_packer_template, updated_packer_data)
 
 if __name__ == "__main__":
     main()
