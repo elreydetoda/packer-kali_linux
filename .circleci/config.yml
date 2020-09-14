@@ -37,7 +37,7 @@ commands:
       - run: bash << parameters.script-path >> '<< parameters.severity >>|<< parameters.optional >>|<< parameters.format >>'
 
   terraform-lint:
-    description: "Run the terraform orb for linting."
+    description: "Run terraform for linting."
     parameters:
       code-path:
         description: the folder where th code is at
@@ -59,7 +59,7 @@ commands:
       #     path: "<< parameters.code-path >>"
 
   terraform-deploy:
-    description: "Run the terraform orb for deploying."
+    description: "Run terraform for deploying."
     parameters:
       code-path:
         description: the folder where th code is at
