@@ -146,6 +146,7 @@ commands:
           ${packer_cmd[@]} "<< parameters.template-file >>"
 
 jobs:
+
   ansible-linting:
     executor: python/default
     steps:
@@ -159,6 +160,7 @@ jobs:
           pipenv run ansible-lint --version
           pipenv run yamllint --version
       - run-ansible_lint
+
   python-linting:
     executor: python/default
     steps:
