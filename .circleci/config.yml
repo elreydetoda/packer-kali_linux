@@ -34,7 +34,7 @@ commands:
     steps:
       - shellcheck/install
       - run: shellcheck --version
-      - run: bash << parameters.script-path >> '<< parameters.severity >>|<< parameters.optional >>|<< parameters.format >>'
+      - run: bash '<< parameters.script-path >>' '<< parameters.severity >>|<< parameters.optional >>|<< parameters.format >>'
 
   terraform-lint:
     description: "Run terraform for linting."
@@ -71,7 +71,67 @@ commands:
       # - terraform/fmt:
       #     path: "<< parameters.code-path >>"
   
+  packer-lint:
+    description: "Run packer for linting"
+    parameters:
+      vars-file:
+        description: the file path to your variables file
+        type: string
+        default: ''
+      template-file:
+        description: the file path to your template file
+        type: string
+      only-builder:
+        description: the only builder that you want to check
+        type: string
+        default: ''
+    steps:
+      - checkout
+      - run: |
+          set -eux
+          
+          packer_cmd=( 'packer' 'validate' )
+
+          if [[ -n "<< parameters.vars-file >>" ]] ; then
+            packer_cmd+=( '-var-file' '<< parameters.vars-file >>' )
+          fi
+
+          if [[ -n "<< parameters.vars-file >>" ]] ; then
+            packer_cmd+=( '-only' '<< parameters.only-builder >>' )
+          fi
+
+          ${packer_cmd[@]} "<< parameters.template-file >>"
 jobs:
+  packer-linting_vbox:
+    docker:
+      - image: 'hashicorp/packer:light'
+    steps:
+      - run: packer version
+      - packer-lint:
+          template-file: templates/template.json
+          vars-file: templates/example-variables.json
+          only-builder: virtualbox-iso
+
+  packer-linting_vmware:
+    docker:
+      - image: 'hashicorp/packer:light'
+    steps:
+      - run: packer version
+      - packer-lint:
+          template-file: templates/template.json
+          vars-file: templates/example-variables.json
+          only-builder: vmware-iso
+
+  packer-linting_aws:
+    docker:
+      - image: 'hashicorp/packer:light'
+    steps:
+      - run: packer version
+      - packer-lint:
+          template-file: templates/template.json
+          vars-file: templates/example-variables.json
+          only-builder: amazon-ebs
+
   terraform-linting:
     # executor: terraform/default
     docker:
@@ -94,14 +154,6 @@ jobs:
         - terraform-deploy:
             code-path: ci/packet_terraform
         # TODO: setup actual deployment
-
-  # shellcheck-base:
-  #   description: this is the bare minimum that shellcheck NEEDS to pass
-  #   docker:
-  #     - image: 'cimg/base:stable'
-  #   steps:
-  #       - checkout
-  #       - run-shellcheck
 
   shellcheck-warning:
     description: this is the bare minimum that shellcheck NEEDS to pass
@@ -151,11 +203,18 @@ workflows:
         - shellcheck-warning
         - terraform-linting
         - markdown-linting
-        - terraform-packet_deploy:
+        - packer-linting_vbox:
             requires:
               - shellcheck-warning
-              - terraform-linting
-              - markdown-linting
+        - packer-linting_vmware:
+            requires:
+              - shellcheck-warning
+        - packer-linting_aws:
+            requires:
+              - shellcheck-warning
+        - terraform-packet_deploy:
+            requires:
+              - packer-linting_vbox
   linting-wanted:
       jobs:
         - shellcheck-desired
