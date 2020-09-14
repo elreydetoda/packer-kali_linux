@@ -205,8 +205,10 @@ def post_processor_alterations(packer_template_data: dict, new_post_data: dict) 
 
     vagrant_cloud_post_processor = packer_post_processor.VagrantCloud().from_dict(title='VagrantCloudPP', d=new_post_data['vagrant-cloud'])
 
-    post_processor_list.append(vagrant_cloud_post_processor.to_dict())
-
+    post_processor_list[0] = [
+        post_processor_list[0],
+        vagrant_cloud_post_processor.to_dict()
+    ]
     # print(json.dumps(post_processor_list, indent=2))
     section_meta('exiting', getframeinfo(currentframe()).function)
     return packer_template_data
