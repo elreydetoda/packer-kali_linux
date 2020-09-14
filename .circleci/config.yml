@@ -12,6 +12,26 @@ orbs:
   # codecov: codecov/codecov@1.1.1
 
 commands:
+  run-pylint:
+    description: "Run the pylint command with the python "
+    parameters:
+      pylint-options:
+        description: options to pass to pylint
+        type: string
+        default: ''
+      code-folder-path:
+        description: if specific path is wanted, specify here
+        type: string
+        default: ''
+    steps:
+      - run: |
+          set -eux
+          code_folder_path='<< parameters.code-folder-path >>'
+          path_to_check="${code_folder_path:-${PWD}}"
+          find "${path_to_check}" -not \( -path "${path_to_check}/.git/*" \
+            -o -path "${path_to_check}/prov_packer/bento/*" \) -type f -print0 |
+            xargs -0 file | grep 'Python script' | cut -d ':' -f 1 |
+            xargs -t pipenv run pylint 
   run-shellcheck:
     description: "Run the shellcheck orb in a very specific way."
     parameters:
@@ -102,6 +122,18 @@ commands:
 
           ${packer_cmd[@]} "<< parameters.template-file >>"
 jobs:
+  python-linting:
+    executor: python/default
+    steps:
+      - checkout
+      - python/install-packages:
+          args: '-d --deploy'
+      - run: |
+          set -eux
+          pipenv --version
+          pipenv run python --version
+      - run-pylint
+
   packer-linting_vbox:
     docker:
       - image: 'hashicorp/packer:light'
@@ -163,6 +195,7 @@ jobs:
       - checkout
       - run-shellcheck:
           severity: warning
+
   shellcheck-desired:
     description: this is the desired degree of shellcheck
     docker:
@@ -173,6 +206,7 @@ jobs:
           severity: style
           optional: all
           format: gcc
+
   markdown-linting:
     description: linting markdown files
     docker:
@@ -203,6 +237,7 @@ workflows:
         - shellcheck-warning
         - terraform-linting
         - markdown-linting
+        - python-linting
         - packer-linting_vbox:
             requires:
               - shellcheck-warning
