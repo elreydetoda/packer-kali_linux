@@ -55,7 +55,7 @@ def variable_alterations(packer_template_data: dict, new_vars: dict) -> dict:
         'template',
         'version'
         ]
-    
+
         # removing all items in list above
     for var in remove_list:
         logging('removed: {}'.format(var))
@@ -112,7 +112,7 @@ def builder_alterations(packer_template_data: dict, new_builder_data: dict) -> d
     for builder in packer_builder_list:
         if builder['type'] not in new_builder_data['supported_builder_list']:
             removing_builders_list.append(builder)
-    
+
     for removed_builder in removing_builders_list:
         logging('removing: {}'.format(removed_builder['type']))
         packer_builder_list.remove(removed_builder)
@@ -165,6 +165,7 @@ def provisioner_alterations(packer_template_data: dict, new_prov_data: dict) -> 
     personal_script_dict = {
         'environment_vars': bento_env_vars,
         'execute_command': bash_exec_cmd,
+        'expect_disconnect': 'true',
         'scripts': new_prov_data['scripts_custom_list']
     }
 
@@ -305,7 +306,7 @@ def main():
 
     ### builder alterations section
     builder_info_dict = {
-        'supported_builder_list': supported_builder_list       
+        'supported_builder_list': supported_builder_list
     }
     updated_packer_data = builder_alterations(updated_packer_data, builder_info_dict)
 
