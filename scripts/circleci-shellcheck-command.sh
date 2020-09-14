@@ -94,6 +94,7 @@ function args_construct(){
 
 function main(){
 
+  check_empty "${@}"
   declare -A shellcheck_args_organized
   param_check "${@}"
   parse_args
@@ -103,8 +104,8 @@ function main(){
   # echo "${constructed_params[@]}"
   
   # cmd for shellcheck
-  find "${path_to_check}" -not -path "${path_to_check}/.git/*" \
-    -type f -exec file {} \; |
+  find "${path_to_check}" -not \( -path "${path_to_check}/.git/*" \
+    -o -path "${path_to_check}/prov_packer/bento/*" \) -type f -exec file {} \; |
     grep 'shell script' |
     cut -d ':' -f 1 |
     xargs -t shellcheck --external-sources "${constructed_params[@]}"
