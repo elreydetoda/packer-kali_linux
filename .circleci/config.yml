@@ -12,6 +12,7 @@ orbs:
   # codecov: codecov/codecov@1.1.1
 
 commands:
+
   run-ansible_lint:
     description: run the ansible-lint command against playbooks
     parameters:
@@ -32,6 +33,7 @@ commands:
             -o -path "${path_to_check}/prov_packer/bento/*" \) -type f -iname "*.yml" \
             -print0 | xargs -0 file | grep 'ASCII text' | cut -d ':' -f 1 |
             xargs -t pipenv run ansible-lint 
+
   run-pylint:
     description: "Run the pylint command with the python "
     parameters:
@@ -52,6 +54,7 @@ commands:
             -o -path "${path_to_check}/prov_packer/bento/*" \) -type f -print0 |
             xargs -0 file | grep 'Python script' | cut -d ':' -f 1 |
             xargs -t pipenv run pylint 
+
   run-shellcheck:
     description: "Run the shellcheck orb in a very specific way."
     parameters:
@@ -141,6 +144,7 @@ commands:
           fi
 
           ${packer_cmd[@]} "<< parameters.template-file >>"
+
 jobs:
   ansible-linting:
     executor: python/default
