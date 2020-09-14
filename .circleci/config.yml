@@ -257,6 +257,15 @@ jobs:
       - run:  |
           find . -type f -iname '*.md' | xargs -t mdl -s .linting-configs/markdown-lint.rb
 
+  generate-packer-file:
+    description: generate packer template file
+    executor: python/default
+    steps:
+      - checkout
+      - python/install-packages:
+          args: '--deploy'
+      - run: pipenv run scripts/template-gen.py
+      - run: cat kali-template.json
 
 #   build:
 #     machine: true
@@ -278,18 +287,27 @@ workflows:
         - markdown-linting
         - python-linting
         - ansible-linting
+        - generate-packer-file:
+            requires:
+              - shellcheck-warning
+              - terraform-linting
+              - markdown-linting
+              - python-linting
+              - ansible-linting
         - packer-linting_vbox:
             requires:
-              - shellcheck-warning
+              - generate-packer-file
         - packer-linting_vmware:
             requires:
-              - shellcheck-warning
+              - generate-packer-file
         - packer-linting_aws:
             requires:
-              - shellcheck-warning
+              - generate-packer-file
         - terraform-packet_deploy:
             requires:
               - packer-linting_vbox
+              - packer-linting_vmware
+              - packer-linting_aws
   linting-wanted:
       jobs:
         - shellcheck-desired
