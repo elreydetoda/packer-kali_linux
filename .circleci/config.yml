@@ -47,7 +47,11 @@ commands:
       - run: |
           set -eux
           terraform init "<< parameters.code-path >>"
+      - run: |
+          set -eux
           terraform fmt -check -diff "<< parameters.code-path >>"
+      - run: |
+          set -eux
           terraform validate "<< parameters.code-path >>"
       # - terraform/fmt:
       #     path: "<< parameters.code-path >>"
