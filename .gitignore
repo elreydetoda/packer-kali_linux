@@ -3,6 +3,7 @@ output-virtualbox-iso/
 tmp/
 .vagrant/
 .terraform/
+.terraform.d/
 *.plan
 *.swp
 *.swo
