@@ -20,7 +20,11 @@ function terraform_stuff(){
             extra_args=( "-out" "${plan_file}" "${terraform_folder}/" )
         ;;
         apply)
-            extra_args=( "-state" "${state_file}" )
+            if [[ -n "${TF_VAR_tc_auth_token:-}" ]] ; then
+                extra_args=( "-auto-approve" "${terraform_folder}/" )
+            else
+                extra_args=( "-state" "${state_file}" )
+            fi
         ;;
         apply-plan)
             # gotten from: https://stackoverflow.com/questions/19482123/extract-part-of-a-string-using-bash-cut-split#answer-19482947
@@ -40,7 +44,11 @@ function terraform_stuff(){
             terraform_provider='none'
         ;;
         destroy)
-            extra_args=( "-auto-approve" "-state" "${state_file}" "${terraform_folder}/" )
+            if [[ -n "${TF_VAR_tc_auth_token:-}" ]] ; then
+                extra_args=( "-auto-approve" "${terraform_folder}/" )
+            else
+                extra_args=( "-auto-approve" "-state" "${state_file}" "${terraform_folder}/" )
+            fi
         ;;
         *)
             extra_args=('')
@@ -64,21 +72,37 @@ function terraform_stuff(){
         ;;
     esac
 
-    # shellcheck disable=SC2140
-    # the disable is for the terraform folder bind mount
-    docker container run \
-        -it --rm \
-        "${provider_array[@]}" \
-        -v "$(pwd)/.terraform":/.terraform/ \
-        -v "$(pwd)":"${terraform_folder}/" \
-        hashicorp/terraform:light "${terraform_action}" "${extra_args[@]}"
+    if [[ -n "${TF_VAR_tc_auth_token:-}" ]] && [[ ! -f '.terraform.d/credentials.tfrc.json' ]] ; then
+        mkdir -p .terraform.d
+        printf '{"credentials":{"app.terraform.io":{"token":"%s"}}}' "${TF_VAR_tc_auth_token}" | jq '.' > .terraform.d/credentials.tfrc.json
+    fi
+
+    if [[ -n "${TF_VAR_tc_auth_token:-}" ]] ; then
+        # shellcheck disable=SC2140
+        # the disable is for the terraform folder bind mount
+            docker container run \
+                -it --rm \
+                "${provider_array[@]}" \
+                -v "$(pwd)/.terraform.d":/root/.terraform.d/ \
+                -v "$(pwd)/.terraform":/.terraform/ \
+                -v "$(pwd)":"${terraform_folder}/" \
+                hashicorp/terraform:light "${terraform_action}" "${extra_args[@]}"
+    else
+
+        docker container run \
+            -it --rm \
+            "${provider_array[@]}" \
+            -v "$(pwd)/.terraform":/.terraform/ \
+            -v "$(pwd)":"${terraform_folder}/" \
+            hashicorp/terraform:light "${terraform_action}" "${extra_args[@]}"
+    fi
 
 }
 
 function cleanup(){
 
     # removing stuff that was created w/verbose
-    sudo rm -rfv .terraform/ main.tfstate* main.plan
+    sudo rm -rfv .terraform{,.d}/ main.tfstate* main.plan
 
 }
 
@@ -99,7 +123,14 @@ function main(){
         steps_array=( 'init' 'plan' 'apply-plan' )
 
         for step in "${steps_array[@]}" ; do
+
+            if [[ -n "${TF_VAR_tc_auth_token:-}" ]] && [[ "${step}" == 'plan' ]] ; then
+                terraform_stuff apply "${2}"
+                break
+            fi
+
             terraform_stuff "${step}" "${2}"
+
         done
 
     elif [[ "${1}" == "auto-destroy" ]] ; then

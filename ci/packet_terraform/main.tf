@@ -8,10 +8,22 @@
 #   it all in one "big" file.
 
 ##################################################
+## backend is where your state file lives
+terraform {
+  backend "remote" {
+    organization = "elrey741"
+
+    workspaces {
+      name = "packer-kali_linux"
+    }
+  }
+}
+
+##################################################
 ## Variables that are getting inputted (i.e. variables.tf)
 #   set the PACKET_AUTH_TOKEN env variable for auth
 #   or the auth_token is required
-variable "auth_token" {
+variable "packet_auth_token" {
   description = "The auth token for the account"
   type        = string
 }
@@ -41,7 +53,7 @@ variable "provision_plan" {
 ##  Packet server provisioning
 # defining the packet provider
 provider "packet" {
-  auth_token = var.auth_token
+  auth_token = var.packet_auth_token
 }
 
 # querying current ip address, so it is able to only whitelist
