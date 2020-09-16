@@ -8,6 +8,18 @@
 #   it all in one "big" file.
 
 ##################################################
+## backend is where your state file lives
+terraform {
+  backend "remote" {
+    organization = "elrey741"
+
+    workspaces {
+      name = "packer-kali_linux"
+    }
+  }
+}
+
+##################################################
 ## Variables that are getting inputted (i.e. variables.tf)
 #   set the PACKET_AUTH_TOKEN env variable for auth
 #   or the auth_token is required
