@@ -42,6 +42,11 @@
     - name: ufw setup
       block:
 
+        - name: install ufw
+          package:
+              name: ufw
+              state: present
+
         - name: adding ssh to allow
           ufw:
             rule: limit
