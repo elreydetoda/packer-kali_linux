@@ -2,3 +2,5 @@
 
 collections:
   - name: elreydetoda.virtualization
+  # because of: https://github.com/ansible-collections/community.general/blob/main/scripts/inventory/packet_net.py
+  - name: community.general
