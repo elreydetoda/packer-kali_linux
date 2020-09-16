@@ -21,6 +21,7 @@ boto3 = "*"
 # for infra prov
 ansible = "*"
 packerlicious = "*"
+packet-python = "*"
 
 [requires]
 python_version = "3"
