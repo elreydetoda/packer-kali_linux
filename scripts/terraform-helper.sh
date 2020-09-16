@@ -33,7 +33,11 @@ function terraform_stuff(){
             extra_args=( "-state" "${state_file}" "${plan_file}" )
         ;;
         output)
-            extra_args=( "-state" "${state_file}" )
+            if [[ -n "${TF_VAR_tc_auth_token:-}" ]] ; then
+                extra_args=( )
+            else
+                extra_args=( "-state" "${state_file}" )
+            fi
             set +u
             if [[ -z  "${2}" ]] ; then
                 extra_args+=()
@@ -80,17 +84,17 @@ function terraform_stuff(){
     if [[ -n "${TF_VAR_tc_auth_token:-}" ]] ; then
         # shellcheck disable=SC2140
         # the disable is for the terraform folder bind mount
-            docker container run \
-                -it --rm \
-                "${provider_array[@]}" \
-                -v "$(pwd)/.terraform.d":/root/.terraform.d/ \
-                -v "$(pwd)/.terraform":/.terraform/ \
-                -v "$(pwd)":"${terraform_folder}/" \
-                hashicorp/terraform:light "${terraform_action}" "${extra_args[@]}"
+        docker container run \
+            -it --rm -w '/terraform'\
+            "${provider_array[@]}" \
+            -v "$(pwd)/.terraform.d":/root/.terraform.d/ \
+            -v "$(pwd)/.terraform":/.terraform/ \
+            -v "$(pwd)":"${terraform_folder}/" \
+            hashicorp/terraform:light "${terraform_action}" "${extra_args[@]}"
     else
 
         docker container run \
-            -it --rm \
+            -it --rm -w '/terraform'\
             "${provider_array[@]}" \
             -v "$(pwd)/.terraform":/.terraform/ \
             -v "$(pwd)":"${terraform_folder}/" \
