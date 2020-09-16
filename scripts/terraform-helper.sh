@@ -58,7 +58,7 @@ function terraform_stuff(){
 
     case "${terraform_provider}" in
         packet)
-            provider_array=( '-e' 'TF_VAR_project_id' '-e' 'TF_VAR_auth_token' )
+            provider_array=( '-e' 'TF_VAR_project_id' '-e' 'TF_VAR_packet_auth_token' )
         ;;
         aws)
             provider_array=( '-e' 'TF_VAR_aws_access_key' '-e' 'TF_VAR_aws_secret_key' '-e' 'TF_VAR_aws_region' )
@@ -67,7 +67,7 @@ function terraform_stuff(){
             provider_array=()
         ;;
         *)
-            provider_array=( '-e' 'TF_VAR_project_id' '-e' 'TF_VAR_auth_token' )
+            provider_array=( '-e' 'TF_VAR_project_id' '-e' 'TF_VAR_packet_auth_token' )
             provider_array+=( '-e' 'TF_VAR_aws_access_key' '-e' 'TF_VAR_aws_secret_key' '-e' 'TF_VAR_aws_region' )
         ;;
     esac
