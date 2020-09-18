@@ -3,8 +3,6 @@
   become: yes
   collections:
    - elreydetoda.virtualization
-  vars:
-    ansible_python_interpreter: '/usr/bin/python3'
   tasks:
 
     - name: installation of software
@@ -49,7 +47,9 @@
 
         - name: adding ssh to allow
           ufw:
-            rule: limit
+            # rule: limit
+            # setting it to this for now
+            rule: allow
             name: OpenSSH
 
         - name: enabling ufw
