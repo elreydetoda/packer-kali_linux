@@ -4,6 +4,7 @@
 set -${-//[sc]/}eu${DEBUG+xv}o pipefail
 
 function setup_env(){
+  # debugging: https://www.packer.io/docs/other/debugging.html
   export PACKER_LOG=1
   PACKER_LOG_DIR="${PACKER_LOG_DIR:-/opt/packer/kali}"
   # PACKER_LOG_PATH=./packer_build.log
