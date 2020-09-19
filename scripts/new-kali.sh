@@ -109,7 +109,7 @@ function info_enum(){
   # getting the current kali iso filename
   #   sed command, came from here: https://github.com/SamuraiWTF/samuraiwtf/pull/103#commitcomment-35941962
   #   NOTE: this is only compatible for >= 2020.1
-  currentKaliISO=$( $curl "${kaliCurrentUrl}" | sed -n '/href=".*netinst-amd64.iso"/p' | awk -F'["]' '{print $8}' )
+  currentKaliISO=$( $curl "${kaliCurrentUrl}" | sed -n "/href=\".*${kaliInstallISOVersion}.iso\"/p" | awk -F'["]' '{print $8}' )
   printf '\ngetting filename of the kali iso: %s\n' "${currentKaliISO}"
 
   currentKaliISOUrl="${kaliCurrentUrl}/${currentKaliISO}"
@@ -147,6 +147,9 @@ function main(){
   # this is the version in the web path for the folder that has the kali ISOs in it
   #   i.e. https://cdimage.kali.org/kali-weekly/ or https://cdimage.kali.org/kali-2020.3/
   kaliInstallVersion='current'
+  # this is the iso version you would like to install
+  #   i.e. installer-amd64.iso or netinst-amd64.iso
+  kaliInstallISOVersion='netinst-amd64'
   # the hash algorithm wanted for the kali version
   #   NOTE: try and always make this the best it can be
   hashAlg='SHA256SUMS'
