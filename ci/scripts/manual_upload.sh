@@ -6,10 +6,8 @@
 ##   applicable any more in 2.2.4 of vagrant. All my comments are indicated by
 ##   the ##, and the original comments are only a single #
 
-## normal
-set -eo pipefail
-## debug
-#set -exo pipefail
+# https://blog.elreydetoda.site/cool-shell-tricks/#bashscriptingmodifiedscripthardening
+set -${-//[sc]/}eu${DEBUG+xv}o pipefail
 
 ORG="$1"
 NAME="$2"
