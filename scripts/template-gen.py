@@ -201,8 +201,10 @@ def post_processor_alterations(packer_template_data: dict, new_post_data: dict) 
 
     # updating vagrant processor
     post_processor_list[0].update(
-        { 'compression_level': 9 ,
-        'vagrantfile_template': '{{ user `vagrantfile` }}'}
+        {
+            'compression_level': 9 ,
+            'vagrantfile_template': '{{ user `vagrantfile` }}'
+        }
     )
 
     vagrant_cloud_post_processor = packer_post_processor.VagrantCloud().from_dict(title='VagrantCloudPP', d=new_post_data['vagrant-cloud'])
