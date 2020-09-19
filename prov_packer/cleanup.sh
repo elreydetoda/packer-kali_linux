@@ -32,7 +32,7 @@ dpkg --list \
 # apt-get -y purge libx11-data xauth libxmuu1 libxcb1 libx11-6 libxext6;
 
 # Delete obsolete networking
-apt-get -y purge ppp pppconfig pppoeconf;
+apt-get -y purge ppp pppoeconf ;
 
 # Delete oddities
 apt-get -y purge popularity-contest;
