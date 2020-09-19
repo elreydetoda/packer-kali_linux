@@ -213,6 +213,8 @@ def post_processor_alterations(packer_template_data: dict, new_post_data: dict) 
         post_processor_list[0],
         vagrant_cloud_post_processor.to_dict()
     ]
+    # HACK: fix this when this closes: https://github.com/elreydetoda/packerlicious/issues/1
+    post_processor_list[0][1]['keep_input_artifact'] = new_post_data['vagrant-cloud']['keep_input_artifact']
     # print(json.dumps(post_processor_list, indent=2))
     section_meta('exiting', getframeinfo(currentframe()).function)
     return packer_template_data
@@ -333,7 +335,8 @@ def main():
         'vagrant-cloud': {
             'box_tag': '{{user `vm_name`}}',
             'access_token': '{{user `vagrant_cloud_token`}}',
-            'version': '{{user `vm_version`}}'
+            'version': '{{user `vm_version`}}',
+            'keep_input_artifact': True
             }
     }
     updated_packer_data = post_processor_alterations(updated_packer_data, post_processor_dict)
