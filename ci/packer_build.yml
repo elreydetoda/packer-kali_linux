@@ -1,0 +1,62 @@
+---
+- hosts: all
+  become: yes
+  vars:
+    kali_project_folder: '/opt/packer/kali'
+    project_folder: '/vagrant'
+  tasks:
+
+    # - name: sending initial text message for start
+    #   import_role:
+    #     name: elreydetoda.textbelt
+    #   vars:
+    #     api_key: '{{ api_key_from_env }}'
+    #     phone_number: '{{ phone_from_env }}'
+    #     message_contents: 'starting build'
+    
+    - name: building block prep
+      block:
+
+        - name: making sure build folder exists
+          file:
+            path: '{{ kali_project_folder }}'
+            state: directory
+
+        - name: rsync'ing to build server
+          synchronize:
+            partial: yes
+            src: '{{ project_folder }}/'
+            dest: '{{ kali_project_folder }}'
+            compress: yes
+
+    - name: building block
+      block:
+        - name: launching the packer build process
+          script:
+            cmd: packer_build.sh '{{ provider_string }}'
+            chdir: '{{ kali_project_folder }}'
+          vars:
+            provider_string: 'virtualbox-iso'
+
+        - name: sending last text message for end
+          import_role:
+            name: elreydetoda.textbelt
+          vars:
+            api_key: '{{ api_key_from_env }}'
+            phone_number: '{{ phone_from_env }}'
+            message_contents: 'finished successfuly, and ending build'
+
+      rescue:
+
+        - name: sending last text message for end
+          import_role:
+            name: elreydetoda.textbelt
+          vars:
+            api_key: '{{ api_key_from_env }}'
+            phone_number: '{{ phone_from_env }}'
+            message_contents: "didn't complete properly, and ending build"
+
+        - name: cleaning up
+          file:
+            path: '{{ kali_project_folder }}/'
+            state: absent
