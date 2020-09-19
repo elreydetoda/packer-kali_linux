@@ -5,8 +5,9 @@ set -${-//[sc]/}eu${DEBUG+xv}o pipefail
 
 function setup_env(){
   export PACKER_LOG=1
-  export PACKER_LOG_PATH=/opt/packer/kali/packer_build.log
-  # export PACKER_LOG_PATH=./packer_build.log
+  PACKER_LOG_DIR="${PACKER_LOG_DIR:-/opt/packer/kali}"
+  # PACKER_LOG_PATH=./packer_build.log
+  export PACKER_LOG_PATH="${PACKER_LOG_PATH:-${PACKER_LOG_DIR}}/packer_build.log"
 }
 
 function packer_build(){
