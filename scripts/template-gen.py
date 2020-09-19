@@ -64,7 +64,7 @@ def variable_alterations(packer_template_data: dict, new_vars: dict) -> dict:
     # either adding or updating values in template
     sub_dict = {
         'bento_debian_dir': str(new_vars['bento_debian_dir']),
-        'box_basename': '',
+        'box_basename': str(new_vars['build_vm_base_output_name']),
         'build_directory': str(new_vars['project_root']),
         'build_script_dir': str(new_vars['packer_script_dir']),
         'cpus': new_vars['build_cpus'],
@@ -77,6 +77,7 @@ def variable_alterations(packer_template_data: dict, new_vars: dict) -> dict:
         'preseed_path': str(new_vars['preseed_file']),
         'template': 'packerAutoKali',
         'vagrant_cloud_token': '',
+        'vagrantfile': str(new_vars['vagrant_template_file']),
         'vm_version': '',
         'vm_name': ''
     }
@@ -245,9 +246,11 @@ def main():
 
     http_preseed_dir = project_root / 'install' / 'http'
     http_preseed_file = 'kali-linux-rolling-preseed.cfg'
+    vagrant_template_file = project_root / 'install' / 'vagrantfile-kali_linux.template'
 
     build_cpus = '2'
     build_memory = '4096'
+    build_vm_base_output_name = 'red-automated_kali'
 
     ## builders section of variables
     supported_builder_list = [ 'virtualbox-iso', 'vmware-iso' ]
@@ -292,7 +295,9 @@ def main():
         'preseed_file': http_preseed_file,
         'project_root': project_root,
         'build_cpus': build_cpus,
-        'build_memory': build_memory
+        'build_memory': build_memory,
+        'vagrant_template_file': vagrant_template_file,
+        'build_vm_base_output_name': build_vm_base_output_name
     }
 
     # updating variables
