@@ -5,14 +5,6 @@
     kali_project_folder: '/opt/packerAutoKali/'
     project_folder: '/vagrant'
   tasks:
-
-    - name: sending initial text message for start
-      import_role:
-        name: elreydetoda.textbelt
-      vars:
-        api_key: '{{ api_key_from_env }}'
-        phone_number: '{{ phone_from_env }}'
-        message_contents: 'starting build'
     
     - name: building block prep
       block:
@@ -31,6 +23,15 @@
 
     - name: building block
       block:
+
+        - name: sending initial text message for start
+          import_role:
+            name: elreydetoda.textbelt
+          vars:
+            api_key: '{{ api_key_from_env }}'
+            phone_number: '{{ phone_from_env }}'
+            message_contents: 'starting build'
+
         - name: launching the packer build process
           script:
             cmd: packer_build.sh '{{ provider_string }}'
