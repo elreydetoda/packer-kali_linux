@@ -336,6 +336,7 @@ def main():
             'box_tag': '{{user `vm_name`}}',
             'access_token': '{{user `vagrant_cloud_token`}}',
             'version': '{{user `vm_version`}}',
+            # needed for this: https://www.packer.io/docs/post-processors/amazon-import
             'keep_input_artifact': True
             }
     }
