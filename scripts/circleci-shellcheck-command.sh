@@ -94,7 +94,6 @@ function args_construct(){
 
 function main(){
 
-  check_empty "${@}"
   declare -A shellcheck_args_organized
   param_check "${@}"
   parse_args
