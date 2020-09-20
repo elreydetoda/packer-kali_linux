@@ -207,11 +207,11 @@ function main(){
     esac
   fi
 
-  ORG="${ORG:-1}"
-  NAME="${NAME:-2}"
-  PROVIDER="${PROVIDER:-3}"
-  VERSION="${VERSION:-4}"
-  FILE="${FILE:-5}"
+  ORG="${ORG:-$1}"
+  NAME="${NAME:-$2}"
+  PROVIDER="${PROVIDER:-$3}"
+  VERSION="${VERSION:-$4}"
+  FILE="${FILE:-$5}"
   DESC='dev box'
 
   base_url='https://app.vagrantup.com/api/v1/box'
