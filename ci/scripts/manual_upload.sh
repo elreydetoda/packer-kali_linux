@@ -36,17 +36,8 @@ function ci_get_vars(){
     NAME="$(cut -d '/' -f 2 <<< "${vm_name}")"
     VERSION="$( grep '"vm_version"' "${variables_file}" | cut -d '"' -f 4 )"
     FILE="${1}"
-    provider_raw="$(printf '%s' "${FILE}" | rev | cut -d '.' -f 2 | rev)"
+    PROVIDER="$(printf '%s' "${FILE}" | rev | cut -d '.' -f 2 | rev)"
 
-    case "${provider_raw}" in
-      virtualbox)
-          PROVIDER='virtualbox-iso'
-        ;;
-      *)
-          printf 'Do not know what provider this is: %s\n' "${FILE}"
-          exit 1
-        ;;
-    esac
   fi
 }
 
@@ -201,7 +192,7 @@ function main(){
   variables_file='variables.json'
   variables_file_path="${PWD}/${variables_file}"
 
-  if [[ $# -ne 5 ]] ; then
+  if [[ $# -eq 5 ]] ; then
     help
   elif [[ -n "${CIRCLECI:-}" ]] ; then
     # this is an alternative logic path for specifically the CI
