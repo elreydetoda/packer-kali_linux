@@ -74,8 +74,7 @@
 
             - name: launching the packer build process
               script:
-                cmd: |
-                  '{{ local_ci_scripts_dir }}/manual_upload.sh {{ item.path }}'
+                cmd: '{{ local_ci_scripts_dir }}/manual_upload.sh {{ item.path }}'
                 chdir: '{{ kali_project_folder }}'
               loop: '{{ vagrant_boxes_for_upload.files }}'
 
