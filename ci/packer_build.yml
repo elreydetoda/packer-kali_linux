@@ -61,7 +61,7 @@
               vars:
                 api_key: '{{ api_key_from_env }}'
                 phone_number: '{{ phone_from_env }}'
-                message_contents: 'build failed, but trying to upload with curl script'
+                message_contents: 'build failed (probably upload), but trying to upload with curl script'
 
             - name: getting path for all files to remove
               find:
@@ -70,11 +70,15 @@
                 hidden: yes
                 patterns:
                   - '*.box'
-                register: vagrant_boxes_for_upload
+              register: vagrant_boxes_for_upload
 
-            - name: launching the packer build process
-              script:
-                cmd: '{{ local_ci_scripts_dir }}/manual_upload.sh {{ item.path }}'
+            - debug:
+                var: vagrant_boxes_for_upload
+            - name: launching the upload process
+              shell:
+                cmd: |
+                  export CIRCLECI='{{ CIRCLECI | default('') }}'
+                  ci/scripts/manual_upload.sh '{{ item.path }}'
                 chdir: '{{ kali_project_folder }}'
               loop: '{{ vagrant_boxes_for_upload.files }}'
 
