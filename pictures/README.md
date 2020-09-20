@@ -1,4 +1,4 @@
-# Images folder
+# Pictures folder
 
 ## Citations
 
