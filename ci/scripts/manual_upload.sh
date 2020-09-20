@@ -226,6 +226,7 @@ function main(){
   release_uploaded_version
 }
 
+# https://blog.elreydetoda.site/cool-shell-tricks/#bashscriptingbashsmain
 if [[ "${0}" = "${BASH_SOURCE[0]}" ]] ; then
   main "${@}"
 fi

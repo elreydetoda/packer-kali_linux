@@ -46,6 +46,7 @@ main(){
   "${packer_build_cmd[@]}"
 }
 
+# https://blog.elreydetoda.site/cool-shell-tricks/#bashscriptingbashsmain
 if [[ "${0}" = "${BASH_SOURCE[0]}" ]] ; then
   main "${@}"
 fi
