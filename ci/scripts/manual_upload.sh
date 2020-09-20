@@ -29,6 +29,27 @@ function help(){
 
 }
 
+function ci_get_vars(){
+  if [[ -f "${variables_file}" ]] ; then
+    vm_name="$( grep '"vm_name"' "${variables_file}" | cut -d '"' -f 4 )"
+    ORG="$(cut -d '/' -f 1 <<< "${vm_name}")"
+    NAME="$(cut -d '/' -f 2 <<< "${vm_name}")"
+    VERSION="$( grep '"vm_version"' "${variables_file}" | cut -d '"' -f 4 )"
+    FILE="${1}"
+    provider_raw="$(printf '%s' "${FILE}" | rev | cut -d '.' -f 2 | rev)"
+
+    case "${provider_raw}" in
+      virtualbox)
+          PROVIDER='virtualbox-iso'
+        ;;
+      *)
+          printf 'Do not know what provider this is: %s\n' "${FILE}"
+          exit 1
+        ;;
+    esac
+  fi
+}
+
 function release_uploaded_version(){
 
   # Release the version, and watch the party rage.
@@ -177,8 +198,16 @@ function deps_check(){
 
 function main(){
 
+  variables_file='variables.json'
+  variables_file_path="${PWD}/${variables_file}"
+
   if [[ $# -ne 5 ]] ; then
     help
+  elif [[ -n "${CIRCLECI:-}" ]] ; then
+    # this is an alternative logic path for specifically the CI
+    #   this will only take 1 arg ( the path to the box ) as an arg
+    #   for file upload
+    ci_get_vars "${@}"
   else
     case $1 in
       -h|--help)
@@ -187,16 +216,14 @@ function main(){
     esac
   fi
 
-  ORG="$1"
-  NAME="$2"
-  PROVIDER="$3"
-  VERSION="$4"
-  FILE="$5"
+  ORG="${ORG:-1}"
+  NAME="${NAME:-2}"
+  PROVIDER="${PROVIDER:-3}"
+  VERSION="${VERSION:-4}"
+  FILE="${FILE:-5}"
   DESC='dev box'
 
   base_url='https://app.vagrantup.com/api/v1/box'
-  variables_file='variables.json'
-  variables_file_path="./${variables_file}"
 
   CURL='curl'
 
