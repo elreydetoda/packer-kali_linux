@@ -4,8 +4,9 @@
   vars:
     kali_project_folder: '/opt/packerAutoKali/'
     project_folder: '/vagrant'
+    local_ci_scripts_dir: 'scripts'
   tasks:
-    
+
     - name: building block prep
       block:
 
@@ -32,20 +33,59 @@
             phone_number: '{{ phone_from_env }}'
             message_contents: 'starting build'
 
-        - name: launching the packer build process
-          script:
-            cmd: packer_build.sh '{{ provider_string }}'
-            chdir: '{{ kali_project_folder }}'
-          vars:
-            provider_string: 'virtualbox-iso'
+        - name: initial upload to vagrant cloud
+          block:
 
-        - name: sending last text message for end
-          import_role:
-            name: elreydetoda.textbelt
-          vars:
-            api_key: '{{ api_key_from_env }}'
-            phone_number: '{{ phone_from_env }}'
-            message_contents: 'finished successfuly, and ending build'
+            - name: launching the packer build process
+              script:
+                cmd: '{{ local_ci_scripts_dir }}/packer_build-wrapper.sh {{ provider_string }}'
+                chdir: '{{ kali_project_folder }}'
+              args:
+                creates: '{{ kali_project_folder }}/packer_build.log'
+              vars:
+                provider_string: 'virtualbox-iso'
+
+            - name: sending last text message for end
+              import_role:
+                name: elreydetoda.textbelt
+              vars:
+                api_key: '{{ api_key_from_env }}'
+                phone_number: '{{ phone_from_env }}'
+                message_contents: 'finished successfuly, and ending build'
+
+          rescue:
+
+            - name: sending last text message for end
+              import_role:
+                name: elreydetoda.textbelt
+              vars:
+                api_key: '{{ api_key_from_env }}'
+                phone_number: '{{ phone_from_env }}'
+                message_contents: 'build failed, but trying to upload with curl script'
+
+            - name: getting path for all files to remove
+              find:
+                paths: '{{ kali_project_folder }}'
+                recurse: yes
+                hidden: yes
+                patterns:
+                  - '*.box'
+                register: vagrant_boxes_for_upload
+
+            - name: launching the packer build process
+              script:
+                cmd: |
+                  '{{ local_ci_scripts_dir }}/manual_upload.sh {{ item.path }}'
+                chdir: '{{ kali_project_folder }}'
+              loop: '{{ vagrant_boxes_for_upload.files }}'
+
+            - name: sending last text message for end
+              import_role:
+                name: elreydetoda.textbelt
+              vars:
+                api_key: '{{ api_key_from_env }}'
+                phone_number: '{{ phone_from_env }}'
+                message_contents: 'finished successfuly, and ending build'
 
       rescue:
 
@@ -64,7 +104,6 @@
             file_type: any
             hidden: yes
             patterns:
-              - '*.box'
               - 'packer-*'
           register: files_to_remove
 
