@@ -9,6 +9,7 @@ tmp/
 *.swo
 *.box
 *.log
+.vscode/
 
 # backup files
 *.bak*
