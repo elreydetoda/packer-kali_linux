@@ -65,7 +65,7 @@ def variable_alterations(packer_template_data: dict, new_vars: dict) -> dict:
     sub_dict = {
         'bento_debian_dir': str(new_vars['bento_debian_dir']),
         'box_basename': str(new_vars['build_vm_base_output_name']),
-        'build_directory': str(new_vars['project_root']),
+        'build_directory': str(new_vars['build_vm_output_dir']),
         'build_script_dir': str(new_vars['packer_script_dir']),
         'cpus': new_vars['build_cpus'],
         'headless': '',
@@ -104,6 +104,7 @@ def sensitive_variables(packer_template_data: dict, sensitive_vars: list) -> dic
     return packer_template_data
 
 def builder_alterations(packer_template_data: dict, new_builder_data: dict) -> dict:
+    # TODO: add format: 'ova' to vbox builder
     section_meta('starting', getframeinfo(currentframe()).function)
 
     packer_builder_list = packer_template_data['builders']
@@ -203,18 +204,31 @@ def post_processor_alterations(packer_template_data: dict, new_post_data: dict) 
     post_processor_list[0].update(
         {
             'compression_level': 9 ,
-            'vagrantfile_template': '{{ user `vagrantfile` }}'
+            'vagrantfile_template': '{{ user `vagrantfile` }}',
+            # needed for this: https://www.packer.io/docs/post-processors/amazon-import
+            'keep_input_artifact': True
         }
     )
 
     vagrant_cloud_post_processor = packer_post_processor.VagrantCloud().from_dict(title='VagrantCloudPP', d=new_post_data['vagrant-cloud'])
 
-    post_processor_list[0] = [
-        post_processor_list[0],
-        vagrant_cloud_post_processor.to_dict()
-    ]
-    # HACK: fix this when this closes: https://github.com/elreydetoda/packerlicious/issues/1
-    post_processor_list[0][1]['keep_input_artifact'] = new_post_data['vagrant-cloud']['keep_input_artifact']
+    box_output_path = pathlib.Path(post_processor_list[0]['output'])
+
+    vagrant_cloud_artiface_dict = {
+        'files': [
+            str(box_output_path)
+        ]
+    }
+
+    vagrant_cloud_artiface_post_processor = packer_post_processor.Artifice().from_dict(title='VagrantCloud', d=vagrant_cloud_artiface_dict)
+
+    post_processor_list.append(
+        [
+            vagrant_cloud_artiface_post_processor.to_dict(),
+            vagrant_cloud_post_processor.to_dict()
+        ]
+    )
+
     # print(json.dumps(post_processor_list, indent=2))
     section_meta('exiting', getframeinfo(currentframe()).function)
     return packer_template_data
@@ -254,6 +268,7 @@ def main():
 
     build_cpus = '2'
     build_memory = '4096'
+    build_vm_output_dir = project_root
     build_vm_base_output_name = 'red-automated_kali'
 
     ## builders section of variables
@@ -301,6 +316,7 @@ def main():
         'build_cpus': build_cpus,
         'build_memory': build_memory,
         'vagrant_template_file': vagrant_template_file,
+        'build_vm_output_dir': build_vm_output_dir,
         'build_vm_base_output_name': build_vm_base_output_name
     }
 
@@ -332,12 +348,13 @@ def main():
 
     ### post provisioner alterations section
     post_processor_dict = {
+        # configured in the post_processor_alterations func
+        'vagrant-cloud-artiface': {
+        },
         'vagrant-cloud': {
             'box_tag': '{{user `vm_name`}}',
             'access_token': '{{user `vagrant_cloud_token`}}',
             'version': '{{user `vm_version`}}',
-            # needed for this: https://www.packer.io/docs/post-processors/amazon-import
-            'keep_input_artifact': True
             }
     }
     updated_packer_data = post_processor_alterations(updated_packer_data, post_processor_dict)
