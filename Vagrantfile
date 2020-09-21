@@ -36,7 +36,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.define "main", primary: true do |main|
     main.vm.network "private_network", ip: "192.168.34.22", virtualbox__intnet: "building_network"
-    main.vm.synced_folder ".", "/home/vagrant/project_folder"
+    main.vm.synced_folder ".", "/home/vagrant/project"
     main.vm.synced_folder ".", "/vagrant"
     # main.vm.synced_folder "~/src/mine/ansible_virtualization", "/roles"
     # https://askubuntu.com/questions/638387/logout-current-user-from-script#answer-638447
