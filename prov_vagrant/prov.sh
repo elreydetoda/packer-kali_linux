@@ -34,9 +34,6 @@ function circle_ci(){
 
   variables_gen
 
-  if [[ ! -f "${HOME}/project/variables.json" ]] ; then
-    cp "${HOME}/project/variables.json" /vagrant
-  fi
   get_secret
 }
 
@@ -122,8 +119,8 @@ get_secret(){
   echo
   echo "What is the private key that you will be using to ssh into the server with? CTRL-d when done."
   private_key_var=$(cat)
-  echo "${private_key_var}" > ${private_key_location}
-  chmod 600 ${private_key_location} 
+  echo "${private_key_var}" > "${private_key_location}"
+  chmod 600 "${private_key_location}"
 
 }
 
