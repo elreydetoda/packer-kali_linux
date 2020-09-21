@@ -371,7 +371,7 @@ jobs:
       - submodule-sync
       - attach_workspace:
           at: /tmp/packer_workspace
-      - run: ls -AlR /tmp/packer_workspace
+      - run: ls -AlR . && pwd
       - run: cp -v /tmp/packer_workspace/* .
       # TODO: fix underlying container
       - run: apk add --update --no-cache rsync
