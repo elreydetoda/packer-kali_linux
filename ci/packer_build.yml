@@ -114,4 +114,9 @@
           file:
             state: absent
             path: '{{ item.path }}'
+            # simply adding these to unblock ansible lint
+            # TODO: figure out how to get ansible-lint to ignore this
+            mode: '777'
+            owner: noowner
+            group: nogroup
           loop: '{{ files_to_remove.files }}'
