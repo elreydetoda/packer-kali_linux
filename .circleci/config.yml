@@ -243,7 +243,7 @@ jobs:
       - run: terraform --version
       # linting the packet terraform files
       - terraform-lint:
-          code-path: ci/packet_terraform
+          code-path: ci/packet_terraform-cloud
       # linting the aws terraform files
       # - terraform-lint:
       #     code-path: ci/kali_aws_info
