@@ -384,9 +384,9 @@ workflows:
               - markdown-linting
               - python-linting
               - ansible-linting
-            filters:
-              branches:
-                only: master
+            # filters:
+            #   branches:
+            #     only: master
         - generate-packer-vars:
             requires:
               - shellcheck-warning
@@ -394,9 +394,9 @@ workflows:
               - markdown-linting
               - python-linting
               - ansible-linting
-            filters:
-              branches:
-                only: master
+            # filters:
+            #   branches:
+            #     only: master
         # - packer-linting_vbox:
         #     requires:
         #       - generate-packer-vars
@@ -405,30 +405,30 @@ workflows:
             requires:
               - generate-packer-vars
               - generate-packer-file
-            filters:
-              branches:
-                only: master
+            # filters:
+            #   branches:
+            #     only: master
         # - terraform-packet_deploy:
         #     requires:
         #       - packer-linting_vbox
         - ansible-bootstrap:
             requires:
               - terraform-packet_deploy
-            filters:
-              branches:
-                only: master
+            # filters:
+            #   branches:
+            #     only: master
         - ansible-packer_build:
             requires:
               - ansible-bootstrap
-            filters:
-              branches:
-                only: master
+            # filters:
+            #   branches:
+            #     only: master
         - terraform-packet_destroy:
             requires:
               - ansible-packer_build
-            filters:
-              branches:
-                only: master
+            # filters:
+            #   branches:
+            #     only: master
         # - packer-linting_vmware:
         #     requires:
         #       - generate-packer-file
