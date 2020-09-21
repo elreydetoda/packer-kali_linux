@@ -438,15 +438,16 @@ workflows:
         # - terraform-packet_deploy:
         #     requires:
         #       - packer-linting_vbox
-        - ansible-bootstrap:
-            requires:
-              - terraform-packet_deploy
+        # - ansible-bootstrap:
+        #     requires:
+        #       - terraform-packet_deploy
             # filters:
             #   branches:
             #     only: master
-        - ansible-packer_build:
-            requires:
-              - ansible-bootstrap
+        - ansible-packer_build
+        # - ansible-packer_build:
+            # requires:
+              # - ansible-bootstrap
             # filters:
             #   branches:
             #     only: master
