@@ -270,6 +270,15 @@ jobs:
           pipenv run python --version
       - run: pipenv run scripts/template-gen.py
       - run: cat kali-template.json
+  
+  generate-packer-vars:
+    docker:
+      - image: 'bash'
+    steps:
+      - run: apk --update --no-cache add git
+      - checkout
+      - run: bash --version
+      - run: scripts/new-kali.sh
 
 #   build:
 #     machine: true
@@ -298,9 +307,12 @@ workflows:
               - markdown-linting
               - python-linting
               - ansible-linting
-        - packer-linting_vbox:
+        - generate-packer-vars:
             requires:
               - generate-packer-file
+        # - packer-linting_vbox:
+        #     requires:
+        #       - generate-packer-file
         # - packer-linting_vmware:
         #     requires:
         #       - generate-packer-file
