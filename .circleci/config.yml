@@ -444,7 +444,9 @@ workflows:
             # filters:
             #   branches:
             #     only: master
-        - ansible-packer_build
+        - ansible-packer_build:
+            requires:
+              - terraform-packet_deploy
         # - ansible-packer_build:
             # requires:
               # - ansible-bootstrap
