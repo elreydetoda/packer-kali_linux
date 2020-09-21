@@ -87,6 +87,7 @@ commands:
         description: the folder where th code is at
         type: string
     steps:
+      - terraform-prep
       - checkout
       - run: |
           set -eux
