@@ -13,6 +13,12 @@ orbs:
 
 commands:
 
+  submodule-sync:
+    description: sync submodules for github repo
+    steps:
+      - run: git submodule sync
+      - run: git submodule update --init
+
   run-ansible_lint:
     description: run the ansible-lint command against playbooks
     parameters:
@@ -286,6 +292,7 @@ jobs:
     executor: python/default
     steps:
       - checkout
+      - submodule_sync
       - python/install-packages:
           args: '--deploy'
       - run: |
@@ -294,6 +301,7 @@ jobs:
           pipenv run python --version
       - run: pipenv run scripts/template-gen.py
       - run: cat kali-template.json
+      - run: mkdir -p /tmp/packer_workspace
       - persist_to_workspace:
           root: /tmp/packer_workspace
           paths:
@@ -307,6 +315,7 @@ jobs:
       - checkout
       - run: bash --version
       - run: scripts/new-kali.sh
+      - run: mkdir -p /tmp/packer_workspace
       - persist_to_workspace:
           root: /tmp/packer_workspace
           paths:
@@ -349,6 +358,7 @@ jobs:
       - add_ssh_keys:
           fingerprints:
             - "97:b4:61:8f:38:a7:14:c9:6f:ca:3f:d2:ab:3f:a7:7c"
+      - submodule_sync
       - attach_workspace:
           at: /tmp/packer_workspace
       - run: cp /tmp/packer_workspace/* .
