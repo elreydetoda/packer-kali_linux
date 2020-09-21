@@ -69,7 +69,7 @@ function packer_out(){
   packer_var_json_string+='}'
 
   if [[ -n "${CIRCLECI}" ]] ; then
-    printf '%s' "${packer_var_json_string}" | jq '.' | grep -v 'vagrant_cloud_token' | tee "${variables_out_file}"
+    printf '%s' "${packer_var_json_string}" | jq '.' | tee "${variables_out_file}" | grep -v 'vagrant_cloud_token' 
   else
     printf '%s' "${packer_var_json_string}" | jq '.' | tee "${variables_out_file}"
   fi
@@ -81,7 +81,6 @@ function hashicorp_setup_env(){
     vagrant_cloud_token="${VAGRANT_CLOUD_TOKEN-''}"
   fi
 
-  hashiName="${hashiName:-}"
 
   if [[ -n "${hashiName}" ]]; then
       namez="${hashiName}/${namez}"
@@ -101,7 +100,6 @@ function hashicorp_setup_env(){
   fi
 
   vm_version="${vm_version:-0.0.0}"
-  vagrant_cloud_token="${vagrant_cloud_token:-}"
 
 }
 
@@ -199,6 +197,8 @@ function main(){
   # re-defining curl to have some extra flags by default (essentially a bash alias)
   curl='curl -fsSL'
   CIRCLECI="${CIRCLECI:-}"
+  hashiName="${hashiName:-}"
+  vagrant_cloud_token="${VAGRANT_CLOUD_TOKEN:-}"
 
   packer_var_json_string='{'
 
