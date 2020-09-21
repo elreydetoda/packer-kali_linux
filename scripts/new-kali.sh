@@ -12,8 +12,8 @@ deps_install(){
   if [[ "${EUID}" -ne 0 ]] ; then
     install_cmd+=( 'sudo' )
   fi
-
-  case $(grep '^ID=' /etc/os-release | cut -d '=' -f 2) in
+  OS_VERSION="$(grep '^ID=' /etc/os-release | cut -d '=' -f 2)"
+  case "${OS_VERSION}" in
     debian|ubuntu)
         packages=( "gpg" "curl" "jq" )
         package_manager='apt'
@@ -36,6 +36,11 @@ deps_install(){
   done
 
   install_cmd=( "${install_cmd[@]}" "${package_manager}" "${package_manager_install_cmd[@]}" )
+
+  if [[ "${OS_VERSION}" == 'alpine' ]] ; then
+    # installing GNU grep, instead of busybox built in
+    packages+=( 'grep' )
+  fi
 
   if [[ -n "${need_to_install}" ]] ; then
     printf 'need to install: %s\n' "${needs[@]}"
