@@ -292,6 +292,10 @@ jobs:
           pipenv run python --version
       - run: pipenv run scripts/template-gen.py
       - run: cat kali-template.json
+      - persist_to_workspace:
+          root: /tmp/packer_workspace
+          paths:
+            - "./kali-template.json"
   
   generate-packer-vars:
     docker:
@@ -301,6 +305,10 @@ jobs:
       - checkout
       - run: bash --version
       - run: scripts/new-kali.sh
+      - persist_to_workspace:
+          root: /tmp/packer_workspace
+          paths:
+            - "./variables.json"
 
   terraform-packet_deploy:
     # executor: terraform/default
@@ -325,6 +333,9 @@ jobs:
       - image: 'elrey741/ansible-playbook_packet'
     steps:
       - ansible-prep
+      - add_ssh_keys:
+          fingerprints:
+            - "97:b4:61:8f:38:a7:14:c9:6f:ca:3f:d2:ab:3f:a7:7c"
       - run: ansible-playbook --version
       - run: ansible-playbook -i ci/scripts/packet_net.py -u root ci/bootstrap.yml
 
@@ -333,8 +344,19 @@ jobs:
       - image: 'elrey741/ansible-playbook_packet'
     steps:
       - ansible-prep
+      - add_ssh_keys:
+          fingerprints:
+            - "97:b4:61:8f:38:a7:14:c9:6f:ca:3f:d2:ab:3f:a7:7c"
+      - attach_workspace:
+          at: /tmp/packer_workspace
+      - run: cp /tmp/packer_workspace/* .
       - run: ansible-playbook --version
       - run: ansible-playbook -i ci/scripts/packet_net.py -u root ci/packer_build.yml
+      - run: |
+          mkdir -p /tmp/artifacts
+          cp kali-template.json variables.json packer_build.log /tmp/artifacts
+      - store_artifacts:
+          path: /tmp/artifacts
 #   build:
 #     machine: true
 #     steps:
@@ -348,7 +370,7 @@ workflows:
   version: 2
   # this is the workflow that will build the local image
   #   (i.e. the vagrant box w/local providers (i.e. Vbox, VMWare, etc..))
-  dev-build_local-image:
+  main-kali_build:
       jobs:
         - shellcheck-warning
         - terraform-linting
@@ -362,6 +384,9 @@ workflows:
               - markdown-linting
               - python-linting
               - ansible-linting
+            filters:
+              branches:
+                only: master
         - generate-packer-vars:
             requires:
               - shellcheck-warning
@@ -369,22 +394,41 @@ workflows:
               - markdown-linting
               - python-linting
               - ansible-linting
-        - packer-linting_vbox:
+            filters:
+              branches:
+                only: master
+        # - packer-linting_vbox:
+        #     requires:
+        #       - generate-packer-vars
+        #       - generate-packer-file
+        - terraform-packet_deploy:
             requires:
               - generate-packer-vars
               - generate-packer-file
-        - terraform-packet_deploy:
-            requires:
-              - packer-linting_vbox
+            filters:
+              branches:
+                only: master
+        # - terraform-packet_deploy:
+        #     requires:
+        #       - packer-linting_vbox
         - ansible-bootstrap:
             requires:
               - terraform-packet_deploy
+            filters:
+              branches:
+                only: master
         - ansible-packer_build:
             requires:
               - ansible-bootstrap
+            filters:
+              branches:
+                only: master
         - terraform-packet_destroy:
             requires:
               - ansible-packer_build
+            filters:
+              branches:
+                only: master
         # - packer-linting_vmware:
         #     requires:
         #       - generate-packer-file
