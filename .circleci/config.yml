@@ -339,7 +339,6 @@ jobs:
       - run: ansible-playbook --version
       - run: ansible-playbook -i ci/scripts/packet_net.py -u root ci/bootstrap.yml
 
-
   ansible-packer_build:
     docker:
       - image: 'elrey741/ansible-playbook_packet'
