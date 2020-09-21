@@ -101,23 +101,42 @@ commands:
       # - terraform/validate:
       #     path: "<< parameters.code-path >>"
 
+  terraform-prep:
+    description: prepare terraform with provided token
+    steps:
+      - run: apk add --update --no-cache git jq
+      - run: |
+          mkdir -p ~/.terraform.d
+          printf '{"credentials":{"app.terraform.io":{"token":"%s"}}}' "${TF_VAR_tc_auth_token}" | jq '.' > ~/.terraform.d/credentials.tfrc.json
+
   terraform-deploy:
     description: "Run terraform for deploying."
     parameters:
       code-path:
-        description: the folder where th code is at
+        description: the folder where the code is at
         type: string
     steps:
-      - run: apk add --update --no-cache git jq bash
+      - terraform-prep
       - checkout
-      - run: |
-          mkdir -p ~/.terraform.d
-          printf '{"credentials":{"app.terraform.io":{"token":"%s"}}}' "${TF_VAR_tc_auth_token}" | jq '.' > ~/.terraform.d/credentials.tfrc.json
       - run: |
           cd "<< parameters.code-path >>" || exit 1
           terraform init
           terraform apply -auto-approve
   
+  terraform-destroy:
+    description: "Run terraform for deploying."
+    parameters:
+      code-path:
+        description: the folder where the code is at
+        type: string
+    steps:
+      - terraform-prep
+      - checkout
+      - run: |
+          cd "<< parameters.code-path >>" || exit 1
+          terraform init
+          terraform destroy -auto-approve
+
   packer-lint:
     description: "Run packer for linting"
     parameters:
@@ -282,7 +301,15 @@ jobs:
         - run: terraform --version
         - terraform-deploy:
             code-path: ci/packet_terraform-cloud
-        # TODO: setup actual deployment
+
+  terraform-packet_destroy:
+    # executor: terraform/default
+    docker:
+      - image: 'hashicorp/terraform:light'
+    steps:
+        - run: terraform --version
+        - terraform-destroy:
+            code-path: ci/packet_terraform-cloud
 
 #   build:
 #     machine: true
@@ -323,6 +350,9 @@ workflows:
               - generate-packer-vars
               - generate-packer-file
         - terraform-packet_deploy:
+            requires:
+              - packer-linting_vbox
+        - terraform-packet_destroy:
             requires:
               - packer-linting_vbox
         # - packer-linting_vmware:
