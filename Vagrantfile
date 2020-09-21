@@ -39,7 +39,8 @@ Vagrant.configure("2") do |config|
     main.vm.synced_folder ".", "/home/vagrant/project_folder"
     main.vm.synced_folder ".", "/vagrant"
     # main.vm.synced_folder "~/src/mine/ansible_virtualization", "/roles"
-    main.vm.provision "shell", inline: "echo '/vagrant/prov_vagrant/prov.sh' >> ~vagrant/.bashrc"
+    # https://askubuntu.com/questions/638387/logout-current-user-from-script#answer-638447
+    main.vm.provision "shell", inline: "echo 'exec /vagrant/prov_vagrant/prov.sh' >> ~vagrant/.bashrc"
     main.vm.provision 'key-setup', type: "shell", inline: <<-SHELL
       # https://blog.elreydetoda.site/cool-shell-tricks/#bashscriptingmodifiedscripthardening
       set -${-//[sc]/}eu${DEBUG+xv}o pipefail
