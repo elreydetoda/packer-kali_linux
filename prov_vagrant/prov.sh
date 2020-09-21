@@ -22,8 +22,37 @@ function variables_gen(){
   ${path_to_new_kali_shell_script}
 }
 
+function general_deps(){
+  sudo apt install -y python3-pip
+  pip3 install pipenv
+  export PATH="${PATH}:~/.local/bin/"
+}
+
+function ci_deps(){
+
+  general_deps
+
+  ## for some reason this isn't working...so, going the old fashion way...
+  # sudo addgroup --system docker
+  # sudo adduser vagrant docker
+  # newgrp docker
+  # sudo snap install docker circleci
+  # sudo snap connect circleci:docker docker
+  $new_curl 'https://raw.githubusercontent.com/CircleCI-Public/circleci-cli/master/install.sh' | sudo bash
+  $new_curl 'https://get.docker.com' | sudo bash
+  sudo usermod -aG docker vagrant
+  pushd "${current_project_dir}"
+  pipenv install --deploy
+  popd
+
+  echo "export CIRCLECI=true" | sudo tee -a "${env_file}" 1>/dev/null
+  export CIRCLECI=true
+}
+
 ## Project setup functions
 function circle_ci(){
+
+  ci_deps
 
   if [[ -d /vagrant ]] ; then
     ln -sf /vagrant/ "${HOME}/project"
@@ -39,6 +68,7 @@ function circle_ci(){
 
 function development(){
 
+  general_deps
   sudo apt install -y tmux screen
   pushd "${current_project_dir}"
   pipenv install -d --deploy
@@ -49,25 +79,8 @@ function development(){
 }
 
 function development_w_CI(){
+  ci_deps
   development
-
-  ## for some reason this isn't working...so, going the old fashion way...
-  # sudo addgroup --system docker
-  # sudo adduser vagrant docker
-  # newgrp docker
-  # sudo snap install docker circleci
-  # sudo snap connect circleci:docker docker
-  $new_curl 'https://raw.githubusercontent.com/CircleCI-Public/circleci-cli/master/install.sh' | sudo bash
-  $new_curl 'https://get.docker.com' | sudo bash
-  sudo usermod -aG docker vagrant
-  sudo apt install -y python3-pip
-  pip3 install pipenv
-  export PATH="${PATH}:~/.local/bin/"
-  pushd "${current_project_dir}"
-  pipenv install --deploy
-  popd
-
-  echo "export CIRCLECI=true" | sudo tee -a "${env_file}" 1>/dev/null
 }
 
 # thanks to the bash cookbook for this one:
@@ -82,8 +95,9 @@ function selection(){
     'development_w_CI' # development with the CI environment setup
   )
 
-  PS3='Action to process? '
   until [ "${action:-}" == 'done' ] ; do
+
+    PS3='Action to process? '
 
     printf '\n\n%s\n' "Select an action to do:" >&2
 
