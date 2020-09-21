@@ -72,15 +72,17 @@ function packer_out(){
 
 function hashicorp_setup_env(){
   if [[ -n "${CIRCLECI}" ]] || [[ "$(whoami)" == 'vagrant' ]] ; then
-    hashiName="${VAGRANT_CLOUD_USER-''}"
+    hashiName="${VAGRANT_CLOUD_USER-}"
     vagrant_cloud_token="${VAGRANT_CLOUD_TOKEN-''}"
   fi
+
+  hashiName="${hashiName:-}"
 
   if [[ -n "${hashiName}" ]]; then
       namez="${hashiName}/${namez}"
       vagrantBoxUrl="https://app.vagrantup.com/${namez}"
       if curl -sSL "${vagrantBoxUrl}" | grep 'false' 1> /dev/null ; then
-          vm_version='0.0.1'
+          vm_version='0.0.0'
       else
           currentVersion="$($curl "${vagrantBoxUrl}" | jq '{versions}[][0]["version"]' | cut -d '"' -f 2)"
           if [[ "${CIRCLECI}" ]] ; then
@@ -92,6 +94,10 @@ function hashicorp_setup_env(){
           fi
       fi
   fi
+
+  vm_version="${vm_version:-0.0.0}"
+  vagrant_cloud_token="${vagrant_cloud_token:-}"
+
 }
 
 function cryptographical_verification(){
