@@ -101,6 +101,15 @@ commands:
       # - terraform/validate:
       #     path: "<< parameters.code-path >>"
 
+  ansible-prep:
+    description: prepare terraform with provided token
+    steps:
+      - run: apk add --update --no-cache git
+      - checkout
+      - run: |
+          ansible-galaxy collection install -r ci/ansible-requirements.yml
+          ansible-galaxy role install -r ci/ansible-requirements.yml
+
   terraform-prep:
     description: prepare terraform with provided token
     steps:
@@ -298,19 +307,34 @@ jobs:
     docker:
       - image: 'hashicorp/terraform:light'
     steps:
-        - run: terraform --version
-        - terraform-deploy:
-            code-path: ci/packet_terraform-cloud
+      - run: terraform --version
+      - terraform-deploy:
+          code-path: ci/packet_terraform-cloud
 
   terraform-packet_destroy:
     # executor: terraform/default
     docker:
       - image: 'hashicorp/terraform:light'
     steps:
-        - run: terraform --version
-        - terraform-destroy:
-            code-path: ci/packet_terraform-cloud
+      - run: terraform --version
+      - terraform-destroy:
+          code-path: ci/packet_terraform-cloud
 
+  ansible-bootstrap:
+    docker:
+      - image: 'elrey741/ansible-playbook_packet'
+    steps:
+      - ansible-prep
+      - run: ansible-playbook --version
+      - run: ansible-playbook -i ci/scripts/packet_net.py -u root ci/bootstrap.yml
+
+  ansible-packer_build:
+    docker:
+      - image: 'elrey741/ansible-playbook_packet'
+    steps:
+      - ansible-prep
+      - run: ansible-playbook --version
+      - run: ansible-playbook -i ci/scripts/packet_net.py -u root ci/packer_build.yml
 #   build:
 #     machine: true
 #     steps:
@@ -352,9 +376,15 @@ workflows:
         - terraform-packet_deploy:
             requires:
               - packer-linting_vbox
+        - ansible-bootstrap:
+            requires:
+              - terraform-packet_deploy
+        - ansible-packer_build:
+            requires:
+              - ansible-bootstrap
         - terraform-packet_destroy:
             requires:
-              - packer-linting_vbox
+              - ansible-packer_build
         # - packer-linting_vmware:
         #     requires:
         #       - generate-packer-file
