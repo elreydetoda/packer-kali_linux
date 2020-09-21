@@ -1,74 +1,118 @@
 #!/usr/bin/env bash
 
-set -e
-env_file='/etc/profile.d/circleci.sh'
+# https://elrey.casa/bash/scripting/harden
+set -${-//[sc]/}eu${DEBUG+xv}o pipefail
 
-## Project setup functions
-circle_ci(){
-  project_url='https://github.com/elreydetoda/packer-kali_linux.git'
+function variables_gen(){
+  # shellcheck source=/dev/null
+  . "${env_file}"
 
-  echo "export CIRCLECI=true" | sudo tee -a ${env_file} 1>/dev/null
-
-  if [[ -d /vagrant ]] ; then
-    ln -sf /vagrant/ ${HOME}/project
-  else
-    git clone ${project_url} ${HOME}/project
-  fi
-  echo "cd ${HOME}/project" >> ${HOME}/.bashrc
-
-  . ${env_file}
-  variables_gen
-
-  if [[ ! -f ${HOME}/project/variables.json  ]] ; then
-    cp ${HOME}/project/variables.json /vagrant
-  fi
-  get_secret
-}
-
-variables_gen(){
-  path_to_new_kali_shell_script='/vagrant/scripts/new-kali.sh'
-  if [[ $CIRCLECI ]] ; then
+  if [[ -n "${CIRCLECI}" ]] ; then
     project_dir="${HOME}/project"
   else
     project_dir='/vagrant'
-    . ${env_file}
-    export CIRCLECI=''
   fi
+
+  path_to_new_kali_shell_script="${project_dir}/scripts/new-kali.sh"
   # installing deps
   echo 'Installing dependencies...'
-  sudo apt-get install -y jq screen dirmngr 
-  sudo sudo addgroup --system docker && sudo adduser vagrant docker && sudo snap install docker
   
   pushd ${project_dir}
   chmod +x ${path_to_new_kali_shell_script}
   ${path_to_new_kali_shell_script}
 }
 
-## base framework
-selection_setup(){
-  PROJECT=''
-  projects_array=( "variables_gen" "circle_ci")
-  project_index=0
+## Project setup functions
+function circle_ci(){
+
+  if [[ -d /vagrant ]] ; then
+    ln -sf /vagrant/ "${HOME}/project"
+  else
+    git clone "${project_url}" "${HOME}/project"
+  fi
+  echo "cd ${HOME}/project" >> "${HOME}/.bashrc"
+
+  variables_gen
+
+  if [[ ! -f "${HOME}/project/variables.json" ]] ; then
+    cp "${HOME}/project/variables.json" /vagrant
+  fi
+  get_secret
 }
 
-selection(){
-  for project in "${projects_array[@]}"; do
-    printf "%d) %s\n" $project_index $project
-    project_index=$(( $project_index + 1 ))
+function development(){
+
+  sudo apt install -y tmux screen
+  pushd "${current_project_dir}"
+  pipenv install -d --deploy
+  pipenv run ansible-galaxy collection install -r ci/ansible-requirements.yml
+  pipenv run ansible-galaxy role install -r ci/ansible-requirements.yml
+  popd
+
+}
+
+function development_w_CI(){
+  development
+
+  ## for some reason this isn't working...so, going the old fashion way...
+  # sudo addgroup --system docker
+  # sudo adduser vagrant docker
+  # newgrp docker
+  # sudo snap install docker circleci
+  # sudo snap connect circleci:docker docker
+  $new_curl 'https://raw.githubusercontent.com/CircleCI-Public/circleci-cli/master/install.sh' | sudo bash
+  $new_curl 'https://get.docker.com' | sudo bash
+  sudo usermod -aG docker vagrant
+  sudo apt install -y python3-pip
+  pip3 install pipenv
+  export PATH="${PATH}:~/.local/bin/"
+  pushd "${current_project_dir}"
+  pipenv install --deploy
+  popd
+
+  echo "export CIRCLECI=true" | sudo tee -a "${env_file}" 1>/dev/null
+}
+
+# thanks to the bash cookbook for this one:
+#   https://github.com/vossenjp/bashcookbook-examples/blob/master/ch03/select_dir
+function selection(){
+
+  action_array=(
+    'done'
+    'variables_gen' # this is used to ONLY generate the variables file
+    'circle_ci' # this is used to run an imitated environment of what circleci would do
+    'development' # normal local development
+    'development_w_CI' # development with the CI environment setup
+  )
+
+  PS3='Action to process? '
+  until [ "${action:-}" == 'done' ] ; do
+
+    printf '\n\n%s\n' "Select an action to do:" >&2
+
+    select action in "${action_array[@]}" ; do
+
+      if [[ "${action}" == "done" ]] ; then
+
+        echo "Finishing automation."
+        break
+
+      elif [[ -n "${action}" ]] ; then
+
+        printf 'You chose number %s, processing %s\n' "${REPLY}" "${action}"
+        ${action}
+        break
+
+      else
+
+        echo "Invalid selection, please try again."
+
+      fi
+
+    done
   done
+  unset PS3
   
-  printf 'Please choose a project: '
-  read -r project_num
-  
-  if [ $project_num -ge 0 ] && [ $project_num -lt $project_index ] ; then
-    ${projects_array[$project_num]}
-  else
-    echo 'no project selected'
-    echo 'to set this up again'
-    echo 'please run: vagrant provision'
-    cleanup
-    exit 1
-  fi
 }
 
 get_secret(){
@@ -85,35 +129,31 @@ get_secret(){
 
 cleanup(){
   sed -i 's,/vagrant/prov_vagrant/prov.sh,,' ~vagrant/.bashrc
-  echo
-  echo 'Forcing logout to reload environmental variables'
-  echo
-  ps -aux | grep vagrant | grep 'pts/0' | grep "[s]sh" | awk '{print $2}' | xargs kill
-  # if [[ ! -z $project_num ]] ; then
-  #   echo 'Powering off machine so you have proper dev env, please do a vagrant up'
-  #   sudo shutdown -h now
-  # fi
 }
-check_done(){
-  echo
-  echo 'Will that be all? (Y/n)'
-  read -r donez_ans
-  donez_ans=$(echo $donez_ans | tr '[:upper:]' '[:lower:]')
-  case "${donez_ans}" in
-    y|Y)
-        donez=false
-        cleanup
-      ;;
-  esac
-}
-donez=true
-while $donez ; do
-  export CIRCLECI=''
+
+function main(){
+
+  export CIRCLECI="${CIRCLECI:-}"
+
+  project_url='https://github.com/elreydetoda/packer-kali_linux.git'
+  env_file='/etc/profile.d/circleci.sh'
+  new_curl='curl -fsSL'
+  if [[ -n "${CIRCLECI}" ]] ; then
+    current_project_dir="${HOME}/project"
+  else
+    current_project_dir="/home/vagrant/project_folder"
+  fi
+
   sudo apt-get update
-  sudo apt-get install -y git tmux screen
-  # for spacing
-  echo
-  selection_setup
+  sudo apt-get install -y git
+
   selection
-  check_done
-done
+  cleanup
+  exit 0
+
+}
+
+# https://blog.elreydetoda.site/cool-shell-tricks/#bashscriptingbashsmain
+if [[ "${0}" = "${BASH_SOURCE[0]}" ]] ; then
+  main "${@}"
+fi
