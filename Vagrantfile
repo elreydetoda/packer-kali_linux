@@ -9,7 +9,7 @@ export TF_VAR_tc_auth_token="#{ENV['TF_VAR_tc_auth_token']}"
 # packet info
 export TF_VAR_packet_auth_token="#{ENV['TF_VAR_packet_auth_token']}"
 export TF_VAR_packet_project_id="#{ENV['TF_VAR_packet_project_id']}"
-export PACKET_API_TOKEN="${TF_VAR_packet_auth_token:-}"
+export PACKET_API_TOKEN="#{ENV['TF_VAR_packet_auth_token']}"
 
 # aws info
 export TF_VAR_aws_access_key="#{ENV['TF_VAR_aws_access_key']}"
