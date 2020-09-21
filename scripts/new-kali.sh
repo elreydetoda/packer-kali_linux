@@ -6,10 +6,24 @@ set -${-//[s]/}eu${DEBUG+xv}o pipefail
 
 # dependencies
 deps_install(){
-  case $(grep '^ID_LIKE=' /etc/os-release | cut -d '=' -f 2) in
-    debian)
-      packages=("gpg" "wget" "curl" "jq")
-      package_manager="apt"
+
+  install_cmd=()
+
+  if [[ "${EUID}" -ne 0 ]] ; then
+    install_cmd+=( 'sudo' )
+  fi
+
+  case $(grep '^ID=' /etc/os-release | cut -d '=' -f 2) in
+    debian|ubuntu)
+        packages=( "gpg" "curl" "jq" )
+        package_manager='apt'
+        package_manager_install_cmd=( 'install' '-y' )
+      ;;
+    alpine)
+        packages=( "gnupg" "curl" "jq" )
+        package_manager='apk'
+        package_manager_install_cmd=( '--update' '--no-cache' 'add' )
+      ;;
   esac
 
   need_to_install=''
@@ -21,9 +35,11 @@ deps_install(){
     fi
   done
 
+  install_cmd=( "${install_cmd[@]}" "${package_manager}" "${package_manager_install_cmd[@]}" )
+
   if [[ -n "${need_to_install}" ]] ; then
     printf 'need to install: %s\n' "${needs[@]}"
-    sudo ${package_manager} install -y "${packages[@]}"
+    "${install_cmd[@]}" "${packages[@]}"
   fi
 }
 
