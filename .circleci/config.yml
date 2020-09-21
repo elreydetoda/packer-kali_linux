@@ -368,6 +368,8 @@ jobs:
       - attach_workspace:
           at: /tmp/packer_workspace
       - run: cp /tmp/packer_workspace/* .
+      # TODO: fix underlying container
+      - run: apk add --update --no-cache rsync
       - run: ansible-playbook --version
       - run: ansible-playbook -i ci/scripts/packet_net.py -u root ci/packer_build.yml
       - run: |
