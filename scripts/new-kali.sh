@@ -5,7 +5,7 @@ set -${-//[s]/}eu${DEBUG+xv}o pipefail
 
 
 # dependencies
-deps_install(){
+function deps_install(){
 
   install_cmd=()
 
