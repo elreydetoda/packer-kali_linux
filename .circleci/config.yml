@@ -3,10 +3,10 @@ version: 2.1
 orbs:
   shellcheck: circleci/shellcheck@volatile
   python: circleci/python@volatile
-  bats: circleci/bats@volatile
-  codecov: codecov/codecov@volatile
+  # eventually
+  # bats: circleci/bats@volatile
+  # codecov: codecov/codecov@volatile
   # shellcheck: circleci/shellcheck@2.0.0
-  # terraform: circleci/terraform@1.0.1
   # python: circleci/python@0.3.2
   # bats: circleci/bats@1.0.0
   # codecov: codecov/codecov@1.1.1
@@ -264,6 +264,10 @@ jobs:
       - checkout
       - python/install-packages:
           args: '--deploy'
+      - run: |
+          set -eux
+          pipenv --version
+          pipenv run python --version
       - run: pipenv run scripts/template-gen.py
       - run: cat kali-template.json
 
@@ -297,17 +301,19 @@ workflows:
         - packer-linting_vbox:
             requires:
               - generate-packer-file
-        - packer-linting_vmware:
-            requires:
-              - generate-packer-file
-        - packer-linting_aws:
-            requires:
-              - generate-packer-file
-        - terraform-packet_deploy:
-            requires:
-              - packer-linting_vbox
-              - packer-linting_vmware
-              - packer-linting_aws
+        # - packer-linting_vmware:
+        #     requires:
+        #       - generate-packer-file
+        # - packer-linting_aws:
+        #     requires:
+        #       - generate-packer-file
+        # - bash-variables_gen:
+        #     requires:
+        #       - packer-linting_vbox
+              # - packer-linting_vmware
+              # - packer-linting_aws
+        # - terraform-packet_deploy:
+        #     requires:
   linting-wanted:
       jobs:
         - shellcheck-desired
