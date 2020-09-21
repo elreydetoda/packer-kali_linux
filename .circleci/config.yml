@@ -301,11 +301,13 @@ jobs:
           pipenv run python --version
       - run: pipenv run scripts/template-gen.py
       - run: cat kali-template.json
-      - run: mkdir -p /tmp/packer_workspace
+      - run: |
+          mkdir -p /tmp/packer_workspace
+          cp kali-template.json /tmp/packer_workspace
       - persist_to_workspace:
           root: /tmp/packer_workspace
           paths:
-            - "./kali-template.json"
+            - "kali-template.json"
   
   generate-packer-vars:
     docker:
@@ -316,10 +318,13 @@ jobs:
       - run: bash --version
       - run: scripts/new-kali.sh
       - run: mkdir -p /tmp/packer_workspace
+      - run: |
+          mkdir -p /tmp/packer_workspace
+          cp variables.json /tmp/packer_workspace
       - persist_to_workspace:
           root: /tmp/packer_workspace
           paths:
-            - "./variables.json"
+            - "variables.json"
 
   terraform-packet_deploy:
     # executor: terraform/default
