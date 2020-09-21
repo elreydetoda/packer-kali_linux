@@ -136,9 +136,11 @@ commands:
       - terraform-prep
       - checkout
       - run: |
+          old_pwd="${PWD}"
           cd "<< parameters.code-path >>" || exit 1
           terraform init
           terraform apply -auto-approve
+          cd "${old_pwd}"
   
   terraform-destroy:
     description: "Run terraform for deploying."
@@ -150,9 +152,11 @@ commands:
       - terraform-prep
       - checkout
       - run: |
+          old_pwd="${PWD}"
           cd "<< parameters.code-path >>" || exit 1
           terraform init
           terraform destroy -auto-approve
+          cd "${old_pwd}"
 
   packer-lint:
     description: "Run packer for linting"
@@ -367,6 +371,7 @@ jobs:
       - submodule-sync
       - attach_workspace:
           at: /tmp/packer_workspace
+      - run: ls -AlR /tmp/packer_workspace
       - run: cp -v /tmp/packer_workspace/* .
       # TODO: fix underlying container
       - run: apk add --update --no-cache rsync
