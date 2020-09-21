@@ -93,6 +93,8 @@ function terraform_stuff(){
             hashicorp/terraform:light "${terraform_action}" "${extra_args[@]}"
     else
 
+        # shellcheck disable=SC2140
+        # the disable is for the terraform folder bind mount
         docker container run \
             -it --rm -w '/terraform'\
             "${provider_array[@]}" \
