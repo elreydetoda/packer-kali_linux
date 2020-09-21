@@ -3,7 +3,7 @@
   become: yes
   vars:
     kali_project_folder: '/opt/packerAutoKali/'
-    project_folder: '/vagrant'
+    project_folder: '.'
     local_ci_scripts_dir: 'scripts'
   tasks:
 
