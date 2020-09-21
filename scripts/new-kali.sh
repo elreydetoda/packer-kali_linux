@@ -68,11 +68,7 @@ function packer_out(){
 
   packer_var_json_string+='}'
 
-  if [[ -n "${CIRCLECI}" ]] ; then
-    printf '%s' "${packer_var_json_string}" | jq '.' | tee "${variables_out_file}" | grep -v 'vagrant_cloud_token' 
-  else
-    printf '%s' "${packer_var_json_string}" | jq '.' | tee "${variables_out_file}"
-  fi
+  printf '%s' "${packer_var_json_string}" | jq '.' | tee "${variables_out_file}"
 }
 
 function hashicorp_setup_env(){
