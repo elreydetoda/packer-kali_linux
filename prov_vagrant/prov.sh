@@ -17,15 +17,26 @@ function variables_gen(){
   # installing deps
   echo 'Installing dependencies...'
   
-  pushd ${project_dir}
-  chmod +x ${path_to_new_kali_shell_script}
-  ${path_to_new_kali_shell_script}
+  pushd "${project_dir}"
+  if [[ -n "${PREZ:-}" ]] ; then
+    ${path_to_new_kali_shell_script} | grep -v 'vagrant_cloud_token'
+  else
+    ${path_to_new_kali_shell_script}
+  fi
+  popd
 }
 
 function general_deps(){
-  sudo apt install -y python3-pip
+
+  variables_gen
+  sudo apt-get install -y python3-pip
   pip3 install pipenv
   export PATH="${PATH}:~/.local/bin/"
+  pushd "${project_dir}"
+  pipenv install --deploy
+  pipenv run ansible-galaxy collection install -r ci/ansible-requirements.yml
+  pipenv run ansible-galaxy role install -r ci/ansible-requirements.yml
+  popd
 }
 
 function ci_deps(){
@@ -41,46 +52,51 @@ function ci_deps(){
   $new_curl 'https://raw.githubusercontent.com/CircleCI-Public/circleci-cli/master/install.sh' | sudo bash
   $new_curl 'https://get.docker.com' | sudo bash
   sudo usermod -aG docker vagrant
-  pushd "${current_project_dir}"
-  pipenv install --deploy
-  popd
+  get_secret
 
+  echo "cd ${HOME}/project" >> "${HOME}/.bashrc"
   echo "export CIRCLECI=true" | sudo tee -a "${env_file}" 1>/dev/null
-  export CIRCLECI=true
 }
 
 ## Project setup functions
 function circle_ci(){
 
+  export CIRCLECI=true
+
+  # trying to handle if this script is run outside of a vagrant environment
+  # if [[ -d /vagrant ]] && [[ ! -d ~vagrant"/project" ]] ; then
+  #   echo "Please uncomment the line below line in the Vagrantfile"
+  #   echo '# main.vm.synced_folder ".", "/home/vagrant/project"'
+  # elif [[ -d /vagrant ]] && [[ -d ~vagrant"/project" ]] ; then
+  #   # do nothing
+  #   :
+  # else
+  #   git clone "${project_url}" "${HOME}/project"
+  # fi
+
   ci_deps
-
-  if [[ -d /vagrant ]] ; then
-    ln -sf /vagrant/ "${HOME}/project"
-  else
-    git clone "${project_url}" "${HOME}/project"
-  fi
-  echo "cd ${HOME}/project" >> "${HOME}/.bashrc"
-
-  variables_gen
-
-  get_secret
 }
 
 function development(){
 
-  general_deps
-  sudo apt install -y tmux screen
-  pushd "${current_project_dir}"
+  if ! command -v pipenv; then
+    general_deps
+  fi
+  sudo apt-get install -y tmux screen
+  pushd "${project_dir}"
   pipenv install -d --deploy
-  pipenv run ansible-galaxy collection install -r ci/ansible-requirements.yml
-  pipenv run ansible-galaxy role install -r ci/ansible-requirements.yml
   popd
 
 }
 
 function development_w_CI(){
+  export CIRCLECI=true
   ci_deps
   development
+}
+
+function prez(){
+  export PREZ=true
 }
 
 # thanks to the bash cookbook for this one:
@@ -93,6 +109,7 @@ function selection(){
     'circle_ci' # this is used to run an imitated environment of what circleci would do
     'development' # normal local development
     'development_w_CI' # development with the CI environment setup
+    'prez' # for when doing a presentation to not reveal sensative info on recording
   )
 
   until [ "${action:-}" == 'done' ] ; do
@@ -146,14 +163,9 @@ function main(){
 
   export CIRCLECI="${CIRCLECI:-}"
 
-  project_url='https://github.com/elreydetoda/packer-kali_linux.git'
+  # project_url='https://github.com/elreydetoda/packer-kali_linux.git'
   env_file='/etc/profile.d/circleci.sh'
   new_curl='curl -fsSL'
-  if [[ -n "${CIRCLECI}" ]] ; then
-    current_project_dir="${HOME}/project"
-  else
-    current_project_dir="/home/vagrant/project_folder"
-  fi
 
   sudo apt-get update
   sudo apt-get install -y git
