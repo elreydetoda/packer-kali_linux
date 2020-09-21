@@ -14,6 +14,9 @@
           file:
             path: '{{ kali_project_folder }}'
             state: directory
+            mode: '640'
+            owner: root
+            group: root
 
         - name: rsync'ing to build server
           synchronize:
@@ -114,9 +117,4 @@
           file:
             state: absent
             path: '{{ item.path }}'
-            # simply adding these to unblock ansible lint
-            # TODO: figure out how to get ansible-lint to ignore this
-            mode: '777'
-            owner: noowner
-            group: nogroup
           loop: '{{ files_to_remove.files }}'
