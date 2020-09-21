@@ -371,7 +371,6 @@ jobs:
       - submodule-sync
       - attach_workspace:
           at: /tmp/packer_workspace
-      - run: ls -AlR . && pwd
       - run: cp -v /tmp/packer_workspace/* .
       # TODO: fix underlying container
       - run: apk add --update --no-cache rsync
@@ -438,18 +437,15 @@ workflows:
         # - terraform-packet_deploy:
         #     requires:
         #       - packer-linting_vbox
-        # - ansible-bootstrap:
-        #     requires:
-        #       - terraform-packet_deploy
+        - ansible-bootstrap:
+            requires:
+              - terraform-packet_deploy
             # filters:
             #   branches:
             #     only: master
         - ansible-packer_build:
             requires:
-              - terraform-packet_deploy
-        # - ansible-packer_build:
-            # requires:
-              # - ansible-bootstrap
+              - ansible-bootstrap
             # filters:
             #   branches:
             #     only: master
