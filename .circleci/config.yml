@@ -454,9 +454,10 @@ workflows:
               # - packer-linting_aws
         # - terraform-packet_deploy:
         #     requires:
-  linting-wanted:
-      jobs:
-        - shellcheck-desired
+  # TODO: uncomment this
+  # linting-wanted:
+  #     jobs:
+  #       - shellcheck-desired
 #     jobs:
 #       - build:
 #           filters:
