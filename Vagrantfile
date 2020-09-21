@@ -3,9 +3,13 @@
 
 $CIRCLECI=<<SCRIPT
 tee "/etc/profile.d/circleci.sh">"/dev/null"<<EOF
+# Terraform Cloud info
+export TF_VAR_tc_auth_token="#{ENV['TF_VAR_tc_auth_token']}"
+
 # packet info
-export TF_VAR_auth_token="#{ENV['TF_VAR_packet_auth_token']}"
-export TF_VAR_project_id="#{ENV['TF_VAR_packet_project_id']}"
+export TF_VAR_packet_auth_token="#{ENV['TF_VAR_packet_auth_token']}"
+export TF_VAR_packet_project_id="#{ENV['TF_VAR_packet_project_id']}"
+export PACKET_API_TOKEN="${TF_VAR_packet_auth_token:-}"
 
 # aws info
 export TF_VAR_aws_access_key="#{ENV['TF_VAR_aws_access_key']}"
@@ -17,8 +21,8 @@ export VAGRANT_CLOUD_USER="#{ENV['vagrant_cloud_user']}"
 export VAGRANT_CLOUD_TOKEN="#{ENV['vagrant_cloud_token']}" 
 
 # versioning for vagrant cloud
-export MAJOR_RELEASE_VERSION=0
-export MINOR_RELEASE_VERSION=0
+export MAJOR_RELEASE_VERSION="#{ENV['MAJOR_RELEASE_VERSION']}" 
+export MINOR_RELEASE_VERSION="#{ENV['MINOR_RELEASE_VERSION']}" 
 
 # text info
 export PERSONAL_NUM="#{ENV['PERSONAL_NUM']}"
