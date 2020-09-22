@@ -384,7 +384,7 @@ jobs:
       - run: |
           mkdir -p /tmp/artifacts
           pwd && ls
-          cp -v kali-template.json variables.json *.log /tmp/artifacts
+          cp -v kali-template.json *.log /tmp/artifacts
       - store_artifacts:
           path: /tmp/artifacts
 
