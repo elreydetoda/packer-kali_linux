@@ -57,13 +57,13 @@ function release_uploaded_version(){
 function upload_box(){
 
   # Perform the upload, and see the bits boil.
-  if ! ${CURL} --tlsv1.2 --include --max-time 7200 --expect100-timeout 7200 --request PUT --output "$FILE.upload.log.txt" --upload-file "$FILE" "$UPLOAD_PATH" ; then
+  if ! ${CURL} --tlsv1.2 --include --max-time 7200 --expect100-timeout 7200 --request PUT --output "$FILE.upload.log
     echo 'This probably "failed", but it mostly actually succeeded and did not get closed properly.'
   fi
   
   printf '\n-----------------------------------------------------\n'
   tput setaf 5
-  cat "$FILE.upload.log.txt"
+  cat "$FILE.upload.log"
   tput sgr0
   printf -- '-----------------------------------------------------\n\n'
 
