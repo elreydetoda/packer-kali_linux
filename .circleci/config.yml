@@ -237,6 +237,8 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp/packer_workspace
+      - checkout
+      - submodule-sync
       - run: cp -v /tmp/packer_workspace/* .
       - run: packer version
       - packer-lint:
@@ -250,6 +252,8 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp/packer_workspace
+      - checkout
+      - submodule-sync
       - run: cp -v /tmp/packer_workspace/* .
       - run: packer version
       - packer-lint:
