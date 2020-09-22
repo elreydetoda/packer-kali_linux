@@ -131,4 +131,5 @@
           copy:
             remote_src: '{{ item.path }}'
             dest: '{{ kali_project_folder }}'
+            mode: '640'
           loop: '{{ files_to_copy.files }}'
