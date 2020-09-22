@@ -294,6 +294,17 @@ jobs:
           optional: all
           format: gcc
 
+  gh_issues-linting:
+    description: linting markdown files
+    docker:
+      - image: cimg/ruby:2.7.1
+    steps:
+      - checkout
+      # installing markdownlint
+      - run: gem install mdl --no-document
+      - run:  |
+          find .github/ -type f -iname '*.md' | xargs -t mdl -s .linting-configs/markdown-lint_GH-templates.rb
+
   markdown-linting:
     description: linting markdown files
     docker:
@@ -303,7 +314,7 @@ jobs:
       # installing markdownlint
       - run: gem install mdl --no-document
       - run:  |
-          find . -type f -iname '*.md' | xargs -t mdl -s .linting-configs/markdown-lint.rb
+          find . -not -path "./.github/*" -type f -iname '*.md' | xargs -t mdl -s .linting-configs/markdown-lint.rb
 
   generate-packer-file:
     description: generate packer template file
@@ -412,6 +423,7 @@ workflows:
         - shellcheck-warning
         - terraform-linting
         - markdown-linting
+        - gh_issues-linting
         - python-linting
         - ansible-linting
         - generate-packer-file:
