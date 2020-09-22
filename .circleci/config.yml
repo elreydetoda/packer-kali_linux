@@ -378,7 +378,6 @@ jobs:
       - run:
           no_output_timeout: 45m
           command: |
-            export DEBUG=true
             ansible-playbook -i ci/scripts/packet_net.py -u root \
               -e "api_key_from_env=${TEXTBELT_KEY} phone_from_env=${PERSONAL_NUM}" \
               -e CIRCLECI="${CIRCLECI:-}" ci/packer_build.yml
