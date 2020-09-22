@@ -221,6 +221,9 @@ jobs:
     docker:
       - image: 'hashicorp/packer:light'
     steps:
+      - attach_workspace:
+          at: /tmp/packer_workspace
+      - run: cp -v /tmp/packer_workspace/* .
       - run: packer version
       - packer-lint:
           template-file: templates/template.json
@@ -231,6 +234,9 @@ jobs:
     docker:
       - image: 'hashicorp/packer:light'
     steps:
+      - attach_workspace:
+          at: /tmp/packer_workspace
+      - run: cp -v /tmp/packer_workspace/* .
       - run: packer version
       - packer-lint:
           template-file: templates/template.json
@@ -241,6 +247,9 @@ jobs:
     docker:
       - image: 'hashicorp/packer:light'
     steps:
+      - attach_workspace:
+          at: /tmp/packer_workspace
+      - run: cp -v /tmp/packer_workspace/* .
       - run: packer version
       - packer-lint:
           template-file: templates/template.json
@@ -388,14 +397,6 @@ jobs:
       - store_artifacts:
           path: /tmp/artifacts
 
-#   build:
-#     machine: true
-#     steps:
-#       - checkout
-#       - run: bash ./scripts/new-kali.sh
-#       - run: bash ./ci/packer_build.sh
-#       - store_artifacts:
-#           path: /tmp/artifacts
 
 workflows:
   version: 2
@@ -428,20 +429,16 @@ workflows:
             # filters:
             #   branches:
             #     only: master
-        # - packer-linting_vbox:
-        #     requires:
-        #       - generate-packer-vars
-        #       - generate-packer-file
-        - terraform-packet_deploy:
+        - packer-linting_vbox:
             requires:
               - generate-packer-vars
               - generate-packer-file
+        - terraform-packet_deploy:
+            requires:
+              - packer-linting_vbox
             # filters:
             #   branches:
             #     only: master
-        # - terraform-packet_deploy:
-        #     requires:
-        #       - packer-linting_vbox
         - ansible-bootstrap:
             requires:
               - terraform-packet_deploy
