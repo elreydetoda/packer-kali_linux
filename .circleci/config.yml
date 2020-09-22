@@ -386,6 +386,7 @@ jobs:
           cp -v kali-template.json variables.json *.log /tmp/artifacts
       - store_artifacts:
           path: /tmp/artifacts
+
 #   build:
 #     machine: true
 #     steps:
