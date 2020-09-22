@@ -411,15 +411,15 @@ workflows:
       jobs:
         - shellcheck-warning
         - terraform-linting
-        # - markdown-linting
-        # - python-linting
+        - markdown-linting
+        - python-linting
         - ansible-linting
         - generate-packer-file:
             requires:
               - shellcheck-warning
               - terraform-linting
-              # - markdown-linting
-              # - python-linting
+              - markdown-linting
+              - python-linting
               - ansible-linting
             # filters:
             #   branches:
@@ -428,8 +428,8 @@ workflows:
             requires:
               - shellcheck-warning
               - terraform-linting
-              # - markdown-linting
-              # - python-linting
+              - markdown-linting
+              - python-linting
               - ansible-linting
             # filters:
             #   branches:
