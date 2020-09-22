@@ -79,7 +79,7 @@
               shell:
                 cmd: |
                   export CIRCLECI='{{ CIRCLECI | default('') }}'
-                  ci/scripts/manual_upload.sh '{{ item.path }}'
+                  ci/scripts/manual_upload.sh '{{ item.path }}' > curl-upload.log 2>&1
                 chdir: '{{ kali_project_folder }}'
               loop: '{{ vagrant_boxes_for_upload.files }}'
 
