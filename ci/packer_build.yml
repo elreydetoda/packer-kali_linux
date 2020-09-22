@@ -128,9 +128,8 @@
           register: files_to_copy
 
         - name: copying files from server
-          copy:
+          fetch:
             src: '{{ item.path }}'
-            remote_src: yes
             dest: '{{ kali_project_folder }}'
-            mode: '640'
+            flat: yes
           loop: '{{ files_to_copy.files }}'
