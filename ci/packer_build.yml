@@ -75,8 +75,6 @@
                   - '*.box'
               register: vagrant_boxes_for_upload
 
-            - debug:
-                var: vagrant_boxes_for_upload
             - name: launching the upload process
               shell:
                 cmd: |
@@ -118,3 +116,19 @@
             state: absent
             path: '{{ item.path }}'
           loop: '{{ files_to_remove.files }}'
+
+    - name: log block
+      block:
+
+        - name: getting path for all files to copy from server
+          find:
+            paths: '{{ kali_project_folder }}'
+            patterns:
+              - '*.log'
+          register: files_to_copy
+
+        - name: copying files from server
+          copy:
+            remote_src: '{{ item.path }}'
+            dest: '{{ kali_project_folder }}'
+          loop: '{{ files_to_copy.files }}'
