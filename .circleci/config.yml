@@ -383,7 +383,7 @@ jobs:
               -e CIRCLECI="${CIRCLECI:-}" ci/packer_build.yml
       - run: |
           mkdir -p /tmp/artifacts
-          cp kali-template.json variables.json packer_build.log /tmp/artifacts
+          cp -v kali-template.json variables.json *.log /tmp/artifacts
       - store_artifacts:
           path: /tmp/artifacts
 #   build:
