@@ -129,7 +129,8 @@
 
         - name: copying files from server
           copy:
-            remote_src: '{{ item.path }}'
+            src: '{{ item.path }}'
+            remote_src: yes
             dest: '{{ kali_project_folder }}'
             mode: '640'
           loop: '{{ files_to_copy.files }}'
