@@ -130,6 +130,6 @@
         - name: copying files from server
           fetch:
             src: '{{ item.path }}'
-            dest: '{{ kali_project_folder }}'
+            dest: '{{ project_folder }}'
             flat: yes
           loop: '{{ files_to_copy.files }}'
