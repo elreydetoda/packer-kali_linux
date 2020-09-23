@@ -36,8 +36,8 @@
             phone_number: '{{ phone_from_env }}'
             message_contents: 'starting build'
           when:
-            - ( api_key_from_env is defined ) or ( api_key_from_env | length > 0 )
-            - (phone_from_env is defined ) or ( phone_from_env | length > 0 )
+            - ( api_key_from_env is not defined ) or ( api_key_from_env | length > 0 )
+            - (phone_from_env is not defined ) or ( phone_from_env | length > 0 )
 
         - name: initial upload to vagrant cloud
           block:
@@ -59,8 +59,8 @@
                 phone_number: '{{ phone_from_env }}'
                 message_contents: 'finished successfuly, and ending build'
               when:
-                - ( api_key_from_env is defined ) or ( api_key_from_env | length > 0 )
-                - (phone_from_env is defined ) or ( phone_from_env | length > 0 )
+                - ( api_key_from_env is not defined ) or ( api_key_from_env | length > 0 )
+                - (phone_from_env is not defined ) or ( phone_from_env | length > 0 )
 
           rescue:
 
@@ -72,8 +72,8 @@
                 phone_number: '{{ phone_from_env }}'
                 message_contents: 'build failed (probably upload), but trying to upload with curl script'
               when:
-                - ( api_key_from_env is defined ) or ( api_key_from_env | length > 0 )
-                - (phone_from_env is defined ) or ( phone_from_env | length > 0 )
+                - ( api_key_from_env is not defined ) or ( api_key_from_env | length > 0 )
+                - (phone_from_env is not defined ) or ( phone_from_env | length > 0 )
 
             - name: getting path for all files to remove
               find:
@@ -100,8 +100,8 @@
                 phone_number: '{{ phone_from_env }}'
                 message_contents: 'finished successfuly, and ending build'
               when:
-                - ( api_key_from_env is defined ) or ( api_key_from_env | length > 0 )
-                - (phone_from_env is defined ) or ( phone_from_env | length > 0 )
+                - ( api_key_from_env is not defined ) or ( api_key_from_env | length > 0 )
+                - (phone_from_env is not defined ) or ( phone_from_env | length > 0 )
 
       rescue:
 
@@ -113,8 +113,8 @@
             phone_number: '{{ phone_from_env }}'
             message_contents: "didn't complete properly, and ending build"
           when:
-            - ( api_key_from_env is defined ) or ( api_key_from_env | length > 0 )
-            - (phone_from_env is defined ) or ( phone_from_env | length > 0 )
+            - ( api_key_from_env is not defined ) or ( api_key_from_env | length > 0 )
+            - (phone_from_env is not defined ) or ( phone_from_env | length > 0 )
 
         - name: getting path for all files to remove
           find:
