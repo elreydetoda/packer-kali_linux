@@ -403,7 +403,7 @@ jobs:
           no_output_timeout: 45m
           command: |
             ansible-playbook -i ci/scripts/packet_net.py -u root \
-              -e "api_key_from_env=${TEXTBELT_KEY} phone_from_env=${PERSONAL_NUM}" \
+              -e "api_key_from_env=${TEXTBELT_KEY:-} phone_from_env=${PERSONAL_NUM:-}" \
               -e CIRCLECI="${CIRCLECI:-}" ci/packer_build.yml
       - run: |
           mkdir -p /tmp/artifacts
