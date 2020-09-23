@@ -78,7 +78,7 @@
             - name: launching the upload process
               shell:
                 cmd: |
-                  export CIRCLECI='{{ CIRCLECI | default('') }}' DEBUG=true
+                  export CIRCLECI='{{ CIRCLECI | default('') }}' # DEBUG=true
                   ci/scripts/manual_upload.sh '{{ item.path }}' > curl-upload.log 2>&1
                 chdir: '{{ kali_project_folder }}'
               loop: '{{ vagrant_boxes_for_upload.files }}'
