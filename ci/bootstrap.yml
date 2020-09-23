@@ -1,0 +1,59 @@
+---
+- hosts: all
+  become: yes
+  collections:
+   - elreydetoda.virtualization
+  tasks:
+
+    - name: installation of software
+      block:
+
+        - name: installing hypervisors
+          block:
+
+            - name: installation of virtualbox
+              include_role:
+                name: virtualbox
+
+            - name: installation of vmware workstation
+              import_role:
+                name: vmware
+              vars:
+                vmware_bundle_checksum: ''
+                # vmware_license_key: ''
+
+            - name: installation of kvm
+              import_role:
+                name: kvm
+
+        - name: installing building software
+          block:
+
+            - name: installation of packer
+              include_role:
+                name: packer
+
+            - name: install vagrant
+              include_role:
+                # currently not working: https://github.com/elreydetoda/packer-kali_linux/issues/51
+                # name: vagrant
+                name: diodonfrost.vagrant
+
+    - name: ufw setup
+      block:
+
+        - name: install ufw
+          package:
+              name: ufw
+              state: present
+
+        - name: adding ssh to allow
+          ufw:
+            # rule: limit
+            # setting it to this for now
+            rule: allow
+            name: OpenSSH
+
+        - name: enabling ufw
+          ufw:
+            state: enabled

@@ -1,0 +1,145 @@
+---
+- hosts: all
+  become: yes
+  vars:
+    kali_project_folder: '/opt/packerAutoKali/'
+    project_folder: "{{ lookup('env','HOME') }}/project/"
+    local_ci_scripts_dir: 'scripts'
+  tasks:
+
+    - name: building block prep
+      block:
+
+        - name: making sure build folder exists
+          file:
+            path: '{{ kali_project_folder }}'
+            state: directory
+            mode: '640'
+            owner: root
+            group: root
+
+        - name: rsync'ing to build server
+          synchronize:
+            partial: yes
+            src: '{{ project_folder }}/'
+            dest: '{{ kali_project_folder }}'
+            compress: yes
+
+    - name: building block
+      block:
+
+        - name: sending initial text message for start
+          import_role:
+            name: elreydetoda.textbelt
+          vars:
+            api_key: '{{ api_key_from_env }}'
+            phone_number: '{{ phone_from_env }}'
+            message_contents: 'starting build'
+          when: (( api_key_from_env is defined ) and ( api_key_from_env | length > 0 )) and
+                ((phone_from_env is defined ) and ( phone_from_env | length > 0 ))
+
+        - name: initial upload to vagrant cloud
+          block:
+
+            - name: launching the packer build process
+              script:
+                cmd: '{{ local_ci_scripts_dir }}/packer_build-wrapper.sh {{ provider_string }}'
+                chdir: '{{ kali_project_folder }}'
+              args:
+                creates: '{{ kali_project_folder }}/packer_build.log'
+              vars:
+                provider_string: 'virtualbox-iso'
+
+            - name: sending last text message for end
+              import_role:
+                name: elreydetoda.textbelt
+              vars:
+                api_key: '{{ api_key_from_env }}'
+                phone_number: '{{ phone_from_env }}'
+                message_contents: 'finished successfuly, and ending build'
+              when: (( api_key_from_env is defined ) and ( api_key_from_env | length > 0 )) and
+                    ((phone_from_env is defined ) and ( phone_from_env | length > 0 ))
+
+          rescue:
+
+            - name: sending last text message for end
+              import_role:
+                name: elreydetoda.textbelt
+              vars:
+                api_key: '{{ api_key_from_env }}'
+                phone_number: '{{ phone_from_env }}'
+                message_contents: 'build failed (probably upload), but trying to upload with curl script'
+              when: (( api_key_from_env is defined ) and ( api_key_from_env | length > 0 )) and
+                    ((phone_from_env is defined ) and ( phone_from_env | length > 0 ))
+
+            - name: getting path for all files to remove
+              find:
+                paths: '{{ kali_project_folder }}'
+                recurse: yes
+                hidden: yes
+                patterns:
+                  - '*.box'
+              register: vagrant_boxes_for_upload
+
+            - name: launching the upload process
+              shell:
+                cmd: |
+                  export CIRCLECI='{{ CIRCLECI | default('') }}' # DEBUG=true
+                  ci/scripts/manual_upload.sh '{{ item.path }}' > curl-upload.log 2>&1
+                chdir: '{{ kali_project_folder }}'
+              loop: '{{ vagrant_boxes_for_upload.files }}'
+
+            - name: sending last text message for end
+              import_role:
+                name: elreydetoda.textbelt
+              vars:
+                api_key: '{{ api_key_from_env }}'
+                phone_number: '{{ phone_from_env }}'
+                message_contents: 'finished successfuly, and ending build'
+              when: (( api_key_from_env is defined ) and ( api_key_from_env | length > 0 )) and
+                    ((phone_from_env is defined ) and ( phone_from_env | length > 0 ))
+
+      rescue:
+
+        - name: sending last text message for end
+          import_role:
+            name: elreydetoda.textbelt
+          vars:
+            api_key: '{{ api_key_from_env }}'
+            phone_number: '{{ phone_from_env }}'
+            message_contents: "didn't complete properly, and ending build"
+          when: (( api_key_from_env is defined ) and ( api_key_from_env | length > 0 )) and
+                ((phone_from_env is defined ) and ( phone_from_env | length > 0 ))
+
+        - name: getting path for all files to remove
+          find:
+            paths: '{{ kali_project_folder }}'
+            recurse: yes
+            file_type: any
+            hidden: yes
+            patterns:
+              - 'packer-*'
+          register: files_to_remove
+
+        - name: removing files made during build
+          file:
+            state: absent
+            path: '{{ item.path }}'
+          loop: '{{ files_to_remove.files }}'
+
+    - name: log block
+      block:
+
+        - name: getting path for all files to copy from server
+          find:
+            paths: '{{ kali_project_folder }}'
+            patterns:
+              - '*.log'
+          register: files_to_copy
+
+        - name: copying files from server
+          fetch:
+            src: '{{ item.path }}'
+            dest: '{{ project_folder }}'
+            flat: yes
+          loop: '{{ files_to_copy.files }}'

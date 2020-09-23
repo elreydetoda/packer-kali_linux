@@ -1,5 +1,9 @@
 #!/bin/sh -eux
 
+case "$PACKER_BUILDER_TYPE" in
+  amazon-*) exit 0 ;;
+esac
+
 # thanks to bento project for this script
 SSHD_CONFIG="/etc/ssh/sshd_config"
 
@@ -19,8 +23,3 @@ if grep -q -E "^[[:space:]]*GSSAPIAuthentication" "$SSHD_CONFIG"; then
 else
     echo "$GSSAPI" >>"$SSHD_CONFIG"
 fi
-
-## personal touches
-# removing root password login
-PERMIT_ROOT="PermitRootLogin without-password"
-sed "s/^PermitRootLogin.*/${PERMIT_ROOT}/" "$SSHD_CONFIG"

@@ -1,0 +1,3 @@
+[submodule "prov_packer/bento"]
+	path = prov_packer/bento
+	url = https://github.com/chef/bento.git

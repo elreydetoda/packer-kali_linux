@@ -2,12 +2,28 @@ packer_cache/
 output-virtualbox-iso/
 tmp/
 .vagrant/
+.terraform/
+.terraform.d/
+*.plan
 *.swp
 *.swo
 *.box
 *.log
+.vscode/
+
+# backup files
+*.bak*
+*.orig*
 
 # secret files
-variables.json
+*variables.json
 secrets.txt
 prov_vagrant/env_vars
+*.tfstate*
+
+# CIRCLECI local output
+process.yml
+
+# dynamically generated file(s)
+*template.json*
+packer-*

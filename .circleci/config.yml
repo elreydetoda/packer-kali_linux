@@ -1,26 +1,416 @@
-version: 2
+version: 2.1
+
+orbs:
+  shellcheck: circleci/shellcheck@volatile
+  python: circleci/python@volatile
+  # eventually
+  # bats: circleci/bats@volatile
+  # codecov: codecov/codecov@volatile
+  # current versions after choosing above orbs
+  # shellcheck: circleci/shellcheck@2.0.0
+  # python: circleci/python@0.3.2
+  # bats: circleci/bats@1.0.0
+  # codecov: codecov/codecov@1.1.1
+
+commands:
+
+  submodule-sync:
+    description: sync submodules for github repo
+    steps:
+      - run: git submodule sync
+      - run: git submodule update --init
+
+  run-ansible_lint:
+    description: run the ansible-lint command against playbooks
+    parameters:
+      ansible_lint-options:
+        description: options to pass to ansible-lint
+        type: string
+        default: ''
+      code-folder-path:
+        description: if specific path is wanted, specify here
+        type: string
+        default: './ci/'
+    steps:
+      - run: |
+          set -euxo pipefail
+          code_folder_path='<< parameters.code-folder-path >>'
+          path_to_check="${code_folder_path:-${PWD}}"
+          find "${path_to_check}" -not \( -path "${path_to_check}/.git/*" \
+            -o -path "${path_to_check}/prov_packer/bento/*" \) -type f -iname "*.yml" \
+            -print0 | xargs -0 file | grep 'ASCII text' | cut -d ':' -f 1 |
+            xargs -t pipenv run ansible-lint
+
+  run-pylint:
+    description: "Run the pylint command with the python "
+    parameters:
+      pylint-options:
+        description: options to pass to pylint
+        type: string
+        default: ''
+      code-folder-path:
+        description: if specific path is wanted, specify here
+        type: string
+        default: ''
+    steps:
+      - run: |
+          set -eux
+          code_folder_path='<< parameters.code-folder-path >>'
+          path_to_check="${code_folder_path:-${PWD}}"
+          find "${path_to_check}" -not \( -path "${path_to_check}/.git/*" \
+            -o -path "${path_to_check}/prov_packer/bento/*" \
+            -o -path "${path_to_check}/ci/scripts/packet_net.py" \) -type f -print0 |
+            xargs -0 file | grep 'Python script' | cut -d ':' -f 1 |
+            xargs -t pipenv run pylint
+
+  run-shellcheck:
+    description: "Run the shellcheck orb in a very specific way."
+    parameters:
+      script-path:
+        description: the path to where the script is to run shellcheck
+        type: string
+        default: scripts/circleci-shellcheck-command.sh
+      severity:
+        description: the severity for what shellcheck should lint with
+        type: string
+        default: error
+      optional:
+        description: the optional checks that shellcheck should include
+        type: string
+        default: ''
+      format:
+        description: the output format that shellcheck should use
+        type: string
+        default: ''
+    steps:
+      - shellcheck/install
+      - run: shellcheck --version
+      - run: bash '<< parameters.script-path >>' '<< parameters.severity >>|<< parameters.optional >>|<< parameters.format >>'
+
+  terraform-lint:
+    description: "Run terraform for linting."
+    parameters:
+      code-path:
+        description: the folder where th code is at
+        type: string
+    steps:
+      - terraform-prep
+      - checkout
+      - run: |
+          set -eux
+          terraform init "<< parameters.code-path >>"
+      - run: |
+          set -eux
+          terraform fmt -check -diff "<< parameters.code-path >>"
+      - run: |
+          set -eux
+          terraform validate "<< parameters.code-path >>"
+
+  ansible-prep:
+    description: prepare terraform with provided token
+    steps:
+      - run: apk add --update --no-cache git
+      - checkout
+      - run: |
+          ansible-galaxy collection install -r ci/ansible-requirements.yml
+          ansible-galaxy role install -r ci/ansible-requirements.yml
+
+  terraform-prep:
+    description: prepare terraform with provided token
+    steps:
+      - run: apk add --update --no-cache git jq
+      - run: |
+          mkdir -p ~/.terraform.d
+          printf '{"credentials":{"app.terraform.io":{"token":"%s"}}}' "${TF_VAR_tc_auth_token}" | jq '.' > ~/.terraform.d/credentials.tfrc.json
+
+  terraform-deploy:
+    description: "Run terraform for deploying."
+    parameters:
+      code-path:
+        description: the folder where the code is at
+        type: string
+    steps:
+      - terraform-prep
+      - checkout
+      - run: |
+          old_pwd="${PWD}"
+          cd "<< parameters.code-path >>" || exit 1
+          terraform init
+          terraform apply -auto-approve
+          cd "${old_pwd}"
+
+  terraform-destroy:
+    description: "Run terraform for deploying."
+    parameters:
+      code-path:
+        description: the folder where the code is at
+        type: string
+    steps:
+      - terraform-prep
+      - checkout
+      - run: |
+          old_pwd="${PWD}"
+          cd "<< parameters.code-path >>" || exit 1
+          terraform init
+          terraform destroy -auto-approve
+          cd "${old_pwd}"
+
+  packer-lint:
+    description: "Run packer for linting"
+    parameters:
+      vars-file:
+        description: the file path to your variables file
+        type: string
+        default: ''
+      template-file:
+        description: the file path to your template file
+        type: string
+      only-builder:
+        description: the only builder that you want to check
+        type: string
+        default: ''
+    steps:
+      - run: |
+          set -eux
+
+          packer_cmd=( 'packer' 'validate' )
+
+          if [[ -n "<< parameters.vars-file >>" ]] ; then
+            packer_cmd+=( '-var-file' '<< parameters.vars-file >>' )
+          fi
+
+          if [[ -n "<< parameters.vars-file >>" ]] ; then
+            packer_cmd+=( '-only' '<< parameters.only-builder >>' )
+          fi
+
+          ${packer_cmd[@]} "<< parameters.template-file >>"
+
 jobs:
-  build:
-    machine: true
+
+  ansible-linting:
+    executor: python/default
     steps:
       - checkout
-      - run: bash ./scripts/new-kali.sh
-      - run: bash ./ci/packer_build.sh
+      - python/install-packages:
+          args: '-d --deploy'
+      - run: |
+          set -eux
+          pipenv --version
+          pipenv run python --version
+          pipenv run ansible-lint --version
+          pipenv run yamllint --version
+      - run-ansible_lint
+
+  python-linting:
+    executor: python/default
+    steps:
+      - checkout
+      - python/install-packages:
+          args: '-d --deploy'
+      - run: |
+          set -eux
+          pipenv --version
+          pipenv run python --version
+      - run-pylint
+
+  packer-linting_vbox:
+    docker:
+      - image: 'hashicorp/packer:light'
+    steps:
+      - attach_workspace:
+          at: /tmp/packer_workspace
+      - checkout
+      - submodule-sync
+      - run: cp -v /tmp/packer_workspace/* .
+      - run: packer version
+      - packer-lint:
+          template-file: kali-template.json
+          vars-file: variables.json
+          only-builder: virtualbox-iso
+
+  packer-linting_vmware:
+    docker:
+      - image: 'hashicorp/packer:light'
+    steps:
+      - attach_workspace:
+          at: /tmp/packer_workspace
+      - checkout
+      - submodule-sync
+      - run: cp -v /tmp/packer_workspace/* .
+      - run: packer version
+      - packer-lint:
+          template-file: templates/template.json
+          vars-file: templates/example-variables.json
+          only-builder: vmware-iso
+
+  packer-linting_aws:
+    docker:
+      - image: 'hashicorp/packer:light'
+    steps:
+      - attach_workspace:
+          at: /tmp/packer_workspace
+      - checkout
+      - submodule-sync
+      - run: cp -v /tmp/packer_workspace/* .
+      - run: packer version
+      - packer-lint:
+          template-file: templates/template.json
+          vars-file: templates/example-variables.json
+          only-builder: amazon-ebs
+
+  terraform-linting:
+    # executor: terraform/default
+    docker:
+      - image: 'hashicorp/terraform:light'
+    steps:
+      - run: terraform --version
+      # linting the packet terraform files
+      - terraform-lint:
+          code-path: ci/packet_terraform-cloud
+      # linting the aws terraform files
+      # - terraform-lint:
+      #     code-path: ci/kali_aws_info
+
+  shellcheck-warning:
+    description: this is the bare minimum that shellcheck NEEDS to pass
+    docker:
+      - image: 'cimg/base:stable'
+    steps:
+      - checkout
+      - run-shellcheck:
+          severity: warning
+
+  shellcheck-desired:
+    description: this is the desired degree of shellcheck
+    docker:
+      - image: 'cimg/base:stable'
+    steps:
+      - checkout
+      - run-shellcheck:
+          severity: style
+          optional: all
+          format: gcc
+
+  gh_issues-linting:
+    description: linting markdown files
+    docker:
+      - image: cimg/ruby:2.7.1
+    steps:
+      - checkout
+      # installing markdownlint
+      - run: gem install mdl --no-document
+      - run:  |
+          find .github/ -type f -iname '*.md' | xargs -t mdl -s .linting-configs/markdown-lint_GH-templates.rb
+
+  markdown-linting:
+    description: linting markdown files
+    docker:
+      - image: cimg/ruby:2.7.1
+    steps:
+      - checkout
+      # installing markdownlint
+      - run: gem install mdl --no-document
+      - run:  |
+          find . -not -path "./.github/*" -type f -iname '*.md' | xargs -t mdl -s .linting-configs/markdown-lint.rb
+
+  generate-packer-file:
+    description: generate packer template file
+    executor: python/default
+    steps:
+      - checkout
+      - submodule-sync
+      - python/install-packages:
+          args: '--deploy'
+      - run: |
+          set -eux
+          pipenv --version
+          pipenv run python --version
+      - run: pipenv run scripts/template-gen.py
+      - run: cat kali-template.json
+      - run: |
+          mkdir -p /tmp/packer_workspace
+          cp -v kali-template.json /tmp/packer_workspace
+      - persist_to_workspace:
+          root: /tmp/packer_workspace
+          paths:
+            - "kali-template.json"
+
+  generate-packer-vars:
+    docker:
+      - image: 'bash'
+    steps:
+      - run: apk add --update --no-cache git
+      - checkout
+      - run: bash --version
+      - run: scripts/new-kali.sh
+      - run: |
+          mkdir -p /tmp/packer_workspace
+          cp -v variables.json /tmp/packer_workspace
+      - persist_to_workspace:
+          root: /tmp/packer_workspace
+          paths:
+            - "variables.json"
+
+  terraform-packet_deploy:
+    docker:
+      - image: 'hashicorp/terraform:light'
+    steps:
+      - run: terraform --version
+      - terraform-deploy:
+          code-path: ci/packet_terraform-cloud
+
+
+  terraform-packet_destroy:
+    docker:
+      - image: 'hashicorp/terraform:light'
+    steps:
+      - run: terraform --version
+      - terraform-destroy:
+          code-path: ci/packet_terraform-cloud
+
+  ansible-bootstrap:
+    docker:
+      - image: 'elrey741/ansible-playbook_packet'
+    steps:
+      - ansible-prep
+      - add_ssh_keys:
+          fingerprints:
+            - "97:b4:61:8f:38:a7:14:c9:6f:ca:3f:d2:ab:3f:a7:7c"
+      - run: ansible-playbook --version
+      - run: ansible-playbook -i ci/scripts/packet_net.py -u root ci/bootstrap.yml
+
+  ansible-packer_build:
+    docker:
+      - image: 'elrey741/ansible-playbook_packet'
+    steps:
+      - ansible-prep
+      - add_ssh_keys:
+          fingerprints:
+            - "97:b4:61:8f:38:a7:14:c9:6f:ca:3f:d2:ab:3f:a7:7c"
+      - submodule-sync
+      - attach_workspace:
+          at: /tmp/packer_workspace
+      - run: cp -v /tmp/packer_workspace/* .
+      # TODO: fix underlying container ( add rsync )
+      - run: apk add --update --no-cache rsync curl
+      - run: ansible-playbook --version
+      - run:
+          no_output_timeout: 45m
+          command: |
+            ansible-playbook -i ci/scripts/packet_net.py -u root \
+              -e "api_key_from_env=${TEXTBELT_KEY:-} phone_from_env=${PERSONAL_NUM:-}" \
+              -e CIRCLECI="${CIRCLECI:-}" ci/packer_build.yml
+      - run: |
+          mkdir -p /tmp/artifacts
+          pwd && ls
+          cp -v kali-template.json *.log /tmp/artifacts
       - store_artifacts:
           path: /tmp/artifacts
+
+
 workflows:
   version: 2
-  building:
-    jobs:
-      - build:
-          filters:
-            branches:
-              only:
-                - master
-                - develop
-  weekly-build:
-    jobs:
-      - build
+  master-kali_build:
     triggers:
       - schedule:
           cron: "0 0 * * 0"
@@ -28,3 +418,58 @@ workflows:
             branches:
               only:
                 - master
+    jobs:
+      - shellcheck-warning
+      - terraform-linting
+      - markdown-linting
+      - gh_issues-linting
+      # - python-linting
+      - ansible-linting
+      - generate-packer-file:
+          requires:
+            - shellcheck-warning
+            - terraform-linting
+            - markdown-linting
+            # - python-linting
+            - ansible-linting
+      - generate-packer-vars:
+          requires:
+            - shellcheck-warning
+            - terraform-linting
+            - markdown-linting
+            # - python-linting
+            - ansible-linting
+      - packer-linting_vbox:
+          requires:
+            - generate-packer-vars
+            - generate-packer-file
+      - terraform-packet_deploy:
+          requires:
+            - packer-linting_vbox
+      - ansible-bootstrap:
+          requires:
+            - terraform-packet_deploy
+      - ansible-packer_build:
+          requires:
+            - ansible-bootstrap
+      - terraform-packet_destroy:
+          requires:
+            - ansible-packer_build
+  # TODO: uncomment this
+  # linting-wanted:
+  #     jobs:
+  #       - shellcheck-desired
+  general-checks:
+    jobs:
+      - shellcheck-warning
+      - terraform-linting
+      - markdown-linting
+      - gh_issues-linting
+      # - python-linting
+      - ansible-linting
+      - generate-packer-file
+      - generate-packer-vars
+      - packer-linting_vbox:
+          requires:
+            - generate-packer-vars
+            - generate-packer-file

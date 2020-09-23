@@ -1,7 +1,14 @@
 {
   "iso_url": "https://cdimage.kali.org/kali-weekly/kali-linux-2018-W22-amd64.iso",
   "iso_checksum": "02addb4317497594ef8bb6cf0a5f834147b64d093ea31058ff5ad3ece877faa0",
-  "vm_name": "$(yourVagrantCloudName)/kali-linux-2018.2-amd64",
+  "vm_name": "<yourVagrantCloudName>/kali-linux-2018.2-amd64",
   "vm_version": "0.0.1",
-  "vagrant_cloud_token": "$(yourVagrantCloudToken)"
+  "vagrant_cloud_token": "<yourVagrantCloudToken>",
+  "aws_access_key": "<aws_access_key>",
+  "aws_secret_key": "<aws_secret_key>",
+  "aws_region": "us-east-2",
+  "ami_name": "Kali Linux (Standard)",
+  "kali_aws_ami": "ami-00f7390b60c41a3c0",
+  "ami_groups": "all",
+  "aws_ip_whitelist": "1.1.1.1,8.8.8.8"
 }

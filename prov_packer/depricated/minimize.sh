@@ -1,5 +1,9 @@
 #!/bin/sh -eux
 
+case "$PACKER_BUILDER_TYPE" in
+  amazon-*) exit 0 ;;
+esac
+
 # thanks to bento project for this script
 apt-get -y autoremove;
 apt-get -y clean;
@@ -30,10 +34,14 @@ set -e
 if [ "x${swapuuid}" != "x" ]; then
     # Whiteout the swap partition to reduce box size
     # Swap is disabled till reboot
-    swappart="$(readlink -f /dev/disk/by-uuid/$swapuuid)";
+    swappart="$(readlink -f /dev/disk/by-uuid/"$swapuuid")";
     /sbin/swapoff "$swappart";
     dd if=/dev/zero of="$swappart" bs=1M || echo "dd exit code $? is suppressed";
     /sbin/mkswap -U "$swapuuid" "$swappart";
+fi
+
+if ls "${HOME}/*.iso" ; then
+  rm -f /home/vagrant/*.iso
 fi
 
 sync;

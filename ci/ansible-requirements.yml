@@ -1,0 +1,11 @@
+# cmd:ansible-galaxy "${ansible_type}" install -r
+
+collections:
+  - name: elreydetoda.virtualization
+  # because of: https://github.com/ansible-collections/community.general/blob/main/scripts/inventory/packet_net.py
+  - name: community.general
+
+roles:
+  - name: elreydetoda.textbelt
+  - name: diodonfrost.vagrant
+    version: 1.5.0
