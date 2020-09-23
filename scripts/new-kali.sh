@@ -72,11 +72,6 @@ function packer_out(){
 }
 
 function hashicorp_setup_env(){
-  if [[ -n "${CIRCLECI}" ]] || [[ "$(whoami)" == 'vagrant' ]] ; then
-    hashiName="${VAGRANT_CLOUD_USER-}"
-    vagrant_cloud_token="${VAGRANT_CLOUD_TOKEN-''}"
-  fi
-
 
   if [[ -n "${hashiName}" ]]; then
       namez="${hashiName}/${namez}"
@@ -193,7 +188,7 @@ function main(){
   # re-defining curl to have some extra flags by default (essentially a bash alias)
   curl='curl -fsSL'
   CIRCLECI="${CIRCLECI:-}"
-  hashiName="${hashiName:-}"
+  hashiName="${VAGRANT_CLOUD_USER:-}"
   vagrant_cloud_token="${VAGRANT_CLOUD_TOKEN:-}"
 
   packer_var_json_string='{'
