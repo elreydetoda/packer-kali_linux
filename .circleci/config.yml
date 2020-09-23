@@ -410,7 +410,7 @@ jobs:
 
 workflows:
   version: 2
-  master-kali_build:
+  master_weekly-kali_build:
     triggers:
       - schedule:
           cron: "0 0 * * 0"
@@ -455,11 +455,14 @@ workflows:
       - terraform-packet_destroy:
           requires:
             - ansible-packer_build
-  # TODO: uncomment this
-  # linting-wanted:
-  #     jobs:
-  #       - shellcheck-desired
-  general-checks:
+  master-kali_build:
+    triggers:
+      - schedule:
+          cron: "0 0 * * 0"
+          filters:
+            branches:
+              only:
+                - master
     jobs:
       - shellcheck-warning
       - terraform-linting
@@ -467,9 +470,62 @@ workflows:
       - gh_issues-linting
       # - python-linting
       - ansible-linting
-      - generate-packer-file
-      - generate-packer-vars
+      - generate-packer-file:
+          requires:
+            - shellcheck-warning
+            - terraform-linting
+            - markdown-linting
+            # - python-linting
+            - ansible-linting
+      - generate-packer-vars:
+          requires:
+            - shellcheck-warning
+            - terraform-linting
+            - markdown-linting
+            # - python-linting
+            - ansible-linting
       - packer-linting_vbox:
+          filters:
+            branches:
+              only:
+                - develop
+                - master
           requires:
             - generate-packer-vars
             - generate-packer-file
+      - terraform-packet_deploy:
+          filters:
+            branches:
+              only:
+                - develop
+                - master
+          requires:
+            - packer-linting_vbox
+      - ansible-bootstrap:
+          filters:
+            branches:
+              only:
+                - develop
+                - master
+          requires:
+            - terraform-packet_deploy
+      - ansible-packer_build:
+          filters:
+            branches:
+              only:
+                - develop
+                - master
+          requires:
+            - ansible-bootstrap
+      - terraform-packet_destroy:
+          filters:
+            branches:
+              only:
+                - develop
+                - master
+          requires:
+            - ansible-packer_build
+  # TODO: uncomment this
+  # linting-wanted:
+  #     jobs:
+  #       - shellcheck-desired
