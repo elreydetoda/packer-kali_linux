@@ -61,8 +61,8 @@ and specifically here is the vagrant box for the master branch: [https://app.vag
 
 ### VM info
 
-* user: root
-* pass: toor
+* user: vagrant
+* pass: vagrant
 
 #### Installed software
 
