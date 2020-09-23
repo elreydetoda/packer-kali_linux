@@ -6,6 +6,7 @@ orbs:
   # eventually
   # bats: circleci/bats@volatile
   # codecov: codecov/codecov@volatile
+  # current versions after choosing above orbs
   # shellcheck: circleci/shellcheck@2.0.0
   # python: circleci/python@0.3.2
   # bats: circleci/bats@1.0.0
@@ -104,10 +105,6 @@ commands:
       - run: |
           set -eux
           terraform validate "<< parameters.code-path >>"
-      # - terraform/fmt:
-      #     path: "<< parameters.code-path >>"
-      # - terraform/validate:
-      #     path: "<< parameters.code-path >>"
 
   ansible-prep:
     description: prepare terraform with provided token
@@ -355,7 +352,6 @@ jobs:
             - "variables.json"
 
   terraform-packet_deploy:
-    # executor: terraform/default
     docker:
       - image: 'hashicorp/terraform:light'
     steps:
@@ -365,7 +361,6 @@ jobs:
 
 
   terraform-packet_destroy:
-    # executor: terraform/default
     docker:
       - image: 'hashicorp/terraform:light'
     steps:
@@ -396,7 +391,7 @@ jobs:
       - attach_workspace:
           at: /tmp/packer_workspace
       - run: cp -v /tmp/packer_workspace/* .
-      # TODO: fix underlying container
+      # TODO: fix underlying container ( add rsync )
       - run: apk add --update --no-cache rsync curl
       - run: ansible-playbook --version
       - run:
@@ -415,8 +410,6 @@ jobs:
 
 workflows:
   version: 2
-  # this is the workflow that will build the local image
-  #   (i.e. the vagrant box w/local providers (i.e. Vbox, VMWare, etc..))
   master-kali_build:
     triggers:
       - schedule:
@@ -480,28 +473,3 @@ workflows:
           requires:
             - generate-packer-vars
             - generate-packer-file
-      
-
-#     jobs:
-#       - build:
-#           filters:
-#             branches:
-#               only:
-#                 - master
-#                 - develop
-      
-#   weekly-build:
-#     jobs:
-#       - build
-#     triggers:
-#       - schedule:
-#           cron: "0 0 * * 0"
-#           filters:
-#             branches:
-#               only:
-#                 - master
-# notify:
-#   webhooks:
-#     # A list of hook hashes, containing the url field
-#     # gitter hook
-#     - url: https://webhooks.gitter.im/e/328863f5c67fb6135a75
