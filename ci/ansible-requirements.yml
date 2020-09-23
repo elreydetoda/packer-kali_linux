@@ -7,3 +7,5 @@ collections:
 
 roles:
   - name: elreydetoda.textbelt
+  - name: diodonfrost.vagrant
+    version: 1.5.0
