@@ -466,7 +466,7 @@ workflows:
   # linting-wanted:
   #     jobs:
   #       - shellcheck-desired
-  pull-requests-checks:
+  general-checks:
     jobs:
       - shellcheck-warning
       - terraform-linting
