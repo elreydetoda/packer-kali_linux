@@ -481,7 +481,6 @@ workflows:
           filters:
             branches:
               only:
-                - develop
                 - master
           requires:
             - generate-packer-vars
@@ -490,7 +489,6 @@ workflows:
           filters:
             branches:
               only:
-                - develop
                 - master
           requires:
             - packer-linting_vbox
@@ -498,7 +496,6 @@ workflows:
           filters:
             branches:
               only:
-                - develop
                 - master
           requires:
             - terraform-packet_deploy
@@ -506,7 +503,6 @@ workflows:
           filters:
             branches:
               only:
-                - develop
                 - master
           requires:
             - ansible-bootstrap
@@ -514,7 +510,6 @@ workflows:
           filters:
             branches:
               only:
-                - develop
                 - master
           requires:
             - ansible-packer_build
