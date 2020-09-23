@@ -466,6 +466,22 @@ workflows:
   # linting-wanted:
   #     jobs:
   #       - shellcheck-desired
+  pull-requests-checks:
+    jobs:
+      - shellcheck-warning
+      - terraform-linting
+      - markdown-linting
+      - gh_issues-linting
+      # - python-linting
+      - ansible-linting
+      - generate-packer-file
+      - generate-packer-vars
+      - packer-linting_vbox:
+          requires:
+            - generate-packer-vars
+            - generate-packer-file
+      
+
 #     jobs:
 #       - build:
 #           filters:
