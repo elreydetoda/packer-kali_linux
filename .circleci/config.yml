@@ -456,13 +456,6 @@ workflows:
           requires:
             - ansible-packer_build
   master-kali_build:
-    triggers:
-      - schedule:
-          cron: "0 0 * * 0"
-          filters:
-            branches:
-              only:
-                - master
     jobs:
       - shellcheck-warning
       - terraform-linting
