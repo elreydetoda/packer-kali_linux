@@ -418,6 +418,13 @@ workflows:
   # this is the workflow that will build the local image
   #   (i.e. the vagrant box w/local providers (i.e. Vbox, VMWare, etc..))
   master-kali_build:
+    triggers:
+      - schedule:
+          cron: "0 0 * * 0"
+          filters:
+            branches:
+              only:
+                - master
     jobs:
       - shellcheck-warning
       - terraform-linting
@@ -432,9 +439,6 @@ workflows:
             - markdown-linting
             # - python-linting
             - ansible-linting
-          # filters:
-          #   branches:
-          #     only: master
       - generate-packer-vars:
           requires:
             - shellcheck-warning
@@ -442,9 +446,6 @@ workflows:
             - markdown-linting
             # - python-linting
             - ansible-linting
-          # filters:
-          #   branches:
-          #     only: master
       - packer-linting_vbox:
           requires:
             - generate-packer-vars
@@ -452,40 +453,15 @@ workflows:
       - terraform-packet_deploy:
           requires:
             - packer-linting_vbox
-          # filters:
-          #   branches:
-          #     only: master
       - ansible-bootstrap:
           requires:
             - terraform-packet_deploy
-          # filters:
-          #   branches:
-          #     only: master
       - ansible-packer_build:
           requires:
             - ansible-bootstrap
-          # filters:
-          #   branches:
-          #     only: master
       - terraform-packet_destroy:
           requires:
             - ansible-packer_build
-            # filters:
-            #   branches:
-            #     only: master
-        # - packer-linting_vmware:
-        #     requires:
-        #       - generate-packer-file
-        # - packer-linting_aws:
-        #     requires:
-        #       - generate-packer-file
-        # - bash-variables_gen:
-        #     requires:
-        #       - packer-linting_vbox
-              # - packer-linting_vmware
-              # - packer-linting_aws
-        # - terraform-packet_deploy:
-        #     requires:
   # TODO: uncomment this
   # linting-wanted:
   #     jobs:
