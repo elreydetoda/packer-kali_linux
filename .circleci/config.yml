@@ -346,7 +346,6 @@ jobs:
       - checkout
       - run: bash --version
       - run: scripts/new-kali.sh
-      - run: mkdir -p /tmp/packer_workspace
       - run: |
           mkdir -p /tmp/packer_workspace
           cp -v variables.json /tmp/packer_workspace
