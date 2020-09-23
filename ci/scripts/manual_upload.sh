@@ -62,9 +62,9 @@ function upload_box(){
   fi
   
   printf '\n-----------------------------------------------------\n'
-  tput setaf 5
+  # tput setaf 5
   cat "$FILE.upload.log"
-  tput sgr0
+  # tput sgr0
   printf -- '-----------------------------------------------------\n\n'
 
 }
