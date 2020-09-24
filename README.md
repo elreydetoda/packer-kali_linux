@@ -84,6 +84,7 @@ machine, so you'll have to do that to see changes.
 
 To update a specific box (not tied to a Vagrant environment), use the
 --box flag.
+
 ```
 
 ### grand scheme
