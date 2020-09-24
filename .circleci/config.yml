@@ -482,6 +482,7 @@ workflows:
             branches:
               only:
                 - master
+                - dev-stage
           requires:
             - generate-packer-vars
             - generate-packer-file
@@ -490,6 +491,7 @@ workflows:
             branches:
               only:
                 - master
+                - dev-stage
           requires:
             - packer-linting_vbox
       - ansible-bootstrap:
@@ -497,6 +499,7 @@ workflows:
             branches:
               only:
                 - master
+                - dev-stage
           requires:
             - terraform-packet_deploy
       - ansible-packer_build:
@@ -504,6 +507,7 @@ workflows:
             branches:
               only:
                 - master
+                - dev-stage
           requires:
             - ansible-bootstrap
       - terraform-packet_destroy:
@@ -511,6 +515,7 @@ workflows:
             branches:
               only:
                 - master
+                - dev-stage
           requires:
             - ansible-packer_build
   # TODO: uncomment this
