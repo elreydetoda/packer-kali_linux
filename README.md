@@ -1,6 +1,5 @@
 # Automated Kali Vagrant Box
 
-
 [![Kali Vagrant img](https://www.kali.org/wp-content/uploads/2018/10/kali-on-vagrant-768x273.png)](https://github.com/elreydetoda/packer-kali_linux)
 
 **NOTE:** not Officially OffSec implementation of Vagrant and Kali.
