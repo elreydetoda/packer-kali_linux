@@ -455,6 +455,7 @@ workflows:
       - terraform-packet_destroy:
           requires:
             - ansible-packer_build
+
   master-kali_build:
     jobs:
       - shellcheck-warning
@@ -482,7 +483,6 @@ workflows:
             branches:
               only:
                 - master
-                - dev-stage
           requires:
             - generate-packer-vars
             - generate-packer-file
@@ -491,7 +491,6 @@ workflows:
             branches:
               only:
                 - master
-                - dev-stage
           requires:
             - packer-linting_vbox
       - ansible-bootstrap:
@@ -499,7 +498,6 @@ workflows:
             branches:
               only:
                 - master
-                - dev-stage
           requires:
             - terraform-packet_deploy
       - ansible-packer_build:
@@ -507,7 +505,6 @@ workflows:
             branches:
               only:
                 - master
-                - dev-stage
           requires:
             - ansible-bootstrap
       - terraform-packet_destroy:
@@ -515,6 +512,95 @@ workflows:
             branches:
               only:
                 - master
+          requires:
+            - ansible-packer_build
+
+  dev-kali_build:
+    jobs:
+      - shellcheck-warning:
+          filters:
+            branches:
+              only:
+                - dev-stage
+      - terraform-linting:
+          filters:
+            branches:
+              only:
+                - dev-stage
+      - markdown-linting:
+          filters:
+            branches:
+              only:
+                - dev-stage
+
+      - gh_issues-linting:
+          filters:
+            branches:
+              only:
+                - dev-stage
+
+      # - python-linting
+      - ansible-linting:
+          filters:
+            branches:
+              only:
+                - dev-stage
+
+      - generate-packer-file:
+          filters:
+            branches:
+              only:
+                - dev-stage
+          requires:
+            - shellcheck-warning
+            - terraform-linting
+            - markdown-linting
+            # - python-linting
+            - ansible-linting
+      - generate-packer-vars:
+          filters:
+            branches:
+              only:
+                - dev-stage
+          requires:
+            - shellcheck-warning
+            - terraform-linting
+            - markdown-linting
+            # - python-linting
+            - ansible-linting
+      - packer-linting_vbox:
+          filters:
+            branches:
+              only:
+                - dev-stage
+          requires:
+            - generate-packer-vars
+            - generate-packer-file
+      - terraform-packet_deploy:
+          filters:
+            branches:
+              only:
+                - dev-stage
+          requires:
+            - packer-linting_vbox
+      - ansible-bootstrap:
+          filters:
+            branches:
+              only:
+                - dev-stage
+          requires:
+            - terraform-packet_deploy
+      - ansible-packer_build:
+          filters:
+            branches:
+              only:
+                - dev-stage
+          requires:
+            - ansible-bootstrap
+      - terraform-packet_destroy:
+          filters:
+            branches:
+              only:
                 - dev-stage
           requires:
             - ansible-packer_build
