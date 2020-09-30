@@ -507,6 +507,9 @@ workflows:
               ignore:
                 - master
                 - dev-stage
+          requires:
+            - generate-packer-vars
+            - generate-packer-file
 
   master-kali_build:
     jobs:
