@@ -461,50 +461,50 @@ workflows:
       - shellcheck-warning:
           filters:
             branches:
-              exclude:
+              ignore:
                 - master
                 - dev-stage
       - terraform-linting:
           filters:
             branches:
-              exclude:
+              ignore:
                 - master
                 - dev-stage
       - markdown-linting:
           filters:
             branches:
-              exclude:
+              ignore:
                 - master
                 - dev-stage
       - gh_issues-linting:
           filters:
             branches:
-              exclude:
+              ignore:
                 - master
                 - dev-stage
       # - python-linting
       - ansible-linting:
           filters:
             branches:
-              exclude:
+              ignore:
                 - master
                 - dev-stage
       - generate-packer-file:
           filters:
             branches:
-              exclude:
+              ignore:
                 - master
                 - dev-stage
       - generate-packer-vars:
           filters:
             branches:
-              exclude:
+              ignore:
                 - master
                 - dev-stage
       - packer-linting_vbox:
           filters:
             branches:
-              exclude:
+              ignore:
                 - master
                 - dev-stage
 
