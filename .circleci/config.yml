@@ -79,6 +79,22 @@ commands:
           code-folder-path: '<< parameters.code-folder-path >>'
           execution-option: pylint --rcfile .linting-configs/pylintrc
 
+  run-black_linter:
+    description: "Run the pylint command with the python "
+    parameters:
+      pylint-options:
+        description: options to pass to pylint
+        type: string
+        default: ''
+      code-folder-path:
+        description: if specific path is wanted, specify here
+        type: string
+        default: ''
+    steps:
+      - base-python_linting:
+          code-folder-path: '<< parameters.code-folder-path >>'
+          execution-option: black --check --diff --color
+
   run-shellcheck:
     description: "Run the shellcheck orb in a very specific way."
     parameters:
@@ -230,6 +246,19 @@ jobs:
           pipenv --version
           pipenv run python --version
       - run-pylint
+
+  python-desired:
+    executor: python/default
+    steps:
+      - checkout
+      - python/install-packages:
+          args: '-d --deploy'
+          cache-version: v2
+      - run: |
+          set -eux
+          pipenv --version
+          pipenv run python --version
+      - run-black_linter
 
   packer-linting_vbox:
     docker:
@@ -709,3 +738,4 @@ workflows:
   # linting-wanted:
   #     jobs:
   #       - shellcheck-desired
+  #       - python-desired
