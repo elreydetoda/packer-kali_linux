@@ -344,7 +344,7 @@ jobs:
           set -eux
           pipenv --version
           pipenv run python --version
-      - run: pipenv run scripts/template-gen.py
+      - run: pipenv run scripts/template_gen.py
       - run: cat kali-template.json
       - run: |
           mkdir -p /tmp/packer_workspace
