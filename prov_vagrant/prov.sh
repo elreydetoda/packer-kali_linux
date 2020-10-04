@@ -30,6 +30,9 @@ function general_deps(){
 
   variables_gen
   sudo snap install go --classic
+  go get -v github.com/mvdan/sh/cmd/shfmt
+  # shellcheck disable=SC2016
+  echo 'PATH="${PATH}:~/go/bin/"' >> ~/.bashrc
   sudo apt-get install -y python3-pip
   pip3 install pipenv
   export PATH="${PATH}:~/.local/bin/"
