@@ -46,7 +46,9 @@ variable "server_hostname" {
 variable "provision_plan" {
   description = "The type of the device (server) getting assigned."
   type        = string
-  default     = "baremetal_0"
+  # default     = "baremetal_0"
+  # DEV
+  default     = "c3.small.x86"
 }
 
 ##################################################
