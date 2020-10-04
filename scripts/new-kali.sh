@@ -176,7 +176,7 @@ function main(){
 
   ## vagrant box information
   # name of the vagrant box
-  if [[ "$(git branch --show-current)" == dev* ]] ; then
+  if [[ "$(git branch --show-current)" == dev* ]] || [[ "${CIRCLE_BRANCH:-}" == dev* ]] ; then
     dev_branch='-dev'
   fi
   namez="kali-linux_amd64${dev_branch:-}"
