@@ -20,10 +20,10 @@ commands:
       - run: git submodule sync
       - run: git submodule update --init
 
-  run-ansible_lint:
+  base-ansible:
     description: run the ansible-lint command against playbooks
     parameters:
-      ansible_lint-options:
+      linting-options:
         description: options to pass to ansible-lint
         type: string
         default: ''
@@ -39,7 +39,23 @@ commands:
           find "${path_to_check}" -not \( -path "${path_to_check}/.git/*" \
             -o -path "${path_to_check}/prov_packer/bento/*" \) -type f -iname "*.yml" \
             -print0 | xargs -0 file | grep 'ASCII text' | cut -d ':' -f 1 |
-            xargs -t pipenv run ansible-lint
+            xargs -t pipenv run << parameters.linting-options >>
+
+  run-ansible_lint:
+    description: run the ansible-lint command against playbooks
+    parameters:
+      ansible_lint-options:
+        description: options to pass to ansible-lint
+        type: string
+        default: ''
+      code-folder-path:
+        description: if specific path is wanted, specify here
+        type: string
+        default: './ci/'
+    steps:
+      - base-ansible:
+          code-folder-path: '<< parameters.code-folder-path >>'
+          linting-options: ansible-lint
 
   base-python_linting:
     description: "Run the python linter command with the python "
