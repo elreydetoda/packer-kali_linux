@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
   shellcheck: circleci/shellcheck@volatile
-  python: circleci/python@1.1.0
+  python: circleci/python@volatile
   # eventually
   # bats: circleci/bats@volatile
   # codecov: codecov/codecov@volatile
