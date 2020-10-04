@@ -3,12 +3,14 @@ version: 2.1
 orbs:
   shellcheck: circleci/shellcheck@volatile
   python: circleci/python@volatile
+  go: circleci/go@volatile
   # eventually
   # bats: circleci/bats@volatile
   # codecov: codecov/codecov@volatile
   # current versions after choosing above orbs
   # shellcheck: circleci/shellcheck@2.0.0
   # python: circleci/python@0.3.2
+  # go: circleci/go@1.4.0
   # bats: circleci/bats@1.0.0
   # codecov: codecov/codecov@1.1.1
 
@@ -395,8 +397,9 @@ jobs:
 
   shfmt-linting:
     description: this is the desired degree of shellcheck
-    docker:
-      - image: 'cimg/go:1.15'
+    executor:
+      name: go/default
+      tag: '1.15'
     steps:
       - checkout
       - run: |
