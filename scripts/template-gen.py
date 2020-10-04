@@ -33,7 +33,9 @@ def get_packer_template(packer_template_path: pathlib) -> json:
     # replacing all instances of template_dir with a user var
     #   of bento_debian_path, because that is the location it
     #   is expecting for relative file traversal
-    json_string = packer_template_path.read_text().replace('template_dir', 'user `bento_debian_dir`')
+    json_string = packer_template_path.read_text().replace(
+        'template_dir', 'user `bento_debian_dir`'
+        )
     return json.loads(json_string)
 
 def variable_alterations(packer_template_data: dict, new_vars: dict) -> dict:
@@ -171,7 +173,9 @@ def provisioner_alterations(packer_template_data: dict, new_prov_data: dict) -> 
         'scripts': new_prov_data['scripts_custom_list']
     }
 
-    packerlicious_prov = packer_provisioner.Shell().from_dict(title='CustomSystemScripts', d=personal_script_dict)
+    packerlicious_prov = packer_provisioner.Shell().from_dict(
+        title='CustomSystemScripts', d=personal_script_dict
+        )
     # adding my custom scripts
     packer_prov_list.append(packerlicious_prov.to_dict())
 
@@ -188,7 +192,9 @@ def provisioner_alterations(packer_template_data: dict, new_prov_data: dict) -> 
     # doesn't try to uninstall X11 packages
     bento_copy_prov['scripts'][0] = '{}/cleanup.sh'.format(new_prov_data['prov_packer_dir'])
 
-    packerlicious_prov = packer_provisioner.Shell().from_dict(title='CleanupBentoScripts', d=bento_copy_prov)
+    packerlicious_prov = packer_provisioner.Shell().from_dict(
+        title='CleanupBentoScripts', d=bento_copy_prov
+        )
 
     packer_prov_list.append(packerlicious_prov.to_dict())
 
@@ -210,7 +216,9 @@ def post_processor_alterations(packer_template_data: dict, new_post_data: dict) 
         }
     )
 
-    vagrant_cloud_post_processor = packer_post_processor.VagrantCloud().from_dict(title='VagrantCloudPP', d=new_post_data['vagrant-cloud'])
+    vagrant_cloud_post_processor = packer_post_processor.VagrantCloud().from_dict(
+        title='VagrantCloudPP', d=new_post_data['vagrant-cloud']
+        )
 
     box_output_path = pathlib.Path(post_processor_list[0]['output'])
 
@@ -220,7 +228,9 @@ def post_processor_alterations(packer_template_data: dict, new_post_data: dict) 
         ]
     }
 
-    vagrant_cloud_artiface_post_processor = packer_post_processor.Artifice().from_dict(title='VagrantCloud', d=vagrant_cloud_artiface_dict)
+    vagrant_cloud_artiface_post_processor = packer_post_processor.Artifice().from_dict(
+        title='VagrantCloud', d=vagrant_cloud_artiface_dict
+        )
 
     post_processor_list.append(
         [
