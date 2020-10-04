@@ -393,6 +393,33 @@ jobs:
           optional: all
           format: gcc
 
+  shfmt-linting:
+    description: this is the desired degree of shellcheck
+    docker:
+      - image: 'cimg/go:1.15'
+    steps:
+      - checkout
+      - run: |
+          set -euxo pipefail
+          go get -v github.com/mvdan/sh/cmd/shfmt
+      - run: |
+          set -euxo pipefail
+          shfmt -version
+      - run: |
+          set -euxo pipefail
+          find . -not \( -path "./.git/*" \
+            -o -path "./prov_packer/bento/*" \) -type f -exec file {} \; |
+            grep 'Bourne-Again shell script' |
+            cut -d ':' -f 1 |
+            xargs -t -n 1 shfmt -i 2 -ci -sr -ln bash -l -d
+      - run: |
+          set -euxo pipefail
+          find . -not \( -path "./.git/*" \
+            -o -path "./prov_packer/bento/*" \) -type f -exec file {} \; |
+            grep 'POSIX shell script' |
+            cut -d ':' -f 1 |
+            xargs -t -n 1 shfmt -i 2 -ci -sr -p -l -d
+
   gh_issues-linting:
     description: linting markdown files
     docker:
@@ -523,29 +550,24 @@ workflows:
                 - master
     jobs:
       - shellcheck-warning
+      - shfmt-linting
       - terraform-linting
       - markdown-linting
       - gh_issues-linting
       - python-linting
       - ansible-linting
-      - generate-packer-file:
-          requires:
-            - shellcheck-warning
-            - terraform-linting
-            - markdown-linting
-            - python-linting
-            - ansible-linting
-      - generate-packer-vars:
-          requires:
-            - shellcheck-warning
-            - terraform-linting
-            - markdown-linting
-            - python-linting
-            - ansible-linting
+      - generate-packer-file
+      - generate-packer-vars
       - packer-linting_vbox:
           requires:
             - generate-packer-vars
             - generate-packer-file
+            - shellcheck-warning
+            - shfmt-linting
+            - terraform-linting
+            - markdown-linting
+            - python-linting
+            - ansible-linting
       - terraform-packet_deploy:
           requires:
             - packer-linting_vbox
@@ -562,6 +584,12 @@ workflows:
   all_checkins:
     jobs:
       - shellcheck-warning:
+          filters:
+            branches:
+              ignore:
+                - master
+                - dev-stage
+      - shfmt-linting:
           filters:
             branches:
               ignore:
@@ -626,6 +654,11 @@ workflows:
             branches:
               only:
                 - master
+      - shfmt-linting:
+          filters:
+            branches:
+              only:
+                - master
       - terraform-linting:
           filters:
             branches:
@@ -670,6 +703,7 @@ workflows:
             - generate-packer-vars
             - generate-packer-file
             - shellcheck-warning
+            - shfmt-linting
             - terraform-linting
             - markdown-linting
             - python-linting
@@ -706,6 +740,11 @@ workflows:
   dev-kali_build:
     jobs:
       - shellcheck-warning:
+          filters:
+            branches:
+              only:
+                - dev-stage
+      - shfmt-linting:
           filters:
             branches:
               only:

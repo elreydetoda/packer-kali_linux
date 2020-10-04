@@ -1,8 +1,8 @@
 #!/bin/sh -eux
 
 case "$PACKER_BUILDER_TYPE" in
-vmware-iso|vmware-vmx)
-    HOME_DIR="${HOME_DIR:-/home/vagrant}";
+  vmware-iso | vmware-vmx)
+    HOME_DIR="${HOME_DIR:-/home/vagrant}"
     mkdir -p /tmp/vmware
     mkdir -p /tmp/vmware-archive
     mount -o loop "$HOME_DIR/linux.iso" /tmp/vmware
@@ -14,14 +14,14 @@ vmware-iso|vmware-vmx)
     echo "VMware Tools Version: $VER"
 
     tar xzf "${TOOLS_PATH}" -C /tmp/vmware-archive
-    if [ "${MAJ_VER}" -lt "10" ] ; then
-        /tmp/vmware-archive/vmware-tools-distrib/vmware-install.pl --default
+    if [ "${MAJ_VER}" -lt "10" ]; then
+      /tmp/vmware-archive/vmware-tools-distrib/vmware-install.pl --default
     else
-        /tmp/vmware-archive/vmware-tools-distrib/vmware-install.pl --force-install
+      /tmp/vmware-archive/vmware-tools-distrib/vmware-install.pl --force-install
     fi
     umount /tmp/vmware
-    rm -rf  /tmp/vmware
-    rm -rf  /tmp/vmware-archive
+    rm -rf /tmp/vmware
+    rm -rf /tmp/vmware-archive
     rm -f "$HOME_DIR/*.iso"
     ;;
 esac
