@@ -48,7 +48,7 @@ variable "provision_plan" {
   type        = string
   # default     = "baremetal_0"
   # DEV
-  default     = "c3.small.x86"
+  default = "c3.small.x86"
 }
 
 ##################################################
