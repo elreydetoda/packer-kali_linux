@@ -305,7 +305,6 @@ def main():
     bento_packer_template = bento_base_dir / 'packer_templates'
 
     # necessary folder in packer templates dir
-    bento_common_scripts = bento_packer_template / '_common'
     bento_debian_dir = bento_packer_template / 'debian'
 
     bento_current_packer_template = bento_debian_dir / 'debian-10.5-amd64.json'
