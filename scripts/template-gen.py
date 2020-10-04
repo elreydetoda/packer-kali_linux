@@ -155,7 +155,6 @@ def provisioner_alterations(packer_template_data: dict, new_prov_data: dict) -> 
     #   https://stackoverflow.com/questions/2612802/how-to-clone-or-copy-a-list
 
     bento_env_vars = bento_prov['environment_vars']
-    bento_exec_cmd = bento_prov['execute_command']
     bash_exec_cmd = bento_prov['execute_command'].replace(' sh ', ' bash ')
     bento_copy_prov = deepcopy(bento_prov)
 
