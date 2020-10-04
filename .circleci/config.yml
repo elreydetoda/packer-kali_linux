@@ -42,10 +42,10 @@ commands:
             xargs -t pipenv run ansible-lint
 
   base-python_linting:
-    description: "Run the pylint command with the python "
+    description: "Run the python linter command with the python "
     parameters:
       execution-option:
-        description: options to pass to pylint
+        description: options to pass to python linter
         type: string
         default: ''
       code-folder-path:
@@ -77,7 +77,7 @@ commands:
     steps:
       - base-python_linting:
           code-folder-path: '<< parameters.code-folder-path >>'
-          execution-option: pylint
+          execution-option: pylint --rcfile .linting-configs/pylintrc
 
   run-shellcheck:
     description: "Run the shellcheck orb in a very specific way."
