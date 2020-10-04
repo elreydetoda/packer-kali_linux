@@ -15,12 +15,12 @@ function deps_install(){
   OS_VERSION="$(grep '^ID=' /etc/os-release | cut -d '=' -f 2)"
   case "${OS_VERSION}" in
     debian|ubuntu)
-        packages=( "gpg" "curl" "jq" )
+        packages=( "gpg" "curl" "jq" "git" )
         package_manager='apt'
         package_manager_install_cmd=( 'install' '-y' )
       ;;
     alpine)
-        packages=( "gnupg" "curl" "jq" )
+        packages=( "gnupg" "curl" "jq" "git" )
         package_manager='apk'
         package_manager_install_cmd=( '--update' '--no-cache' 'add' )
       ;;
@@ -176,7 +176,10 @@ function main(){
 
   ## vagrant box information
   # name of the vagrant box
-  namez="kali-linux_amd64"
+  if [[ "$(git branch --show-current)" == dev* ]] ; then
+    dev_branch='-dev'
+  fi
+  namez="kali-linux_amd64${dev_branch:-}"
   variables_out_file='variables.json'
 
   ## commands and combined variables
