@@ -3,15 +3,14 @@
 # https://elrey.casa/bash/scripting/harden
 set -${-//[s]/}eu${DEBUG+xv}o pipefail
 
-
-function main(){
-  for i in $(grep run .circleci/config.yml | rev | awk '{print $1}' | rev) ; do
+function main() {
+  for i in $(grep run .circleci/config.yml | rev | awk '{print $1}' | rev); do
     # executing everying script found in circle ci config
     bash "${i}"
   done
 }
 
 # https://blog.elreydetoda.site/cool-shell-tricks/#bashscriptingbashsmain
-if [[ "${0}" = "${BASH_SOURCE[0]}" ]] ; then
+if [[ "${0}" = "${BASH_SOURCE[0]}" ]]; then
   main "${@}"
 fi

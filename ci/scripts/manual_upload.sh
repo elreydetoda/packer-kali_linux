@@ -14,34 +14,31 @@ BASE="$(pwd -P)"
 pushd "$(dirname "$0")" > /dev/null
 popd > /dev/null
 
-
 printf '\n\n'
 
-
-
-function help(){
+function help() {
 
   ## outputing help text
-  printf 'Argument Description:,Script Name,Org Name,Name of box,Provider,Version,File Path\nExample execution:,./%s,double16,linux-dev-workstation,virtualbox,201809.1,box/virtualbox/linux-dev-workstation-201809.1.box\n' "$(basename "${0}")" | column -s ',' -tn 
+  printf 'Argument Description:,Script Name,Org Name,Name of box,Provider,Version,File Path\nExample execution:,./%s,double16,linux-dev-workstation,virtualbox,201809.1,box/virtualbox/linux-dev-workstation-201809.1.box\n' "$(basename "${0}")" | column -s ',' -tn
   printf '\nOther Arguments/flags:\n'
   printf '\t%s) print this help section\n' '-h|--help'
   exit 1
 
 }
 
-function ci_get_vars(){
-  if [[ -f "${variables_file}" ]] ; then
-    vm_name="$( grep '"vm_name"' "${variables_file}" | cut -d '"' -f 4 )"
+function ci_get_vars() {
+  if [[ -f "${variables_file}" ]]; then
+    vm_name="$(grep '"vm_name"' "${variables_file}" | cut -d '"' -f 4)"
     ORG="$(cut -d '/' -f 1 <<< "${vm_name}")"
     NAME="$(cut -d '/' -f 2 <<< "${vm_name}")"
-    VERSION="$( grep '"vm_version"' "${variables_file}" | cut -d '"' -f 4 )"
+    VERSION="$(grep '"vm_version"' "${variables_file}" | cut -d '"' -f 4)"
     FILE="${1}"
     PROVIDER="$(printf '%s' "${FILE}" | rev | cut -d '.' -f 2 | rev)"
 
   fi
 }
 
-function release_uploaded_version(){
+function release_uploaded_version() {
 
   # Release the version, and watch the party rage.
   ${CURL} \
@@ -54,13 +51,13 @@ function release_uploaded_version(){
 
 }
 
-function upload_box(){
+function upload_box() {
 
   # Perform the upload, and see the bits boil.
-  if ! ${CURL} --tlsv1.2 --include --max-time 7200 --expect100-timeout 7200 --request PUT --output "$FILE.upload.log" --upload-file "$FILE" "$UPLOAD_PATH" ; then
+  if ! ${CURL} --tlsv1.2 --include --max-time 7200 --expect100-timeout 7200 --request PUT --output "$FILE.upload.log" --upload-file "$FILE" "$UPLOAD_PATH"; then
     echo 'This probably "failed", but it mostly actually succeeded and did not get closed properly.'
   fi
-  
+
   printf '\n-----------------------------------------------------\n'
   # tput setaf 5
   cat "$FILE.upload.log"
@@ -69,7 +66,7 @@ function upload_box(){
 
 }
 
-function vagrant_cloud_prep_upload(){
+function vagrant_cloud_prep_upload() {
 
   # Prepare an upload path, and then extract that upload path from the JSON
   # response using the jq command.
@@ -80,15 +77,15 @@ function vagrant_cloud_prep_upload(){
 
 }
 
-function vagrant_cloud_deps(){
+function vagrant_cloud_deps() {
   ## create the box
   box_creation_status=$(
-  ${CURL} \
-    --silent \
-    --header "Content-Type: application/json" \
-    --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
-    "${base_url}es" \
-    --data "
+    ${CURL} \
+      --silent \
+      --header "Content-Type: application/json" \
+      --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
+      "${base_url}es" \
+      --data "
       {
         \"box\": {
           \"username\": \"${ORG}\",
@@ -97,9 +94,10 @@ function vagrant_cloud_deps(){
           \"description\": \"${DESC}\",
           \"is_private\": \"false\"
         }
-      }")
+      }"
+  )
 
-  if printf '%s' "${box_creation_status}" | grep 'tag' 1>/dev/null ; then
+  if printf '%s' "${box_creation_status}" | grep 'tag' 1> /dev/null; then
     printf 'Congrats on creating the vagrant box %s!' "$(printf "%s" "${box_creation_status}" | jq -r '.tag')"
   else
     printf 'Box %s has already been created' "$(printf "%s" "${box_creation_status}" | jq -r '.tag')"
@@ -138,48 +136,54 @@ function vagrant_cloud_deps(){
 
 }
 
-function deps_check(){
+function deps_check() {
 
   # The jq tool is needed to parse JSON responses.
   ## adjusted to be more bash compliant
-  if ! command -v jq 1>/dev/null ; then
-    tput setaf 1; printf '\n\nThe jq utility is not installed.\n\n\n'; tput sgr0
+  if ! command -v jq 1> /dev/null; then
+    tput setaf 1
+    printf '\n\nThe jq utility is not installed.\n\n\n'
+    tput sgr0
     exit 1
   fi
-  
+
   # Ensure the credentials file is available.
   if [ -f "$BASE/.credentialsrc" ]; then
     ## added for shellcheck to ignore
     # shellcheck source=/dev/null
     . "$BASE/.credentialsrc"
   ## if no credential file check if variables.json file
-  elif [[ -f "${variables_file_path}" ]] ; then
+  elif [[ -f "${variables_file_path}" ]]; then
     ## check if vagrant_cloud_token exists
-    if grep vagrant_cloud_token "${variables_file_path}" 1>/dev/null ; then
+    if grep vagrant_cloud_token "${variables_file_path}" 1> /dev/null; then
       ## pull token from there
       VAGRANT_CLOUD_TOKEN="$(grep vagrant_cloud_token ${variables_file_path} | cut -d '"' -f 4)"
     fi
   else
-    tput setaf 1; printf '\nError. The credentials file is missing.\n\n'; tput sgr0
+    tput setaf 1
+    printf '\nError. The credentials file is missing.\n\n'
+    tput sgr0
     exit 1
   fi
-  
+
   if [ -z "${VAGRANT_CLOUD_TOKEN}" ]; then
-    tput setaf 1; printf '\nError. The vagrant cloud token is missing. Add it to the credentials file.\n\n'; tput sgr0
+    tput setaf 1
+    printf '\nError. The vagrant cloud token is missing. Add it to the credentials file.\n\n'
+    tput sgr0
   fi
-    
+
   printf '\n\n'
-  
+
   ## validating the token
   status=$(${CURL} \
     --silent \
     --header "Authorization: Bearer ${VAGRANT_CLOUD_TOKEN}" \
     https://app.vagrantup.com/api/v1/authenticate)
-  
+
   ## checking if there was an error
-  if printf '%s\n'  "${status}"  | grep error &>/dev/null ; then
+  if printf '%s\n' "${status}" | grep error &> /dev/null; then
     ## printing error message
-    printf '%s\n'  "${status}"  | jq -r '.errors[].message'
+    printf '%s\n' "${status}" | jq -r '.errors[].message'
   else
     ## output that it is valid
     printf 'You have a valid token, congrats.\n'
@@ -187,22 +191,22 @@ function deps_check(){
 
 }
 
-function main(){
+function main() {
 
   variables_file='variables.json'
   variables_file_path="${PWD}/${variables_file}"
 
-  if [[ $# -eq 5 ]] ; then
+  if [[ $# -eq 5 ]]; then
     help
-  elif [[ -n "${CIRCLECI:-}" ]] ; then
+  elif [[ -n "${CIRCLECI:-}" ]]; then
     # this is an alternative logic path for specifically the CI
     #   this will only take 1 arg ( the path to the box ) as an arg
     #   for file upload
     ci_get_vars "${@}"
   else
     case $1 in
-      -h|--help)
-          help
+      -h | --help)
+        help
         ;;
     esac
   fi
@@ -218,7 +222,6 @@ function main(){
 
   CURL='curl'
 
-
   deps_check
   vagrant_cloud_deps
   vagrant_cloud_prep_upload
@@ -227,6 +230,6 @@ function main(){
 }
 
 # https://blog.elreydetoda.site/cool-shell-tricks/#bashscriptingbashsmain
-if [[ "${0}" = "${BASH_SOURCE[0]}" ]] ; then
+if [[ "${0}" = "${BASH_SOURCE[0]}" ]]; then
   main "${@}"
 fi

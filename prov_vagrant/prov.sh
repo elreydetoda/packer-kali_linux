@@ -3,11 +3,11 @@
 # https://elrey.casa/bash/scripting/harden
 set -${-//[sc]/}eu${DEBUG+xv}o pipefail
 
-function variables_gen(){
+function variables_gen() {
   # shellcheck source=/dev/null
   . "${env_file}"
 
-  if [[ -n "${CIRCLECI}" ]] ; then
+  if [[ -n "${CIRCLECI}" ]]; then
     project_dir="${HOME}/project"
   else
     project_dir='/vagrant'
@@ -16,9 +16,9 @@ function variables_gen(){
   path_to_new_kali_shell_script="${project_dir}/scripts/new-kali.sh"
   # installing deps
   echo 'Installing dependencies...'
-  
+
   pushd "${project_dir}"
-  if [[ -n "${PREZ:-}" ]] ; then
+  if [[ -n "${PREZ:-}" ]]; then
     ${path_to_new_kali_shell_script} | grep -v 'vagrant_cloud_token'
   else
     ${path_to_new_kali_shell_script}
@@ -26,7 +26,7 @@ function variables_gen(){
   popd
 }
 
-function general_deps(){
+function general_deps() {
 
   variables_gen
   sudo snap install go --classic
@@ -43,7 +43,7 @@ function general_deps(){
   popd
 }
 
-function ci_deps(){
+function ci_deps() {
 
   general_deps
 
@@ -59,11 +59,11 @@ function ci_deps(){
   get_secret
 
   echo "cd ${HOME}/project" >> "${HOME}/.bashrc"
-  echo "export CIRCLECI=true" | sudo tee -a "${env_file}" 1>/dev/null
+  echo "export CIRCLECI=true" | sudo tee -a "${env_file}" 1> /dev/null
 }
 
 ## Project setup functions
-function circle_ci(){
+function circle_ci() {
 
   export CIRCLECI=true
 
@@ -81,7 +81,7 @@ function circle_ci(){
   ci_deps
 }
 
-function development(){
+function development() {
 
   if ! command -v pipenv; then
     general_deps
@@ -93,43 +93,43 @@ function development(){
 
 }
 
-function development_w_CI(){
+function development_w_CI() {
   export CIRCLECI=true
   ci_deps
   development
 }
 
-function prez(){
+function prez() {
   export PREZ=true
 }
 
 # thanks to the bash cookbook for this one:
 #   https://github.com/vossenjp/bashcookbook-examples/blob/master/ch03/select_dir
-function selection(){
+function selection() {
 
   action_array=(
     'done'
-    'variables_gen' # this is used to ONLY generate the variables file
-    'circle_ci' # this is used to run an imitated environment of what circleci would do
-    'development' # normal local development
+    'variables_gen'    # this is used to ONLY generate the variables file
+    'circle_ci'        # this is used to run an imitated environment of what circleci would do
+    'development'      # normal local development
     'development_w_CI' # development with the CI environment setup
-    'prez' # for when doing a presentation to not reveal sensative info on recording
+    'prez'             # for when doing a presentation to not reveal sensative info on recording
   )
 
-  until [ "${action:-}" == 'done' ] ; do
+  until [ "${action:-}" == 'done' ]; do
 
     PS3='Action to process? '
 
     printf '\n\n%s\n' "Select an action to do:" >&2
 
-    select action in "${action_array[@]}" ; do
+    select action in "${action_array[@]}"; do
 
-      if [[ "${action}" == "done" ]] ; then
+      if [[ "${action}" == "done" ]]; then
 
         echo "Finishing automation."
         break
 
-      elif [[ -n "${action}" ]] ; then
+      elif [[ -n "${action}" ]]; then
 
         printf 'You chose number %s, processing %s\n' "${REPLY}" "${action}"
         ${action}
@@ -144,10 +144,10 @@ function selection(){
     done
   done
   unset PS3
-  
+
 }
 
-get_secret(){
+get_secret() {
 
   private_key_location="${HOME}/.ssh/id_rsa"
 
@@ -159,11 +159,11 @@ get_secret(){
 
 }
 
-cleanup(){
+cleanup() {
   sed -i 's,/vagrant/prov_vagrant/prov.sh,,' ~vagrant/.bashrc
 }
 
-function main(){
+function main() {
 
   export CIRCLECI="${CIRCLECI:-}"
 
@@ -181,6 +181,6 @@ function main(){
 }
 
 # https://blog.elreydetoda.site/cool-shell-tricks/#bashscriptingbashsmain
-if [[ "${0}" = "${BASH_SOURCE[0]}" ]] ; then
+if [[ "${0}" = "${BASH_SOURCE[0]}" ]]; then
   main "${@}"
 fi
