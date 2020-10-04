@@ -456,28 +456,99 @@ workflows:
           requires:
             - ansible-packer_build
 
+  all_checkins:
+    jobs:
+      - shellcheck-warning:
+          filters:
+            branches:
+              ignore:
+                - master
+                - dev-stage
+      - terraform-linting:
+          filters:
+            branches:
+              ignore:
+                - master
+                - dev-stage
+      - markdown-linting:
+          filters:
+            branches:
+              ignore:
+                - master
+                - dev-stage
+      - gh_issues-linting:
+          filters:
+            branches:
+              ignore:
+                - master
+                - dev-stage
+      # - python-linting
+      - ansible-linting:
+          filters:
+            branches:
+              ignore:
+                - master
+                - dev-stage
+      - generate-packer-file:
+          filters:
+            branches:
+              ignore:
+                - master
+                - dev-stage
+      - generate-packer-vars:
+          filters:
+            branches:
+              ignore:
+                - master
+                - dev-stage
+      - packer-linting_vbox:
+          filters:
+            branches:
+              ignore:
+                - master
+                - dev-stage
+          requires:
+            - generate-packer-vars
+            - generate-packer-file
+
   master-kali_build:
     jobs:
-      - shellcheck-warning
-      - terraform-linting
-      - markdown-linting
-      - gh_issues-linting
+      - shellcheck-warning:
+          filters:
+            branches:
+              only:
+                - master
+      - terraform-linting:
+          filters:
+            branches:
+              only:
+                - master
+      - markdown-linting:
+          filters:
+            branches:
+              only:
+                - master
+      - gh_issues-linting:
+          filters:
+            branches:
+              only:
+                - master
       # - python-linting
-      - ansible-linting
+      - ansible-linting:
+          filters:
+            branches:
+              only:
+                - master
       - generate-packer-file:
-          requires:
-            - shellcheck-warning
-            - terraform-linting
-            - markdown-linting
-            # - python-linting
-            - ansible-linting
+          filters:
+            branches:
+              only:
+                - master
       - generate-packer-vars:
-          requires:
-            - shellcheck-warning
-            - terraform-linting
-            - markdown-linting
-            # - python-linting
-            - ansible-linting
+          filters:
+            branches:
+              only:
+                - master
       - packer-linting_vbox:
           filters:
             branches:
@@ -486,6 +557,11 @@ workflows:
           requires:
             - generate-packer-vars
             - generate-packer-file
+            - shellcheck-warning
+            - terraform-linting
+            - markdown-linting
+            # - python-linting
+            - ansible-linting
       - terraform-packet_deploy:
           filters:
             branches:
@@ -551,23 +627,11 @@ workflows:
             branches:
               only:
                 - dev-stage
-          requires:
-            - shellcheck-warning
-            - terraform-linting
-            - markdown-linting
-            # - python-linting
-            - ansible-linting
       - generate-packer-vars:
           filters:
             branches:
               only:
                 - dev-stage
-          requires:
-            - shellcheck-warning
-            - terraform-linting
-            - markdown-linting
-            # - python-linting
-            - ansible-linting
       - packer-linting_vbox:
           filters:
             branches:
@@ -576,6 +640,11 @@ workflows:
           requires:
             - generate-packer-vars
             - generate-packer-file
+            - shellcheck-warning
+            - terraform-linting
+            - markdown-linting
+            # - python-linting
+            - ansible-linting
       - terraform-packet_deploy:
           filters:
             branches:
