@@ -29,6 +29,7 @@ function variables_gen(){
 function general_deps(){
 
   variables_gen
+  sudo snap install go --classic
   sudo apt-get install -y python3-pip
   pip3 install pipenv
   export PATH="${PATH}:~/.local/bin/"
