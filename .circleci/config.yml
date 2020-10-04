@@ -193,6 +193,7 @@ jobs:
       - checkout
       - python/install-packages:
           args: '-d --deploy'
+          cache-version: v2
       - run: |
           set -eux
           pipenv --version
@@ -207,6 +208,7 @@ jobs:
       - checkout
       - python/install-packages:
           args: '-d --deploy'
+          cache-version: v2
       - run: |
           set -eux
           pipenv --version
@@ -321,6 +323,7 @@ jobs:
       - submodule-sync
       - python/install-packages:
           args: '--deploy'
+          cache-version: v2
       - run: |
           set -eux
           pipenv --version
