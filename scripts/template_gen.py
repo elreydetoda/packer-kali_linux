@@ -5,15 +5,19 @@ from inspect import getframeinfo, currentframe
 from pprint import pprint
 from typing import NoReturn
 from copy import deepcopy
-from packerlicious import Template as packer_template
+# from packerlicious import Template as packer_template
 from packerlicious import provisioner as packer_provisioner
-from packerlicious import builder as packer_builder
+# from packerlicious import builder as packer_builder
 from packerlicious import post_processor as packer_post_processor
 
 # TODO: add more + better logging, w/cli arg optional
 
 # start each section with a pre-defined message and it's name
 def section_meta(current_status: str, current_func: str) -> NoReturn:
+    '''
+    this is a meta function for logging information, to help you understand
+    where you are in the script if it exits early or anything else like that
+    '''
     # adding extra spacing
     print('')
 
@@ -25,18 +29,30 @@ def section_meta(current_status: str, current_func: str) -> NoReturn:
 
 # logging func
 def logging(log_str: str) -> NoReturn:
+    '''
+    this is to help print things out nicely (since most of data is json)
+    '''
     pprint(log_str)
 
 # getting pre-existing packer template from bento project
 def get_packer_template(packer_template_path: pathlib) -> json:
+    '''
+    retrienve on disk a packer template file and convert it to a dict,
+    also modify it by replacing all "template_dir" with packer user variables
+    '''
 
     # replacing all instances of template_dir with a user var
     #   of bento_debian_path, because that is the location it
     #   is expecting for relative file traversal
-    json_string = packer_template_path.read_text().replace('template_dir', 'user `bento_debian_dir`')
+    json_string = packer_template_path.read_text().replace(
+        'template_dir', 'user `bento_debian_dir`'
+        )
     return json.loads(json_string)
 
 def variable_alterations(packer_template_data: dict, new_vars: dict) -> dict:
+    '''
+    alter the variables section of the passed in packer template
+    '''
     section_meta('starting', getframeinfo(currentframe()).function)
 
     # only selecting the vars section from the template
@@ -90,6 +106,9 @@ def variable_alterations(packer_template_data: dict, new_vars: dict) -> dict:
     return packer_template_data
 
 def sensitive_variables(packer_template_data: dict, sensitive_vars: list) -> dict:
+    '''
+    declare the sensative variables section to help with security
+    '''
     section_meta('starting', getframeinfo(currentframe()).function)
 
     logging(
@@ -104,6 +123,9 @@ def sensitive_variables(packer_template_data: dict, sensitive_vars: list) -> dic
     return packer_template_data
 
 def builder_alterations(packer_template_data: dict, new_builder_data: dict) -> dict:
+    '''
+    modify the builders section of the passed in packer data
+    '''
     # TODO: add format: 'ova' to vbox builder
     section_meta('starting', getframeinfo(currentframe()).function)
 
@@ -144,6 +166,9 @@ def builder_alterations(packer_template_data: dict, new_builder_data: dict) -> d
     return packer_template_data
 
 def provisioner_alterations(packer_template_data: dict, new_prov_data: dict) -> dict:
+    '''
+    modify the provisioners section of the passed in packer data
+    '''
     section_meta('starting', getframeinfo(currentframe()).function)
 
     packer_prov_list = packer_template_data['provisioners']
@@ -153,7 +178,6 @@ def provisioner_alterations(packer_template_data: dict, new_prov_data: dict) -> 
     #   https://stackoverflow.com/questions/2612802/how-to-clone-or-copy-a-list
 
     bento_env_vars = bento_prov['environment_vars']
-    bento_exec_cmd = bento_prov['execute_command']
     bash_exec_cmd = bento_prov['execute_command'].replace(' sh ', ' bash ')
     bento_copy_prov = deepcopy(bento_prov)
 
@@ -171,7 +195,9 @@ def provisioner_alterations(packer_template_data: dict, new_prov_data: dict) -> 
         'scripts': new_prov_data['scripts_custom_list']
     }
 
-    packerlicious_prov = packer_provisioner.Shell().from_dict(title='CustomSystemScripts', d=personal_script_dict)
+    packerlicious_prov = packer_provisioner.Shell().from_dict(
+        title='CustomSystemScripts', d=personal_script_dict
+        )
     # adding my custom scripts
     packer_prov_list.append(packerlicious_prov.to_dict())
 
@@ -188,7 +214,9 @@ def provisioner_alterations(packer_template_data: dict, new_prov_data: dict) -> 
     # doesn't try to uninstall X11 packages
     bento_copy_prov['scripts'][0] = '{}/cleanup.sh'.format(new_prov_data['prov_packer_dir'])
 
-    packerlicious_prov = packer_provisioner.Shell().from_dict(title='CleanupBentoScripts', d=bento_copy_prov)
+    packerlicious_prov = packer_provisioner.Shell().from_dict(
+        title='CleanupBentoScripts', d=bento_copy_prov
+        )
 
     packer_prov_list.append(packerlicious_prov.to_dict())
 
@@ -197,6 +225,9 @@ def provisioner_alterations(packer_template_data: dict, new_prov_data: dict) -> 
     return packer_template_data
 
 def post_processor_alterations(packer_template_data: dict, new_post_data: dict) -> dict:
+    '''
+    modify the post-processors section of the passed in packer data
+    '''
     section_meta('starting', getframeinfo(currentframe()).function)
     post_processor_list = packer_template_data['post-processors']
 
@@ -210,7 +241,9 @@ def post_processor_alterations(packer_template_data: dict, new_post_data: dict) 
         }
     )
 
-    vagrant_cloud_post_processor = packer_post_processor.VagrantCloud().from_dict(title='VagrantCloudPP', d=new_post_data['vagrant-cloud'])
+    vagrant_cloud_post_processor = packer_post_processor.VagrantCloud().from_dict(
+        title='VagrantCloudPP', d=new_post_data['vagrant-cloud']
+        )
 
     box_output_path = pathlib.Path(post_processor_list[0]['output'])
 
@@ -220,7 +253,9 @@ def post_processor_alterations(packer_template_data: dict, new_post_data: dict) 
         ]
     }
 
-    vagrant_cloud_artiface_post_processor = packer_post_processor.Artifice().from_dict(title='VagrantCloud', d=vagrant_cloud_artiface_dict)
+    vagrant_cloud_artiface_post_processor = packer_post_processor.Artifice().from_dict(
+        title='VagrantCloud', d=vagrant_cloud_artiface_dict
+        )
 
     post_processor_list.append(
         [
@@ -234,6 +269,9 @@ def post_processor_alterations(packer_template_data: dict, new_post_data: dict) 
     return packer_template_data
 
 def write_packer_template(packer_template_path: pathlib, packer_template_data: dict) -> NoReturn:
+    '''
+    write the post processors section to disk
+    '''
     section_meta('starting', getframeinfo(currentframe()).function)
 
     # logging(packer_template_data)
@@ -244,6 +282,7 @@ def write_packer_template(packer_template_path: pathlib, packer_template_data: d
 # TODO: adding aspirations
 # def add_builder_hyperv():
 
+# pylint: disable=C0116
 def main():
 
     ### section with lots of variables to get used throughout the script
@@ -295,7 +334,6 @@ def main():
     bento_packer_template = bento_base_dir / 'packer_templates'
 
     # necessary folder in packer templates dir
-    bento_common_scripts = bento_packer_template / '_common'
     bento_debian_dir = bento_packer_template / 'debian'
 
     bento_current_packer_template = bento_debian_dir / 'debian-10.5-amd64.json'
