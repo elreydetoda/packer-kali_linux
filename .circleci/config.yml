@@ -41,6 +41,22 @@ commands:
             -print0 | xargs -0 file | grep 'ASCII text' | grep -vP '.*-requirements.yml' | cut -d ':' -f 1 |
             xargs -t pipenv run << parameters.linting-options >>
 
+  run-yamllint:
+    description: run the ansible-lint command against playbooks
+    parameters:
+      ansible_lint-options:
+        description: options to pass to ansible-lint
+        type: string
+        default: ''
+      code-folder-path:
+        description: if specific path is wanted, specify here
+        type: string
+        default: './ci/'
+    steps:
+      - base-ansible:
+          code-folder-path: '<< parameters.code-folder-path >>'
+          linting-options: yamllint -c .linting-configs/yamllint
+
   run-ansible_playbook-lint:
     description: run the ansible-lint command against playbooks
     parameters:
@@ -266,6 +282,7 @@ jobs:
           pipenv run ansible-playbook --version
           pipenv run yamllint --version
       - run-ansible_lint
+      - run-yamllint
       - run: |
           set -euxo pipefail
           pipenv run ansible-galaxy collection install -r ci/ansible-requirements.yml
