@@ -14,6 +14,10 @@ from packerlicious import post_processor as packer_post_processor
 
 # start each section with a pre-defined message and it's name
 def section_meta(current_status: str, current_func: str) -> NoReturn:
+    '''
+    this is a meta function for logging information, to help you understand
+    where you are in the script if it exits early or anything else like that
+    '''
     # adding extra spacing
     print('')
 
@@ -25,10 +29,17 @@ def section_meta(current_status: str, current_func: str) -> NoReturn:
 
 # logging func
 def logging(log_str: str) -> NoReturn:
+    '''
+    this is to help print things out nicely (since most of data is json)
+    '''
     pprint(log_str)
 
 # getting pre-existing packer template from bento project
 def get_packer_template(packer_template_path: pathlib) -> json:
+    '''
+    retrienve on disk a packer template file and convert it to a dict,
+    also modify it by replacing all "template_dir" with packer user variables
+    '''
 
     # replacing all instances of template_dir with a user var
     #   of bento_debian_path, because that is the location it
@@ -39,6 +50,9 @@ def get_packer_template(packer_template_path: pathlib) -> json:
     return json.loads(json_string)
 
 def variable_alterations(packer_template_data: dict, new_vars: dict) -> dict:
+    '''
+    alter the variables section of the passed in packer template
+    '''
     section_meta('starting', getframeinfo(currentframe()).function)
 
     # only selecting the vars section from the template
@@ -92,6 +106,9 @@ def variable_alterations(packer_template_data: dict, new_vars: dict) -> dict:
     return packer_template_data
 
 def sensitive_variables(packer_template_data: dict, sensitive_vars: list) -> dict:
+    '''
+    declare the sensative variables section to help with security
+    '''
     section_meta('starting', getframeinfo(currentframe()).function)
 
     logging(
@@ -106,6 +123,9 @@ def sensitive_variables(packer_template_data: dict, sensitive_vars: list) -> dic
     return packer_template_data
 
 def builder_alterations(packer_template_data: dict, new_builder_data: dict) -> dict:
+    '''
+    modify the builders section of the passed in packer data
+    '''
     # TODO: add format: 'ova' to vbox builder
     section_meta('starting', getframeinfo(currentframe()).function)
 
@@ -146,6 +166,9 @@ def builder_alterations(packer_template_data: dict, new_builder_data: dict) -> d
     return packer_template_data
 
 def provisioner_alterations(packer_template_data: dict, new_prov_data: dict) -> dict:
+    '''
+    modify the provisioners section of the passed in packer data
+    '''
     section_meta('starting', getframeinfo(currentframe()).function)
 
     packer_prov_list = packer_template_data['provisioners']
@@ -202,6 +225,9 @@ def provisioner_alterations(packer_template_data: dict, new_prov_data: dict) -> 
     return packer_template_data
 
 def post_processor_alterations(packer_template_data: dict, new_post_data: dict) -> dict:
+    '''
+    modify the post-processors section of the passed in packer data
+    '''
     section_meta('starting', getframeinfo(currentframe()).function)
     post_processor_list = packer_template_data['post-processors']
 
@@ -243,6 +269,9 @@ def post_processor_alterations(packer_template_data: dict, new_post_data: dict) 
     return packer_template_data
 
 def write_packer_template(packer_template_path: pathlib, packer_template_data: dict) -> NoReturn:
+    '''
+    write the post processors section to disk
+    '''
     section_meta('starting', getframeinfo(currentframe()).function)
 
     # logging(packer_template_data)
@@ -253,6 +282,7 @@ def write_packer_template(packer_template_path: pathlib, packer_template_data: d
 # TODO: adding aspirations
 # def add_builder_hyperv():
 
+# pylint: disable=C0116
 def main():
 
     ### section with lots of variables to get used throughout the script
