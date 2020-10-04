@@ -41,10 +41,10 @@ commands:
             -print0 | xargs -0 file | grep 'ASCII text' | cut -d ':' -f 1 |
             xargs -t pipenv run ansible-lint
 
-  run-pylint:
+  base-python_linting:
     description: "Run the pylint command with the python "
     parameters:
-      pylint-options:
+      execution-option:
         description: options to pass to pylint
         type: string
         default: ''
@@ -61,7 +61,23 @@ commands:
             -o -path "${path_to_check}/prov_packer/bento/*" \
             -o -path "${path_to_check}/ci/scripts/packet_net.py" \) -type f -print0 |
             xargs -0 file | grep 'Python script' | cut -d ':' -f 1 |
-            xargs -t pipenv run pylint
+            xargs -t pipenv run << parameters.execution-option >>
+
+  run-pylint:
+    description: "Run the pylint command with the python "
+    parameters:
+      pylint-options:
+        description: options to pass to pylint
+        type: string
+        default: ''
+      code-folder-path:
+        description: if specific path is wanted, specify here
+        type: string
+        default: ''
+    steps:
+      - base-python_linting:
+          code-folder-path: '<< parameters.code-folder-path >>'
+          execution-option: pylint
 
   run-shellcheck:
     description: "Run the shellcheck orb in a very specific way."
@@ -426,21 +442,21 @@ workflows:
       - terraform-linting
       - markdown-linting
       - gh_issues-linting
-      # - python-linting
+      - python-linting
       - ansible-linting
       - generate-packer-file:
           requires:
             - shellcheck-warning
             - terraform-linting
             - markdown-linting
-            # - python-linting
+            - python-linting
             - ansible-linting
       - generate-packer-vars:
           requires:
             - shellcheck-warning
             - terraform-linting
             - markdown-linting
-            # - python-linting
+            - python-linting
             - ansible-linting
       - packer-linting_vbox:
           requires:
@@ -485,7 +501,12 @@ workflows:
               ignore:
                 - master
                 - dev-stage
-      # - python-linting
+      - python-linting:
+          filters:
+            branches:
+              ignore:
+                - master
+                - dev-stage
       - ansible-linting:
           filters:
             branches:
@@ -536,7 +557,11 @@ workflows:
             branches:
               only:
                 - master
-      # - python-linting
+      - python-linting:
+          filters:
+            branches:
+              only:
+                - master
       - ansible-linting:
           filters:
             branches:
@@ -563,7 +588,7 @@ workflows:
             - shellcheck-warning
             - terraform-linting
             - markdown-linting
-            # - python-linting
+            - python-linting
             - ansible-linting
       - terraform-packet_deploy:
           filters:
@@ -618,7 +643,11 @@ workflows:
               only:
                 - dev-stage
 
-      # - python-linting
+      - python-linting:
+          filters:
+            branches:
+              only:
+                - dev-stage
       - ansible-linting:
           filters:
             branches:
@@ -646,7 +675,7 @@ workflows:
             - shellcheck-warning
             - terraform-linting
             - markdown-linting
-            # - python-linting
+            - python-linting
             - ansible-linting
       - terraform-packet_deploy:
           filters:
