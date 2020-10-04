@@ -2,7 +2,7 @@
 - hosts: all
   become: yes
   collections:
-   - elreydetoda.virtualization
+    - elreydetoda.virtualization
   tasks:
 
     - name: installation of software
@@ -44,8 +44,8 @@
 
         - name: install ufw
           package:
-              name: ufw
-              state: present
+            name: ufw
+            state: present
 
         - name: adding ssh to allow
           ufw:
