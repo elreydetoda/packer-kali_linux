@@ -36,8 +36,8 @@
             - name: install vagrant
               include_role:
                 # currently not working: https://github.com/elreydetoda/packer-kali_linux/issues/51
-                # name: vagrant
-                name: diodonfrost.vagrant
+                name: vagrant
+                # name: diodonfrost.vagrant
 
     - name: ufw setup
       block:

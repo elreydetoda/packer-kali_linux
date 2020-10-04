@@ -569,6 +569,7 @@ workflows:
             - shfmt-linting
             - terraform-linting
             - markdown-linting
+            - gh_issues-linting
             - python-linting
             - ansible-linting
       - terraform-packet_deploy:
@@ -709,6 +710,7 @@ workflows:
             - shfmt-linting
             - terraform-linting
             - markdown-linting
+            - gh_issues-linting
             - python-linting
             - ansible-linting
       - terraform-packet_deploy:
@@ -799,8 +801,10 @@ workflows:
             - generate-packer-vars
             - generate-packer-file
             - shellcheck-warning
+            - shfmt-linting
             - terraform-linting
             - markdown-linting
+            - gh_issues-linting
             - python-linting
             - ansible-linting
       - terraform-packet_deploy:
