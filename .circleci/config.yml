@@ -20,10 +20,10 @@ commands:
       - run: git submodule sync
       - run: git submodule update --init
 
-  run-ansible_lint:
+  base-ansible:
     description: run the ansible-lint command against playbooks
     parameters:
-      ansible_lint-options:
+      linting-options:
         description: options to pass to ansible-lint
         type: string
         default: ''
@@ -38,8 +38,56 @@ commands:
           path_to_check="${code_folder_path:-${PWD}}"
           find "${path_to_check}" -not \( -path "${path_to_check}/.git/*" \
             -o -path "${path_to_check}/prov_packer/bento/*" \) -type f -iname "*.yml" \
-            -print0 | xargs -0 file | grep 'ASCII text' | cut -d ':' -f 1 |
-            xargs -t pipenv run ansible-lint
+            -print0 | xargs -0 file | grep 'ASCII text' | grep -vP '.*-requirements.yml' | cut -d ':' -f 1 |
+            xargs -t pipenv run << parameters.linting-options >>
+
+  run-yamllint:
+    description: run the ansible-lint command against playbooks
+    parameters:
+      ansible_lint-options:
+        description: options to pass to ansible-lint
+        type: string
+        default: ''
+      code-folder-path:
+        description: if specific path is wanted, specify here
+        type: string
+        default: './ci/'
+    steps:
+      - base-ansible:
+          code-folder-path: '<< parameters.code-folder-path >>'
+          linting-options: yamllint -c .linting-configs/yamllint
+
+  run-ansible_playbook-lint:
+    description: run the ansible-lint command against playbooks
+    parameters:
+      ansible_lint-options:
+        description: options to pass to ansible-lint
+        type: string
+        default: ''
+      code-folder-path:
+        description: if specific path is wanted, specify here
+        type: string
+        default: './ci/'
+    steps:
+      - base-ansible:
+          code-folder-path: '<< parameters.code-folder-path >>'
+          linting-options: ansible-playbook --syntax-check
+
+  run-ansible_lint:
+    description: run the ansible-lint command against playbooks
+    parameters:
+      ansible_lint-options:
+        description: options to pass to ansible-lint
+        type: string
+        default: ''
+      code-folder-path:
+        description: if specific path is wanted, specify here
+        type: string
+        default: './ci/'
+    steps:
+      - base-ansible:
+          code-folder-path: '<< parameters.code-folder-path >>'
+          linting-options: ansible-lint
 
   base-python_linting:
     description: "Run the python linter command with the python "
@@ -227,12 +275,19 @@ jobs:
           args: '-d --deploy'
           cache-version: v2
       - run: |
-          set -eux
+          set -euxo pipefail
           pipenv --version
           pipenv run python --version
           pipenv run ansible-lint --version
+          pipenv run ansible-playbook --version
           pipenv run yamllint --version
       - run-ansible_lint
+      - run-yamllint
+      - run: |
+          set -euxo pipefail
+          pipenv run ansible-galaxy collection install -r ci/ansible-requirements.yml
+          pipenv run ansible-galaxy role install -r ci/ansible-requirements.yml
+      - run-ansible_playbook-lint
 
   python-linting:
     executor: python/default
