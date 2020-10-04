@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# pylint: disable=C0114
+# pylint: disable=C0114,R0914,W0511
 import json
 import pathlib
 from inspect import getframeinfo, currentframe
