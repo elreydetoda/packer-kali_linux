@@ -343,8 +343,8 @@ jobs:
       - run: cp -v /tmp/packer_workspace/* .
       - run: packer version
       - packer-lint:
-          template-file: templates/template.json
-          vars-file: templates/example-variables.json
+          template-file: kali-template.json
+          vars-file: variables.json
           only-builder: vmware-iso
 
   packer-linting_aws:
