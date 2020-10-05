@@ -645,6 +645,10 @@ workflows:
           requires:
             - generate-packer-vars
             - generate-packer-file
+      - packer-linting_vmware:
+          requires:
+            - generate-packer-vars
+            - generate-packer-file
 
   master-kali_build:
     jobs:
