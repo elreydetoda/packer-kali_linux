@@ -3,20 +3,20 @@
 # https://elrey.casa/bash/scripting/harden
 set -${-//[s]/}eu${DEBUG+xv}o pipefail
 
-function get_current_user(){
+function get_current_user() {
 
   case "$PACKER_BUILDER_TYPE" in
     amazon-*)
       userz='ec2-user'
-    ;;
+      ;;
     *)
       userz='vagrant'
-    ;;
+      ;;
   esac
 
 }
 
-function add_docker_repo(){
+function add_docker_repo() {
 
   # getting docker
   curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
@@ -28,7 +28,7 @@ function add_docker_repo(){
 
 }
 
-function add_docker(){
+function add_docker() {
 
   # be careful this will remove your current docker
   apt-get remove docker docker-engine docker.io -y
@@ -36,14 +36,14 @@ function add_docker(){
 
 }
 
-function docker_group(){
+function docker_group() {
 
   # adding user to docker group
   usermod -aG docker "${userz}"
 
 }
 
-function main(){
+function main() {
   get_current_user
   add_docker_repo
   add_docker
@@ -51,6 +51,6 @@ function main(){
 }
 
 # https://blog.elreydetoda.site/cool-shell-tricks/#bashscriptingbashsmain
-if [[ "${0}" = "${BASH_SOURCE[0]}" ]] ; then
+if [[ "${0}" = "${BASH_SOURCE[0]}" ]]; then
   main "${@}"
 fi

@@ -46,7 +46,10 @@ variable "server_hostname" {
 variable "provision_plan" {
   description = "The type of the device (server) getting assigned."
   type        = string
-  default     = "c3.small.x86"
+  # default     = "baremetal_0"
+  # DEV
+  # default = "c3.small.x86"
+  default = "baremetal_1e"
 }
 
 ##################################################
@@ -75,10 +78,10 @@ resource "packet_device" "packer_build_server" {
   project_id       = var.project_id
   operating_system = data.packet_operating_system.ubuntu_lts.id
   plan             = var.provision_plan
-  # facilities       = ["any"]
+  facilities       = ["any"]
   # TODO: remove
   # added because of failure to provision in SV15 region
-  facilities    = ["dc13", "ny5", "iad2", "dfw2"]
+  # facilities    = ["dc13", "ny5", "iad2", "dfw2"]
   billing_cycle = "hourly"
 
 }
