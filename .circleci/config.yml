@@ -343,8 +343,8 @@ jobs:
       - run: cp -v /tmp/packer_workspace/* .
       - run: packer version
       - packer-lint:
-          template-file: templates/template.json
-          vars-file: templates/example-variables.json
+          template-file: kali-template.json
+          vars-file: variables.json
           only-builder: vmware-iso
 
   packer-linting_aws:
@@ -546,7 +546,7 @@ workflows:
   master_weekly-kali_build:
     triggers:
       - schedule:
-          cron: "0 0 * * 0"
+          cron: "30 12 * * 6"
           filters:
             branches:
               only:
@@ -562,6 +562,17 @@ workflows:
       - generate-packer-file
       - generate-packer-vars
       - packer-linting_vbox:
+          requires:
+            - generate-packer-vars
+            - generate-packer-file
+            - shellcheck-warning
+            - shfmt-linting
+            - terraform-linting
+            - markdown-linting
+            - gh_issues-linting
+            - python-linting
+            - ansible-linting
+      - packer-linting_vmware:
           requires:
             - generate-packer-vars
             - generate-packer-file
@@ -642,11 +653,10 @@ workflows:
                 - master
                 - dev-stage
       - packer-linting_vbox:
-          filters:
-            branches:
-              ignore:
-                - master
-                - dev-stage
+          requires:
+            - generate-packer-vars
+            - generate-packer-file
+      - packer-linting_vmware:
           requires:
             - generate-packer-vars
             - generate-packer-file
@@ -699,10 +709,17 @@ workflows:
               only:
                 - master
       - packer-linting_vbox:
-          filters:
-            branches:
-              only:
-                - master
+          requires:
+            - generate-packer-vars
+            - generate-packer-file
+            - shellcheck-warning
+            - shfmt-linting
+            - terraform-linting
+            - markdown-linting
+            - gh_issues-linting
+            - python-linting
+            - ansible-linting
+      - packer-linting_vmware:
           requires:
             - generate-packer-vars
             - generate-packer-file
@@ -714,31 +731,15 @@ workflows:
             - python-linting
             - ansible-linting
       - terraform-packet_deploy:
-          filters:
-            branches:
-              only:
-                - master
           requires:
             - packer-linting_vbox
       - ansible-bootstrap:
-          filters:
-            branches:
-              only:
-                - master
           requires:
             - terraform-packet_deploy
       - ansible-packer_build:
-          filters:
-            branches:
-              only:
-                - master
           requires:
             - ansible-bootstrap
       - terraform-packet_destroy:
-          filters:
-            branches:
-              only:
-                - master
           requires:
             - ansible-packer_build
 
@@ -793,10 +794,17 @@ workflows:
               only:
                 - dev-stage
       - packer-linting_vbox:
-          filters:
-            branches:
-              only:
-                - dev-stage
+          requires:
+            - generate-packer-vars
+            - generate-packer-file
+            - shellcheck-warning
+            - shfmt-linting
+            - terraform-linting
+            - markdown-linting
+            - gh_issues-linting
+            - python-linting
+            - ansible-linting
+      - packer-linting_vmware:
           requires:
             - generate-packer-vars
             - generate-packer-file
@@ -808,31 +816,15 @@ workflows:
             - python-linting
             - ansible-linting
       - terraform-packet_deploy:
-          filters:
-            branches:
-              only:
-                - dev-stage
           requires:
             - packer-linting_vbox
       - ansible-bootstrap:
-          filters:
-            branches:
-              only:
-                - dev-stage
           requires:
             - terraform-packet_deploy
       - ansible-packer_build:
-          filters:
-            branches:
-              only:
-                - dev-stage
           requires:
             - ansible-bootstrap
       - terraform-packet_destroy:
-          filters:
-            branches:
-              only:
-                - dev-stage
           requires:
             - ansible-packer_build
   # TODO: uncomment this

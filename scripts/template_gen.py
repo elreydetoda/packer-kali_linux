@@ -87,7 +87,6 @@ def variable_alterations(packer_template_data: dict, new_vars: dict) -> dict:
         'headless': '',
         'http_directory': str(new_vars['http_dir']),
         'iso_checksum': '',
-        'iso_checksum_type': '',
         'iso_url': '',
         'memory': new_vars['build_memory'],
         'preseed_path': str(new_vars['preseed_file']),

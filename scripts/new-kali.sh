@@ -132,7 +132,7 @@ function info_enum() {
   packer_var_json_string+="$(printf '"iso_url":"%s",' "${currentKaliISOUrl}")"
 
   printf '\nthe current hash alg chosen: %s\n' "${hashAlgOut}"
-  packer_var_json_string+="$(printf '"iso_checksum_type":"%s",' "${hashAlgOut}")"
+  # packer_var_json_string+="$(printf '"iso_checksum_type":"%s",' "${hashAlgOut}")"
 
   currentHashSum=$(grep "${currentKaliISO}" "${tmpDir}/${hashAlg}" | cut -d ' ' -f 1)
   printf '\nthe current hash for that file is: %s\n' "${currentHashSum}"
