@@ -510,7 +510,9 @@ jobs:
           fingerprints:
             - "97:b4:61:8f:38:a7:14:c9:6f:ca:3f:d2:ab:3f:a7:7c"
       - run: ansible-playbook --version
-      - run: ansible-playbook -i ci/scripts/packet_net.py -u root ci/bootstrap.yml
+      - run: |
+          ansible-playbook -e "vmware_license=${VMWARE_LICENSE:-} circleci=${CIRCLECI:-}" \
+            -i ci/scripts/packet_net.py -u root ci/bootstrap.yml
 
   ansible-packer_build:
     docker:
