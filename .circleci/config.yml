@@ -586,6 +586,7 @@ workflows:
       - terraform-packet_deploy:
           requires:
             - packer-linting_vbox
+            - packer-linting_vmware
       - ansible-bootstrap:
           requires:
             - terraform-packet_deploy
@@ -733,6 +734,7 @@ workflows:
       - terraform-packet_deploy:
           requires:
             - packer-linting_vbox
+            - packer-linting_vmware
       - ansible-bootstrap:
           requires:
             - terraform-packet_deploy
@@ -818,6 +820,7 @@ workflows:
       - terraform-packet_deploy:
           requires:
             - packer-linting_vbox
+            - packer-linting_vmware
       - ansible-bootstrap:
           requires:
             - terraform-packet_deploy
