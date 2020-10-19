@@ -5,9 +5,9 @@ from inspect import getframeinfo, currentframe
 from pprint import pprint
 from typing import NoReturn
 from copy import deepcopy
-# from packerlicious import Template as packer_template
+from packerlicious import Template as packer_template
 from packerlicious import provisioner as packer_provisioner
-# from packerlicious import builder as packer_builder
+from packerlicious import builder as packer_builder
 from packerlicious import post_processor as packer_post_processor
 
 # TODO: add more + better logging, w/cli arg optional
@@ -276,6 +276,25 @@ def write_packer_template(packer_template_path: pathlib, packer_template_data: d
     # logging(packer_template_data)
     packer_template_path.write_text(json.dumps(packer_template_data, indent=2), encoding='utf-8')
 
+    section_meta('exiting', getframeinfo(currentframe()).function)
+
+def get_builder_aws_ebs() -> packerlicious.Template:
+    '''
+    write the post processors section to disk
+    '''
+    section_meta('starting', getframeinfo(currentframe()).function)
+    template = packer_template()
+    template.add_builder(
+        packer_builder.AmazonEbs(
+            access_key = "{{ user `aws_access_key` }}",
+            secret_key = "{{ user `aws_secret_key` }}",
+            region = "{{ user `aws_region` }}",
+            source_ami = "{{ user `kali_aws_ami` }}",
+            ssh_username = "ec2-user",
+            instance_type = "t2.medium",
+            ami_name = "Kali Linux (Standard)"
+        )
+    )
     section_meta('exiting', getframeinfo(currentframe()).function)
 
 # TODO: adding aspirations
