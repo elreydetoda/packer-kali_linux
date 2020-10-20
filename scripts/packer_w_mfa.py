@@ -26,7 +26,9 @@ def get_profile(aws_config_path):
     # print(config[aws_profile]['mfa_serial'])
     return config[aws_profile]
 
-def get_session(mfa_serial_str: str, mfa_code: str, session_duration: int = timedelta(hours=4).seconds):
+def get_session(mfa_serial_str: str, mfa_code: str,
+    session_duration: int = timedelta(hours=4).seconds):
+
     sts_obj = client('sts')
     sts_creds = sts_obj.get_session_token(
         DurationSeconds = session_duration,
@@ -35,7 +37,9 @@ def get_session(mfa_serial_str: str, mfa_code: str, session_duration: int = time
     )
     return sts_creds['Credentials']
 
-def write_setup(aws_cred_path, temp_creds: dict, provisioning_profile: dict, profile_name: str = 'prov-packer'):
+def write_setup(aws_cred_path, temp_creds: dict, provisioning_profile: dict,
+    profile_name: str = 'prov-packer'):
+
     config = configparser.ConfigParser()
     config.read(aws_cred_path)
 
@@ -65,7 +69,8 @@ def main():
 
     aws_session = get_session(mfa_serial_str = profile_config['mfa_serial'], mfa_code = current_mfa)
 
-    write_setup(aws_cred_path =  default_aws_creds, temp_creds = aws_session, provisioning_profile = profile_config)
+    write_setup(aws_cred_path =  default_aws_creds, temp_creds = aws_session,
+        provisioning_profile = profile_config)
 
 if __name__ == "__main__":
     main()
