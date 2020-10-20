@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
+
 import json
 import pathlib
+from argparse import ArgumentParser
 from inspect import getframeinfo, currentframe
 from pprint import pprint
 from typing import NoReturn
@@ -279,18 +281,20 @@ def write_packer_template(packer_template_path: pathlib, packer_template_data: d
 
     section_meta('exiting', getframeinfo(currentframe()).function)
 
-def get_builder_aws_ebs() -> packerlicious.Template:
+def get_builder_aws_ebs() -> packer_builder:
     '''
     write the post processors section to disk
     '''
     section_meta('starting', getframeinfo(currentframe()).function)
 
     variable_dictionary = {
-            'region' : "{{ user `aws_region` }}",
-            'source_ami' : "{{ user `kali_aws_ami` }}",
-            'ssh_username' : "ec2-user",
-            'instance_type' : "t2.medium",
-            'ami_name' : "Kali Linux (Standard)"
+        'source_ami' : "{{ user `kali_aws_ami` }}",
+        'region' : "{{ user `aws_region` }}",
+        'ssh_username' : "ec2-user",
+        'instance_type' : "t2.medium",
+        'ami_name' : "Kali Linux (Standard)",
+        "force_deregister": "true",
+        "force_delete_snapshot": "true"
     }
 
     auth_prompt = Bullet(
@@ -309,7 +313,7 @@ def get_builder_aws_ebs() -> packerlicious.Template:
         )
         current_profile = profile_prompt.launch()
 
-        variable_alterations.update(
+        variable_dictionary.update(
             {
                 'profile' : "{}".format(current_profile)
             }
@@ -317,17 +321,40 @@ def get_builder_aws_ebs() -> packerlicious.Template:
 
     elif auth_type == 'AWS Access Key':
 
-        variable_alterations.update(
+        variable_dictionary.update(
             {
                 'access_key' : "{{ user `aws_access_key` }}",
-                'secret_key' : "{{ user `aws_secret_key` }}",
+                'secret_key' : "{{ user `aws_secret_key` }}"
             }
         )
 
     else:
         print('unknown auth type: {}'.format(auth_type))
 
-    packer_builder.AmazonEbs().from_dict('amazon-ebs', d=variable_dictionary)
+    ami_users = []
+    aws_account_input = Input(
+        prompt='What are the AWS account numbers you want to access this image? this is a comma seperated listed or one at time (i.e. 99999999,8888888 or 99999999 ) '
+    )
+    finish_prompt = YesNo(prompt='Is that all?', prompt_prefix='[Y/n] ')
+
+    while True:
+        print('current accounts: ', end='')
+        if len(ami_users) == 1:
+            print(str(ami_users[0]))
+        elif len(ami_users) > 1:
+            print(', '.join(ami_users))
+        current_accounts = aws_account_input.launch().split(',')
+        if len(current_accounts) == 1:
+            ami_users.append(current_accounts[0])
+        else:
+            for account in current_accounts:
+                ami_users.append(account)
+
+        if finish_prompt.launch():
+            break
+    variable_dictionary['ami_users'] = ami_users
+    aws_ebs_builder = packer_builder.AmazonEbs().from_dict('AmazonEBS', d=variable_dictionary)
+    pprint(aws_ebs_builder.to_dict())
     section_meta('exiting', getframeinfo(currentframe()).function)
 
 # TODO: adding aspirations
@@ -371,7 +398,10 @@ def main():
     build_vm_base_output_name = 'red-automated_kali'
 
     ## builders section of variables
-    supported_builder_list = [ 'virtualbox-iso', 'vmware-iso' ]
+    supported_builder_list = [
+        'virtualbox-iso', 'vmware-iso',
+        'aws-ebs'
+    ]
     ## provisioner section of variables
     scripts_removal_list = [
         'virtualbox.sh'
@@ -384,6 +414,23 @@ def main():
         '{}/networking.sh'.format(prov_packer_dir_str),
         '{}/virtualbox.sh'.format(prov_packer_dir_str)
     ]
+
+    parser = ArgumentParser(description='''
+    This script is used to generate the packer file template
+    for doing an auotmated kali installation
+    ''')
+
+    parser.add_argument( '-a', '--aws', action='store_true',
+        help='also build the aws-ebs builder')
+
+    # parser.add_argument(
+    #     '-b','--builders', nargs='*', default=[ 'all' ],
+    #     help='''
+    #         a space delimited list, which is all the builders you want
+    #         to build. currently supported builders are: {}
+    #         '''.format('. '.join(supported_builder_list))
+    # )
+    args = parser.parse_args()
 
     ## Bento
 
@@ -430,11 +477,19 @@ def main():
     # adding list of sensative variables
     updated_packer_data = sensitive_variables(updated_packer_data, sensitive_var_list)
 
+    # TODO: fix logic error to where other builders are looped over here
+    #   when 'all' is the array
     ### builder alterations section
     builder_info_dict = {
         'supported_builder_list': supported_builder_list
     }
     updated_packer_data = builder_alterations(updated_packer_data, builder_info_dict)
+
+    if args.aws:
+        get_builder_aws_ebs()
+        print(args)
+
+    exit(0)
 
     ### provisioner alterations section
     prov_info_dict = {
