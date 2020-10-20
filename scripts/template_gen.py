@@ -11,7 +11,7 @@ from copy import deepcopy
 from packerlicious import provisioner as packer_provisioner
 from packerlicious import builder as packer_builder
 from packerlicious import post_processor as packer_post_processor
-from bullet import Bullet, YesNo, Input
+from bullet import Bullet, Input #, YesNo
 
 # TODO: add more + better logging, w/cli arg optional
 
