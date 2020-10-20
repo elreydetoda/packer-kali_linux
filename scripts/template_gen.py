@@ -333,6 +333,15 @@ def get_builder_aws_ebs() -> packerlicious.Template:
 # TODO: adding aspirations
 # def add_builder_hyperv():
 
+def append_builder(packer_template_data: dict, new_builder: dict) -> dict:
+    section_meta('starting', getframeinfo(currentframe()).function)
+
+    packer_template_data['builders'].append(new_builder)
+
+    section_meta('exiting', getframeinfo(currentframe()).function)
+
+    return packer_template_data
+
 # pylint: disable=C0116
 def main():
 
