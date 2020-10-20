@@ -5,10 +5,11 @@ from inspect import getframeinfo, currentframe
 from pprint import pprint
 from typing import NoReturn
 from copy import deepcopy
-from packerlicious import Template as packer_template
+# from packerlicious import Template as packer_template
 from packerlicious import provisioner as packer_provisioner
 from packerlicious import builder as packer_builder
 from packerlicious import post_processor as packer_post_processor
+from bullet import Bullet, YesNo, Input
 
 # TODO: add more + better logging, w/cli arg optional
 
@@ -283,18 +284,50 @@ def get_builder_aws_ebs() -> packerlicious.Template:
     write the post processors section to disk
     '''
     section_meta('starting', getframeinfo(currentframe()).function)
-    template = packer_template()
-    template.add_builder(
-        packer_builder.AmazonEbs(
-            access_key = "{{ user `aws_access_key` }}",
-            secret_key = "{{ user `aws_secret_key` }}",
-            region = "{{ user `aws_region` }}",
-            source_ami = "{{ user `kali_aws_ami` }}",
-            ssh_username = "ec2-user",
-            instance_type = "t2.medium",
-            ami_name = "Kali Linux (Standard)"
-        )
+
+    variable_dictionary = {
+            'region' : "{{ user `aws_region` }}",
+            'source_ami' : "{{ user `kali_aws_ami` }}",
+            'ssh_username' : "ec2-user",
+            'instance_type' : "t2.medium",
+            'ami_name' : "Kali Linux (Standard)"
+    }
+
+    auth_prompt = Bullet(
+        prompt = 'Choose from the items below: ',
+        choices = [
+            'AWS Profile',
+            'AWS Access Key'
+        ]
     )
+
+    auth_type = auth_prompt.launch()
+
+    if auth_type == 'AWS Profile':
+        profile_prompt = Input(
+            prompt = 'Please input the profile you would like to use: '
+        )
+        current_profile = profile_prompt.launch()
+
+        variable_alterations.update(
+            {
+                'profile' : "{}".format(current_profile)
+            }
+        )
+
+    elif auth_type == 'AWS Access Key':
+
+        variable_alterations.update(
+            {
+                'access_key' : "{{ user `aws_access_key` }}",
+                'secret_key' : "{{ user `aws_secret_key` }}",
+            }
+        )
+
+    else:
+        print('unknown auth type: {}'.format(auth_type))
+
+    packer_builder.AmazonEbs().from_dict('amazon-ebs', d=variable_dictionary)
     section_meta('exiting', getframeinfo(currentframe()).function)
 
 # TODO: adding aspirations
