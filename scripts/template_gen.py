@@ -293,6 +293,7 @@ def get_builder_aws_ebs() -> packer_builder:
         'ssh_username' : "ec2-user",
         'instance_type' : "t2.medium",
         'ami_name' : "Kali Linux (Standard)",
+        "ami_users": [ "{{user `ami_users`}}" ],
         "force_deregister": "true",
         "force_delete_snapshot": "true"
     }
@@ -338,22 +339,6 @@ def get_builder_aws_ebs() -> packer_builder:
     )
     finish_prompt = YesNo(prompt='Is that all?', prompt_prefix='[Y/n] ')
 
-    while True:
-        print('current accounts: ', end='')
-        if len(ami_users) == 1:
-            print(str(ami_users[0]))
-        elif len(ami_users) > 1:
-            print(', '.join(ami_users))
-        current_accounts = aws_account_input.launch().split(',')
-        if len(current_accounts) == 1:
-            ami_users.append(current_accounts[0])
-        else:
-            for account in current_accounts:
-                ami_users.append(account)
-
-        if finish_prompt.launch():
-            break
-    variable_dictionary['ami_users'] = ami_users
     aws_ebs_builder = packer_builder.AmazonEbs().from_dict('AmazonEBS', d=variable_dictionary)
     section_meta('exiting', getframeinfo(currentframe()).function)
     return aws_ebs_builder.to_dict()
@@ -511,7 +496,10 @@ def main():
             'version': '{{user `vm_version`}}',
             }
     }
-    updated_packer_data = post_processor_alterations(updated_packer_data, post_processor_dict)
+    if not args.aws:
+        updated_packer_data = post_processor_alterations(updated_packer_data, post_processor_dict)
+    elif args.aws:
+        del updated_packer_data['post-processors']
 
     # logging(updated_packer_data)
 
