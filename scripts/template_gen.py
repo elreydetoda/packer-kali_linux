@@ -201,7 +201,7 @@ def provisioner_alterations(packer_template_data: dict, new_prov_data: dict) -> 
         title='CustomSystemScripts', d=personal_script_dict
         )
     # adding my custom scripts
-    packer_prov_list.append(packerlicious_prov.to_dict())
+    packer_prov_list.insert(0, packerlicious_prov.to_dict())
 
     ## SHELL: move last 2 scripts (cleanup) to bottom
     # clearing scripts section of all previous scripts
@@ -332,13 +332,6 @@ def get_builder_aws_ebs() -> packer_builder:
     else:
         print('unknown auth type: {}'.format(auth_type))
 
-    ami_users = []
-    aws_account_input = Input(
-        # TODO: fix length eventually
-        prompt='What are the AWS account numbers you want to access this image? this is a comma seperated listed or one at time (i.e. 99999999,8888888 or 99999999 ) ' # pylint: disable=C0301
-    )
-    finish_prompt = YesNo(prompt='Is that all?', prompt_prefix='[Y/n] ')
-
     aws_ebs_builder = packer_builder.AmazonEbs().from_dict('AmazonEBS', d=variable_dictionary)
     section_meta('exiting', getframeinfo(currentframe()).function)
     return aws_ebs_builder.to_dict()
@@ -397,9 +390,9 @@ def main():
     ]
     prov_packer_dir_str = str(prov_packer_dir)
     scripts_custom_list = [
+        '{}/full-update.sh'.format(prov_packer_dir_str),
         '{}/customization.sh'.format(prov_packer_dir_str),
         '{}/docker.sh'.format(prov_packer_dir_str),
-        '{}/full-update.sh'.format(prov_packer_dir_str),
         '{}/networking.sh'.format(prov_packer_dir_str),
         '{}/virtualbox.sh'.format(prov_packer_dir_str)
     ]
