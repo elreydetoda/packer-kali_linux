@@ -9,6 +9,9 @@ from boto3 import client
 
 
 def get_profile(aws_config_path):
+    '''
+    getting your aws profile input from user
+    '''
 
     config = configparser.ConfigParser()
     config.read(aws_config_path)
@@ -28,6 +31,9 @@ def get_profile(aws_config_path):
 
 def get_session(mfa_serial_str: str, mfa_code: str,
     session_duration: int = timedelta(hours=4).seconds):
+    '''
+    getting a session from sts service on amazon
+    '''
 
     sts_obj = client('sts')
     sts_creds = sts_obj.get_session_token(
@@ -39,6 +45,9 @@ def get_session(mfa_serial_str: str, mfa_code: str,
 
 def write_setup(aws_cred_path, temp_creds: dict, provisioning_profile: dict,
     profile_name: str = 'prov-packer'):
+    '''
+    write out new aws config and creds
+    '''
 
     config = configparser.ConfigParser()
     config.read(aws_cred_path)
