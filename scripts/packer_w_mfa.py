@@ -66,6 +66,7 @@ def write_setup(aws_cred_path, temp_creds: dict, provisioning_profile: dict,
         'role_arn': provisioning_profile['role_arn']
     }
 
+# pylint: disable=C0116
 def main():
     default_aws_dir = pathlib.Path().home() / '.aws'
     default_aws_config = default_aws_dir / 'config'
