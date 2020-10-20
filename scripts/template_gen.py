@@ -333,7 +333,8 @@ def get_builder_aws_ebs() -> packer_builder:
 
     ami_users = []
     aws_account_input = Input(
-        prompt='What are the AWS account numbers you want to access this image? this is a comma seperated listed or one at time (i.e. 99999999,8888888 or 99999999 ) '
+        # TODO: fix length eventually
+        prompt='What are the AWS account numbers you want to access this image? this is a comma seperated listed or one at time (i.e. 99999999,8888888 or 99999999 ) ' # pylint: disable=C0301
     )
     finish_prompt = YesNo(prompt='Is that all?', prompt_prefix='[Y/n] ')
 
