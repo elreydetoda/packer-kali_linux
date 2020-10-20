@@ -62,7 +62,6 @@ function packer_out() {
 
   set_headless="$(printf '%s' "${set_headless}" | tr '[:upper:]' '[:lower:]')"
 
-
   if [[ -n "${CIRCLECI}" ]] || [[ "${set_headless}" == 'y' ]]; then
     packer_var_json_string+=",$(printf '"headless":"%s"' "true")"
   fi
@@ -153,9 +152,9 @@ function cleanup() {
   rm -rf "${tmpDir}"
 }
 
-function aws_env(){
+function aws_env() {
 
-  script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+  script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)"
   kali_terraform_folder="${script_dir}/../ci/kali_aws_info"
 
   aws_secret_env_var="${TF_VAR_aws_secret_key:-}"
@@ -176,7 +175,7 @@ function aws_env(){
 
   popd
 
-  remove_carriage_return="$( printf '%s' "${source_ami_id}" | tr -d '\r' )"
+  remove_carriage_return="$(printf '%s' "${source_ami_id}" | tr -d '\r')"
   packer_var_json_string+="$(printf '"kali_aws_ami":"%s",' "${remove_carriage_return}")"
 
   read -rp 'Please enter in your aws account comma delimited ( if multiple ), you want to access the AMI: ' ami_users_list
@@ -234,7 +233,7 @@ function main() {
   cryptographical_verification
   hashicorp_setup_env
   info_enum
-  if [[ -z "${CIRCLECI}" ]] ; then
+  if [[ -z "${CIRCLECI}" ]]; then
     aws_env
   fi
   packer_out
