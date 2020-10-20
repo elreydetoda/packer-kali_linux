@@ -3,7 +3,7 @@
 import pathlib
 import configparser
 from datetime import timedelta
-from pprint import pprint
+# from pprint import pprint
 from bullet import Bullet, Input
 from boto3 import client
 
