@@ -283,7 +283,7 @@ def write_packer_template(packer_template_path: pathlib, packer_template_data: d
 
 def get_builder_aws_ebs() -> packer_builder:
     '''
-    write the post processors section to disk
+    build the aws builder section
     '''
     section_meta('starting', getframeinfo(currentframe()).function)
 
@@ -361,6 +361,9 @@ def get_builder_aws_ebs() -> packer_builder:
 # def add_builder_hyperv():
 
 def append_builder(packer_template_data: dict, new_builder: dict) -> dict:
+    '''
+    add given builder to packer template blob
+    '''
     section_meta('starting', getframeinfo(currentframe()).function)
 
     packer_template_data['builders'].append(new_builder)
