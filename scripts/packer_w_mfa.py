@@ -3,9 +3,9 @@
 import pathlib
 import configparser
 from datetime import timedelta
+from pprint import pprint
 from bullet import Bullet, Input
 from boto3 import client
-from pprint import pprint
 
 
 def get_profile(aws_config_path):
