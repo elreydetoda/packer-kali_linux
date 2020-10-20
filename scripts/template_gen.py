@@ -354,8 +354,8 @@ def get_builder_aws_ebs() -> packer_builder:
             break
     variable_dictionary['ami_users'] = ami_users
     aws_ebs_builder = packer_builder.AmazonEbs().from_dict('AmazonEBS', d=variable_dictionary)
-    pprint(aws_ebs_builder.to_dict())
     section_meta('exiting', getframeinfo(currentframe()).function)
+    return aws_ebs_builder.to_dict()
 
 # TODO: adding aspirations
 # def add_builder_hyperv():
