@@ -486,10 +486,7 @@ def main():
     updated_packer_data = builder_alterations(updated_packer_data, builder_info_dict)
 
     if args.aws:
-        get_builder_aws_ebs()
-        print(args)
-
-    exit(0)
+        append_builder(updated_packer_data, get_builder_aws_ebs())
 
     ### provisioner alterations section
     prov_info_dict = {
