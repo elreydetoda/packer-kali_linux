@@ -391,6 +391,7 @@ def main():
     prov_packer_dir_str = str(prov_packer_dir)
     scripts_custom_list = [
         '{}/full-update.sh'.format(prov_packer_dir_str),
+        '{}/vagrant.sh'.format(prov_packer_dir_str),
         '{}/customization.sh'.format(prov_packer_dir_str),
         '{}/docker.sh'.format(prov_packer_dir_str),
         '{}/networking.sh'.format(prov_packer_dir_str),
