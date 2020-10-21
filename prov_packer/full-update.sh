@@ -28,6 +28,7 @@ function main() {
   logz='packer-upgrade.log'
 
   update_os
+  reboot
 
 }
 
