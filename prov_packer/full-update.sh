@@ -14,8 +14,8 @@ function update_os() {
   # echo 'deb-src http://http.kali.org/kali kali-rolling main contrib non-free' >> /etc/apt/sources.list
   apt-get update --fix-missing | tee -a $logz
   # from bento project
-  apt-get -y upgrade -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confnew' "linux-image-${arch}"
-  apt-get -y install linux-headers-"$(uname -r)"
+  apt-get -y upgrade -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confnew' "linux-image-cloud-amd64"
+  apt-get -y install "linux-headers-cloud-amd64"
   apt-get upgrade -y -o Dpkg::Options::='--force-confnew' | tee -a $logz
   apt-get dist-upgrade -y -o Dpkg::Options::='--force-confnew' | tee -a $logz
   apt-get autoremove -y -o Dpkg::Options::='--force-confnew' | tee -a $logz
