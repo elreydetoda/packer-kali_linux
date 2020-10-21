@@ -68,7 +68,6 @@ function packer_out() {
 
   packer_var_json_string+='}'
 
-  echo "${packer_var_json_string}"
   printf '%s' "${packer_var_json_string}" | jq '.' | tee "${variables_out_file}"
 }
 
