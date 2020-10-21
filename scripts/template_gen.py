@@ -202,6 +202,7 @@ def provisioner_alterations(packer_template_data: dict, new_prov_data: dict) -> 
         )
     # adding my custom scripts
     packer_prov_list.insert(0, packerlicious_prov.to_dict())
+    # packer_prov_list.append(packerlicious_prov.to_dict())
 
     ## SHELL: move last 2 scripts (cleanup) to bottom
     # clearing scripts section of all previous scripts
@@ -290,10 +291,10 @@ def get_builder_aws_ebs() -> packer_builder:
     variable_dictionary = {
         'source_ami' : "{{ user `kali_aws_ami` }}",
         'region' : "{{ user `aws_region` }}",
-        'ssh_username' : "ec2-user",
+        'ssh_username' : "kali",
         'instance_type' : "t2.medium",
         'ami_name' : "Kali Linux (Standard)",
-        "ami_users": [ "{{user `ami_users`}}" ],
+        "ami_users": [ "" ],
         "force_deregister": "true",
         "force_delete_snapshot": "true"
     }
@@ -333,8 +334,11 @@ def get_builder_aws_ebs() -> packer_builder:
         print('unknown auth type: {}'.format(auth_type))
 
     aws_ebs_builder = packer_builder.AmazonEbs().from_dict('AmazonEBS', d=variable_dictionary)
+    # TODO: fixin base package to accept string
+    aws_ebs_builder_dict = aws_ebs_builder.to_dict()
+    aws_ebs_builder_dict['ami_users'] = "{{user `ami_users`}}"
     section_meta('exiting', getframeinfo(currentframe()).function)
-    return aws_ebs_builder.to_dict()
+    return aws_ebs_builder_dict
 
 # TODO: adding aspirations
 # def add_builder_hyperv():
