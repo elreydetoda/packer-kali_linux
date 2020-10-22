@@ -232,7 +232,7 @@ function main() {
   cryptographical_verification
   hashicorp_setup_env
   info_enum
-  if [[ -z "${CIRCLECI}" ]]; then
+  if [[ -z "${CIRCLECI}" ]] && command -v docker; then
     aws_env
   fi
   packer_out
