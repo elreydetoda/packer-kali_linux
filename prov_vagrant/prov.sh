@@ -43,19 +43,27 @@ function general_deps() {
   popd
 }
 
+function install_docker() {
+
+  if ! command -v docker; then
+
+    ## for some reason this isn't working...so, going the old fashion way...
+    # sudo addgroup --system docker
+    # sudo adduser vagrant docker
+    # newgrp docker
+    # sudo snap install docker circleci
+    # sudo snap connect circleci:docker docker
+    $new_curl 'https://raw.githubusercontent.com/CircleCI-Public/circleci-cli/master/install.sh' | sudo bash
+    $new_curl 'https://get.docker.com' | sudo bash
+    sudo usermod -aG docker vagrant
+
+  fi
+
+}
 function ci_deps() {
 
   general_deps
-
-  ## for some reason this isn't working...so, going the old fashion way...
-  # sudo addgroup --system docker
-  # sudo adduser vagrant docker
-  # newgrp docker
-  # sudo snap install docker circleci
-  # sudo snap connect circleci:docker docker
-  $new_curl 'https://raw.githubusercontent.com/CircleCI-Public/circleci-cli/master/install.sh' | sudo bash
-  $new_curl 'https://get.docker.com' | sudo bash
-  sudo usermod -aG docker vagrant
+  install_docker
   get_secret
 
   echo "cd ${HOME}/project" >> "${HOME}/.bashrc"
