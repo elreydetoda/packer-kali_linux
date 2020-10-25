@@ -61,6 +61,7 @@ function packer_out() {
   fi
 
   set_headless="$(printf '%s' "${set_headless}" | tr '[:upper:]' '[:lower:]')"
+
   if [[ -n "${CIRCLECI}" ]] || [[ "${set_headless}" == 'y' ]]; then
     packer_var_json_string+=",$(printf '"headless":"%s"' "true")"
   fi
@@ -150,6 +151,38 @@ function cleanup() {
   rm -rf "${tmpDir}"
 }
 
+function aws_env() {
+
+  script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)"
+  kali_terraform_folder="${script_dir}/../ci/kali_aws_info"
+
+  aws_secret_env_var="${TF_VAR_aws_secret_key:-}"
+  packer_var_json_string+=",$(printf '"aws_secret_key":"%s",' "${aws_secret_env_var}")"
+
+  aws_access_env_var="${TF_VAR_aws_access_key:-}"
+  packer_var_json_string+="$(printf '"aws_access_key":"%s",' "${aws_access_env_var}")"
+
+  aws_region_env_var="${TF_VAR_aws_region:-}"
+  packer_var_json_string+="$(printf '"aws_region":"%s",' "${aws_region_env_var}")"
+
+  pushd "${kali_terraform_folder}"
+  "${script_dir}"/terraform-helper.sh auto-build aws
+
+  source_ami_id="$("${script_dir}"/terraform-helper.sh output kali_ami_id)"
+
+  "${script_dir}"/terraform-helper.sh auto-destroy aws
+
+  popd
+
+  remove_carriage_return="$(printf '%s' "${source_ami_id}" | tr -d '\r')"
+  packer_var_json_string+="$(printf '"kali_aws_ami":"%s",' "${remove_carriage_return}")"
+
+  read -rp 'Please enter in your aws account comma delimited ( if multiple ), you want to access the AMI: ' ami_users_list
+
+  packer_var_json_string+="$(printf '"ami_users":"%s"' "${ami_users_list}")"
+  echo "${ami_users_list}" "${remove_carriage_return}" "${aws_region_env_var}" "${aws_access_env_var}" "${aws_secret_env_var}"
+}
+
 function main() {
 
   ## all initial variables needed for script
@@ -199,6 +232,9 @@ function main() {
   cryptographical_verification
   hashicorp_setup_env
   info_enum
+  if [[ -z "${CIRCLECI}" ]] && command -v docker; then
+    aws_env
+  fi
   packer_out
   cleanup
 

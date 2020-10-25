@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
+
 import json
 import pathlib
+from argparse import ArgumentParser
 from inspect import getframeinfo, currentframe
 from pprint import pprint
 from typing import NoReturn
 from copy import deepcopy
 # from packerlicious import Template as packer_template
 from packerlicious import provisioner as packer_provisioner
-# from packerlicious import builder as packer_builder
+from packerlicious import builder as packer_builder
 from packerlicious import post_processor as packer_post_processor
+from bullet import Bullet, Input #, YesNo
 
 # TODO: add more + better logging, w/cli arg optional
 
@@ -198,7 +201,8 @@ def provisioner_alterations(packer_template_data: dict, new_prov_data: dict) -> 
         title='CustomSystemScripts', d=personal_script_dict
         )
     # adding my custom scripts
-    packer_prov_list.append(packerlicious_prov.to_dict())
+    packer_prov_list.insert(0, packerlicious_prov.to_dict())
+    # packer_prov_list.append(packerlicious_prov.to_dict())
 
     ## SHELL: move last 2 scripts (cleanup) to bottom
     # clearing scripts section of all previous scripts
@@ -278,8 +282,78 @@ def write_packer_template(packer_template_path: pathlib, packer_template_data: d
 
     section_meta('exiting', getframeinfo(currentframe()).function)
 
+def get_builder_aws_ebs() -> packer_builder:
+    '''
+    build the aws builder section
+    '''
+    section_meta('starting', getframeinfo(currentframe()).function)
+
+    variable_dictionary = {
+        'source_ami' : "{{ user `kali_aws_ami` }}",
+        'region' : "{{ user `aws_region` }}",
+        'ssh_username' : "kali",
+        'instance_type' : "t2.medium",
+        'ami_name' : "Kali Linux (Standard)",
+        "ami_users": [ "" ],
+        "force_deregister": "true",
+        "force_delete_snapshot": "true"
+    }
+
+    auth_prompt = Bullet(
+        prompt = 'Choose from the items below: ',
+        choices = [
+            'AWS Profile',
+            'AWS Access Key'
+        ]
+    )
+
+    auth_type = auth_prompt.launch()
+
+    if auth_type == 'AWS Profile':
+        profile_prompt = Input(
+            prompt = 'Please input the profile you would like to use: '
+        )
+        current_profile = profile_prompt.launch()
+
+        variable_dictionary.update(
+            {
+                'profile' : "{}".format(current_profile)
+            }
+        )
+
+    elif auth_type == 'AWS Access Key':
+
+        variable_dictionary.update(
+            {
+                'access_key' : "{{ user `aws_access_key` }}",
+                'secret_key' : "{{ user `aws_secret_key` }}"
+            }
+        )
+
+    else:
+        print('unknown auth type: {}'.format(auth_type))
+
+    aws_ebs_builder = packer_builder.AmazonEbs().from_dict('AmazonEBS', d=variable_dictionary)
+    # TODO: fixin base package to accept string
+    aws_ebs_builder_dict = aws_ebs_builder.to_dict()
+    aws_ebs_builder_dict['ami_users'] = "{{user `ami_users`}}"
+    section_meta('exiting', getframeinfo(currentframe()).function)
+    return aws_ebs_builder_dict
+
 # TODO: adding aspirations
 # def add_builder_hyperv():
+
+def append_builder(packer_template_data: dict, new_builder: dict) -> dict:
+    '''
+    add given builder to packer template blob
+    '''
+    section_meta('starting', getframeinfo(currentframe()).function)
+
+    packer_template_data['builders'].append(new_builder)
+
+    section_meta('exiting', getframeinfo(currentframe()).function)
+
+    return packer_template_data
 
 # pylint: disable=C0116
 def main():
@@ -310,19 +384,40 @@ def main():
     build_vm_base_output_name = 'red-automated_kali'
 
     ## builders section of variables
-    supported_builder_list = [ 'virtualbox-iso', 'vmware-iso' ]
+    supported_builder_list = [
+        'virtualbox-iso', 'vmware-iso',
+        'aws-ebs'
+    ]
     ## provisioner section of variables
     scripts_removal_list = [
         'virtualbox.sh'
     ]
     prov_packer_dir_str = str(prov_packer_dir)
     scripts_custom_list = [
+        '{}/full-update.sh'.format(prov_packer_dir_str),
+        '{}/vagrant.sh'.format(prov_packer_dir_str),
         '{}/customization.sh'.format(prov_packer_dir_str),
         '{}/docker.sh'.format(prov_packer_dir_str),
-        '{}/full-update.sh'.format(prov_packer_dir_str),
         '{}/networking.sh'.format(prov_packer_dir_str),
         '{}/virtualbox.sh'.format(prov_packer_dir_str)
     ]
+
+    parser = ArgumentParser(description='''
+    This script is used to generate the packer file template
+    for doing an auotmated kali installation
+    ''')
+
+    parser.add_argument( '-a', '--aws', action='store_true',
+        help='also build the aws-ebs builder')
+
+    # parser.add_argument(
+    #     '-b','--builders', nargs='*', default=[ 'all' ],
+    #     help='''
+    #         a space delimited list, which is all the builders you want
+    #         to build. currently supported builders are: {}
+    #         '''.format('. '.join(supported_builder_list))
+    # )
+    args = parser.parse_args()
 
     ## Bento
 
@@ -369,11 +464,16 @@ def main():
     # adding list of sensative variables
     updated_packer_data = sensitive_variables(updated_packer_data, sensitive_var_list)
 
+    # TODO: fix logic error to where other builders are looped over here
+    #   when 'all' is the array
     ### builder alterations section
     builder_info_dict = {
         'supported_builder_list': supported_builder_list
     }
     updated_packer_data = builder_alterations(updated_packer_data, builder_info_dict)
+
+    if args.aws:
+        append_builder(updated_packer_data, get_builder_aws_ebs())
 
     ### provisioner alterations section
     prov_info_dict = {
@@ -394,7 +494,10 @@ def main():
             'version': '{{user `vm_version`}}',
             }
     }
-    updated_packer_data = post_processor_alterations(updated_packer_data, post_processor_dict)
+    if not args.aws:
+        updated_packer_data = post_processor_alterations(updated_packer_data, post_processor_dict)
+    elif args.aws:
+        del updated_packer_data['post-processors']
 
     # logging(updated_packer_data)
 

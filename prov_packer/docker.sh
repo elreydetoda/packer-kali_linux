@@ -7,7 +7,7 @@ function get_current_user() {
 
   case "$PACKER_BUILDER_TYPE" in
     amazon-*)
-      userz='ec2-user'
+      userz='kali'
       ;;
     *)
       userz='vagrant'

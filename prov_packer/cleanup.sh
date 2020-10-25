@@ -1,6 +1,10 @@
 #!/bin/sh -eux
 # TODO: auto detect when this script changes
 
+case "$PACKER_BUILDER_TYPE" in
+  amazon-*) exit 0 ;;
+esac
+
 # Delete all Linux headers
 dpkg --list |
   awk '{ print $2 }' |

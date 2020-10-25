@@ -14,3 +14,6 @@ function main() {
 if [[ "${0}" = "${BASH_SOURCE[0]}" ]]; then
   main "${@}"
 fi
+
+# packer build -var-file variables.json -only amazon-ebs kali-template.json
+# sudo ufw disable && packer build -except=amazon-ebs -var-file variables.json kali-template.json ; sudo ufw enable

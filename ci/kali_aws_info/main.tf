@@ -31,24 +31,24 @@ provider "aws" {
 data "aws_ami" "kali_linux" {
   most_recent = true
 
-#   # Kali Linux's owner id (found with https://stackoverflow.com/questions/47467593/how-am-i-supposed-to-get-the-owner-id-of-an-aws-market-place-ami)
-#   # ami-05c2d7ea6af4b44d7.4 ami-00f7390b60c41a3c0)
-#   owners = ["679593333241"]
+  # Kali Linux's owner id (found with https://stackoverflow.com/questions/47467593/how-am-i-supposed-to-get-the-owner-id-of-an-aws-market-place-ami)
+  # ami-05c2d7ea6af4b44d7.4 ami-00f7390b60c41a3c0)
+  # # owners = ["679593333241"]
   owners = ["aws-marketplace"]
-  name_regex = "^Kali Linux*"
+  name_regex = "kali-linux-*"
 
 }
 
 # this is used for ami exploration, because it will return more results
 # data "aws_ami_ids" "kali_linux" {
 
-  # Kali Linux's owner id (found with https://stackoverflow.com/questions/47467593/how-am-i-supposed-to-get-the-owner-id-of-an-aws-market-place-ami)
-  # ami-05c2d7ea6af4b44d7.4 ami-00f7390b60c41a3c0)
+#  # Kali Linux's owner id (found with https://stackoverflow.com/questions/47467593/how-am-i-supposed-to-get-the-owner-id-of-an-aws-market-place-ami)
+#  # ami-05c2d7ea6af4b44d7.4 ami-00f7390b60c41a3c0)
 #   owners = ["aws-marketplace"]
 #   sort_ascending = true
 #   filter {
 #     name   = "name"
-#     values = ["Kali Linux*"]
+#     values = ["kali-linux-*"]
 #   }
 
 # }

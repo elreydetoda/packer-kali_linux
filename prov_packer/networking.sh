@@ -3,7 +3,7 @@
 # https://elrey.casa/bash/scripting/harden
 set -${-//[s]/}eu${DEBUG+xv}o pipefail
 
-function check_amazon() {
+function check_not_amazon() {
 
   case "$PACKER_BUILDER_TYPE" in
     amazon-*) exit 0 ;;
@@ -23,7 +23,7 @@ EOF
 }
 
 function main() {
-  check_amazon
+  check_not_amazon
   modify_interface
 }
 
