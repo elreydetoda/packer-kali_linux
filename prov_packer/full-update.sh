@@ -12,7 +12,7 @@ function update_os() {
       kernel_install="linux-image-cloud-amd64"
       kernel_headers="linux-headers-cloud-amd64"
       ;;
-     *)
+      *)
       kernel_install="linux-image-amd64"
       kernel_headers="linux-headers-amd64"
       ;;
