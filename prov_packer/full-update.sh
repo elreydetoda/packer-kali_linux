@@ -13,9 +13,8 @@ function update_os() {
       kernel_headers="linux-headers-cloud-amd64"
       ;;
       *)
-      arch="$(uname -r | sed 's/^.*[0-9]\{1,\}\.[0-9]\{1,\}\.[0-9]\{1,\}\(-[0-9]\{1,2\}\)-//')"
-      kernel_install="linux-image-${arch}"
-      kernel_headers="linux-headers-$(uname -r)"
+      kernel_install="linux-image-amd64"
+      kernel_headers="linux-headers-amd64"
       ;;
   esac
   # from bento project
