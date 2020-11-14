@@ -55,7 +55,7 @@ function terraform_stuff() {
       fi
       ;;
     *)
-      extra_args=('')
+      extra_args=()
       ;;
 
   esac
