@@ -194,6 +194,8 @@ function main() {
   kaliBaseUrl='https://cdimage.kali.org'
   # this is the version in the web path for the folder that has the kali ISOs in it
   #   i.e. https://cdimage.kali.org/kali-weekly/ or https://cdimage.kali.org/kali-2020.3/
+  # TODO: perscribed by offsec patch for #85 in github
+  KALIVERSION="kali-weekly"
   kaliInstallVersion="${KALIVERSION:-current}"
   # this is the iso version you would like to install
   #   i.e. installer-amd64.iso or netinst-amd64.iso
