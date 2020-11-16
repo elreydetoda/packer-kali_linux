@@ -100,7 +100,6 @@ function cryptographical_verification() {
   printf '\ncurrent url for hash algorithm for the %s version is:\n%s\n\n' "${kaliInstallVersion}" "${kaliCurrentHashUrl}"
   # show mirror where retrieved from
   #   showing possible mirrors
-  
   printf '\npotential mirrors for hash algorithm %s\nselected mirror%s\n\n' \
     "$(curl -I "${kaliCurrentHashUrl}")" \
     "$(curl -sw '%{redirect_url}' -o /dev/null "${kaliCurrentHashUrl}")"
@@ -141,7 +140,7 @@ function info_enum() {
   printf '\nthe current hash alg chosen: %s\n' "${hashAlgOut}"
   # packer_var_json_string+="$(printf '"iso_checksum_type":"%s",' "${hashAlgOut}")"
 
-  if ! grep "${currentKaliISO}" "${tmpDir}/${hashAlg}" &> /dev/null ; then
+  if ! grep "${currentKaliISO}" "${tmpDir}/${hashAlg}" &> /dev/null; then
     cat "${tmpDir}/${hashAlg}"
     exit 1
   fi
