@@ -98,6 +98,11 @@ function cryptographical_verification() {
 
   # showing the hash signature url
   printf '\ncurrent url for hash algorithm for the %s version is:\n%s\n\n' "${kaliInstallVersion}" "${kaliCurrentHashUrl}"
+  # show mirror where retrieved from
+  #   showing possible mirrors
+  printf '\npotential mirrors for hash algorithm:\n%s\n\nselected mirror: %s\n\n' \
+    "$(curl -I "${kaliCurrentHashUrl}")" \
+    "$(curl -sw '%{redirect_url}' -o /dev/null "${kaliCurrentHashUrl}")"
 
   echo "Starting ISO signature validation process."
   # downloading the hash algorithm file contents
@@ -134,6 +139,11 @@ function info_enum() {
 
   printf '\nthe current hash alg chosen: %s\n' "${hashAlgOut}"
   # packer_var_json_string+="$(printf '"iso_checksum_type":"%s",' "${hashAlgOut}")"
+
+  if ! grep "${currentKaliISO}" "${tmpDir}/${hashAlg}" &> /dev/null; then
+    cat "${tmpDir}/${hashAlg}"
+    exit 1
+  fi
 
   currentHashSum=$(grep "${currentKaliISO}" "${tmpDir}/${hashAlg}" | cut -d ' ' -f 1)
   printf '\nthe current hash for that file is: %s\n' "${currentHashSum}"
@@ -194,6 +204,8 @@ function main() {
   kaliBaseUrl='https://cdimage.kali.org'
   # this is the version in the web path for the folder that has the kali ISOs in it
   #   i.e. https://cdimage.kali.org/kali-weekly/ or https://cdimage.kali.org/kali-2020.3/
+  # TODO: perscribed by offsec patch for #85 in github
+  # KALIVERSION="kali-weekly"
   kaliInstallVersion="${KALIVERSION:-current}"
   # this is the iso version you would like to install
   #   i.e. installer-amd64.iso or netinst-amd64.iso
