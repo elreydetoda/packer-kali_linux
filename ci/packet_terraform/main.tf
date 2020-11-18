@@ -16,7 +16,7 @@ variable "packet_auth_token" {
   type        = string
 }
 
-variable "project_id" {
+variable "packet_project_id" {
   description = "The ID of the project the device (server) belongs to."
   type        = string
 }
@@ -60,7 +60,7 @@ data "packet_operating_system" "ubuntu_lts" {
 # provisioning the actual server based on above info
 resource "packet_device" "packer_build_server" {
   hostname         = var.server_hostname
-  project_id       = var.project_id
+  project_id       = var.packet_project_id
   operating_system = data.packet_operating_system.ubuntu_lts.id
   plan             = var.provision_plan
   # facilities       = ["any"]
