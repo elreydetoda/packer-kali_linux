@@ -152,6 +152,11 @@ function info_enum() {
   currentKaliReleaseVersion=$(grep -oP '\d{4}\.\w' <<< "${currentKaliISO}")
   printf '\nthe selected release for kali is: %s\n' "${currentKaliReleaseVersion}"
 
+  preseed_path="kali-linux-rolling${kaliInstallType}-preseed.cfg"
+  printf '\nthe current install type is : %s\n' "${install_type_print}"
+  printf '\nwhich means preseed file chosen is this : %s\n' "${preseed_path}"
+  packer_var_json_string+="$(printf '"preseed_path":"%s",' "${preseed_path}")"
+
   printf '\nthe current version of the box is: %s\n\n' "${vm_version}"
   packer_var_json_string+="$(printf '"vm_version":"%s"' "${vm_version}")"
 
@@ -210,6 +215,9 @@ function main() {
   # this is the iso version you would like to install
   #   i.e. installer-amd64.iso or netinst-amd64.iso
   kaliInstallISOVersion='netinst-amd64'
+  # this is the install type ( i.e. default, light, min)
+  #   so, this will limit how many tools will get installed with your kali installation
+  kaliInstallType="${KALITYPE:-}"
   # the hash algorithm wanted for the kali version
   #   NOTE: try and always make this the best it can be
   hashAlg='SHA256SUMS'
@@ -219,11 +227,21 @@ function main() {
   kaliKeyUrl='https://www.kali.org/archive-key.asc'
 
   ## vagrant box information
-  # name of the vagrant box
+  # dev or not dev
   if [[ "$(git branch --show-current)" == dev* ]] || [[ "${CIRCLE_BRANCH:-}" == dev* ]]; then
     dev_branch='-dev'
   fi
-  namez="kali-linux_amd64${dev_branch:-}"
+
+  # type of install
+  if [[ -z "${kaliInstallType}" ]]; then
+    install_type_print='default'
+  else
+    install_type_print="${kaliInstallType}"
+    kaliInstallType="-${kaliInstallType}"
+  fi
+
+  # name of the vagrant box
+  namez="kali-linux_amd64${kaliInstallType}${dev_branch:-}"
   variables_out_file='variables.json'
 
   ## commands and combined variables

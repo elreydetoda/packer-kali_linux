@@ -375,7 +375,9 @@ def main():
     new_packer_template = project_root / 'kali-template.json'
 
     http_preseed_dir = project_root / 'install' / 'http'
-    http_preseed_file = 'kali-linux-rolling-preseed.cfg'
+    # TODO: handle when variables.json doesn't exist and default to below
+    # http_preseed_file = 'kali-linux-rolling-preseed.cfg'
+    http_preseed_file = ''
     vagrant_template_file = project_root / 'install' / 'vagrantfile-kali_linux.template'
 
     build_cpus = '2'
