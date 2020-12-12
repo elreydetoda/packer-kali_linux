@@ -233,7 +233,7 @@ function main() {
   fi
 
   # type of install
-  if [[ -z "${kaliInstallType}" ]] ; then
+  if [[ -z "${kaliInstallType}" ]]; then
     install_type_print='default'
   else
     install_type_print="${kaliInstallType}"
