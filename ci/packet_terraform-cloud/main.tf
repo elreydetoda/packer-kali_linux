@@ -106,7 +106,7 @@ terraform {
       source = "hashicorp/http"
     }
     packet = {
-      source = "terraform-providers/packet"
+      source = "packethost/packet"
     }
   }
   required_version = ">= 0.13"
