@@ -216,7 +216,7 @@ function main() {
   # doing this because if hash alg changes it should still get everything except the SUMS
   hashAlgOut=$(printf '%s' "${hashAlg}" | rev | cut -d 'S' -f 3- | rev | tr '[:upper:]' '[:lower:]')
   # the url for the gpg key that is used to sign the hashes for the ISOs
-  kaliKeyUrl='https://www.kali.org/archive-key.asc'
+  kaliKeyUrl='https://archive.kali.org/archive-key.asc'
 
   ## vagrant box information
   # name of the vagrant box
