@@ -1,6 +1,6 @@
 ---
 - hosts: all
-  become: yes
+  become: true
   vars:
     kali_project_folder: '/opt/packerAutoKali/'
     project_folder: "{{ lookup('env','HOME') }}/project/"
@@ -20,10 +20,10 @@
 
         - name: rsync'ing to build server
           synchronize:
-            partial: yes
+            partial: true
             src: '{{ project_folder }}/'
             dest: '{{ kali_project_folder }}'
-            compress: yes
+            compress: true
 
     - name: building block
       block:
@@ -75,8 +75,8 @@
             - name: getting path for all files to remove
               find:
                 paths: '{{ kali_project_folder }}'
-                recurse: yes
-                hidden: yes
+                recurse: true
+                hidden: true
                 patterns:
                   - '*.box'
               register: vagrant_boxes_for_upload
@@ -114,9 +114,9 @@
         - name: getting path for all files to remove
           find:
             paths: '{{ kali_project_folder }}'
-            recurse: yes
+            recurse: true
             file_type: any
-            hidden: yes
+            hidden: true
             patterns:
               - 'packer-*'
           register: files_to_remove
@@ -141,5 +141,5 @@
           fetch:
             src: '{{ item.path }}'
             dest: '{{ project_folder }}'
-            flat: yes
+            flat: true
           loop: '{{ files_to_copy.files }}'
