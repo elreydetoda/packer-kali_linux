@@ -89,7 +89,7 @@ commands:
     steps:
       - base-ansible:
           code-folder-path: '<< parameters.code-folder-path >>'
-          linting-options: ansible-lint
+          linting-options: 'ansible-lint'
 
   base-python_linting:
     description: "Run the python linter command with the python "
@@ -275,7 +275,7 @@ jobs:
       - checkout
       - python/install-packages:
           args: '-d --deploy'
-          cache-version: v2
+          cache-version: v1
       - run: |
           set -euxo pipefail
           pipenv --version
@@ -283,12 +283,12 @@ jobs:
           pipenv run ansible-lint --version
           pipenv run ansible-playbook --version
           pipenv run yamllint --version
-      - run-ansible_lint
       - run-yamllint
       - run: |
           set -euxo pipefail
           pipenv run ansible-galaxy collection install -r ci/ansible-requirements.yml
           pipenv run ansible-galaxy role install -r ci/ansible-requirements.yml
+      - run-ansible_lint
       - run-ansible_playbook-lint
 
   python-linting:
