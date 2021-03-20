@@ -283,12 +283,12 @@ jobs:
           pipenv run ansible-lint --version
           pipenv run ansible-playbook --version
           pipenv run yamllint --version
-      - run-ansible_lint
       - run-yamllint
       - run: |
           set -euxo pipefail
           pipenv run ansible-galaxy collection install -r ci/ansible-requirements.yml
           pipenv run ansible-galaxy role install -r ci/ansible-requirements.yml
+      - run-ansible_lint
       - run-ansible_playbook-lint
 
   python-linting:
