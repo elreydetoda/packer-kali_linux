@@ -275,7 +275,7 @@ jobs:
       - checkout
       - python/install-packages:
           args: '-d --deploy'
-          cache-version: v2
+          cache-version: v1
       - run: |
           set -euxo pipefail
           pipenv --version
