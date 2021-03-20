@@ -89,7 +89,7 @@ commands:
     steps:
       - base-ansible:
           code-folder-path: '<< parameters.code-folder-path >>'
-          linting-options: 'ansible-lint -c ./.linting-configs/ansible-lint'
+          linting-options: 'ansible-lint'
 
   base-python_linting:
     description: "Run the python linter command with the python "
