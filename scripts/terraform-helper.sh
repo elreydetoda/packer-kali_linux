@@ -56,7 +56,7 @@ function terraform_stuff() {
       ;;
     *)
       IFS=" " read -r -a extra_args <<< "${@:2}"
-      if [[ -z "${extra_args[*]}" ]] ; then
+      if [[ -z "${extra_args[*]}" ]]; then
         extra_args=()
       fi
       ;;
