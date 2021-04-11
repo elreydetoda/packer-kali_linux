@@ -55,7 +55,7 @@ variable "provision_plan" {
 ##################################################
 ##  Packet server provisioning
 # defining the packet provider
-provider "packet" {
+provider "metal" {
   auth_token = var.packet_auth_token
 }
 
@@ -66,17 +66,17 @@ data "http" "current_ip" {
 }
 
 # querying for LTS based on server OS and type
-data "packet_operating_system" "ubuntu_lts" {
+data "metal_operating_system" "ubuntu_lts" {
   distro           = "ubuntu"
   version          = "20.04"
   provisionable_on = var.provision_plan
 }
 
 # provisioning the actual server based on above info
-resource "packet_device" "packer_build_server" {
+resource "metal_device" "packer_build_server" {
   hostname         = var.server_hostname
   project_id       = var.project_id
-  operating_system = data.packet_operating_system.ubuntu_lts.id
+  operating_system = data.metal_operating_system.ubuntu_lts.id
   plan             = var.provision_plan
   facilities       = ["any"]
   # TODO: remove
@@ -90,7 +90,7 @@ resource "packet_device" "packer_build_server" {
 # outputing server ip address, so scripts are able
 #   to reference it
 output "server_ip" {
-  value = packet_device.packer_build_server.access_public_ipv4
+  value = metal_device.packer_build_server.access_public_ipv4
 }
 
 # outputing your ip address, so scripts are able
@@ -105,8 +105,8 @@ terraform {
     http = {
       source = "hashicorp/http"
     }
-    packet = {
-      source = "terraform-providers/packet"
+    metal = {
+      source = "equinix/metal"
     }
   }
   required_version = ">= 0.13"
