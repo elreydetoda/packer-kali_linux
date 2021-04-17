@@ -178,15 +178,16 @@ commands:
     steps:
       - terraform-prep
       - checkout
+      - run: cd "<< parameters.code-path >>" || exit 1
       - run: |
           set -eux
-          terraform init "<< parameters.code-path >>"
+          terraform init
       - run: |
           set -eux
-          terraform fmt -check -diff "<< parameters.code-path >>"
+          terraform fmt -check -diff
       - run: |
           set -eux
-          terraform validate "<< parameters.code-path >>"
+          terraform validate
 
   ansible-prep:
     description: prepare terraform with provided token
