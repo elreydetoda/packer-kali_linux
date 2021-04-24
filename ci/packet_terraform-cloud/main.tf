@@ -11,7 +11,7 @@
 ## backend is where your state file lives
 terraform {
   backend "remote" {
-    organization = "elrey741"
+    organization = "personal_projects_e"
 
     workspaces {
       name = "packer-kali_linux"
