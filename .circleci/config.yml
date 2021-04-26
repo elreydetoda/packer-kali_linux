@@ -506,7 +506,7 @@ jobs:
 
   ansible-bootstrap:
     docker:
-      - image: 'elrey741/ansible-playbook_packet'
+      - image: 'elrey741/ansible-playbook_packet:alpine'
     steps:
       - ansible-prep
       - add_ssh_keys:
@@ -519,7 +519,7 @@ jobs:
 
   ansible-packer_build:
     docker:
-      - image: 'elrey741/ansible-playbook_packet'
+      - image: 'elrey741/ansible-playbook_packet:alpine'
     steps:
       - ansible-prep
       - add_ssh_keys:
