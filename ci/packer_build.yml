@@ -34,7 +34,7 @@
           vars:
             api_key: '{{ api_key_from_env }}'
             phone_number: '{{ phone_from_env }}'
-            message_contents: 'starting build'
+            message_contents: 'starting build: {{ ansible_hostname }}'
           when: (( api_key_from_env is defined ) and ( api_key_from_env | length > 0 )) and
                 ((phone_from_env is defined ) and ( phone_from_env | length > 0 ))
 
@@ -64,7 +64,7 @@
               vars:
                 api_key: '{{ api_key_from_env }}'
                 phone_number: '{{ phone_from_env }}'
-                message_contents: 'finished successfuly, and ending build'
+                message_contents: 'finished successfuly, and ending build: {{ ansible_hostname }}'
               when: (( api_key_from_env is defined ) and ( api_key_from_env | length > 0 )) and
                     ((phone_from_env is defined ) and ( phone_from_env | length > 0 ))
 
@@ -76,7 +76,7 @@
               vars:
                 api_key: '{{ api_key_from_env }}'
                 phone_number: '{{ phone_from_env }}'
-                message_contents: 'build failed (probably upload), but trying to upload with curl script'
+                message_contents: 'build failed (probably upload), but trying to upload with curl script: {{ ansible_hostname }}'
               when: (( api_key_from_env is defined ) and ( api_key_from_env | length > 0 )) and
                     ((phone_from_env is defined ) and ( phone_from_env | length > 0 ))
 
@@ -103,7 +103,7 @@
               vars:
                 api_key: '{{ api_key_from_env }}'
                 phone_number: '{{ phone_from_env }}'
-                message_contents: 'finished successfuly, and ending build'
+                message_contents: 'finished successfuly, and ending build: {{ ansible_hostname }}'
               when: (( api_key_from_env is defined ) and ( api_key_from_env | length > 0 )) and
                     ((phone_from_env is defined ) and ( phone_from_env | length > 0 ))
 
@@ -115,7 +115,7 @@
           vars:
             api_key: '{{ api_key_from_env }}'
             phone_number: '{{ phone_from_env }}'
-            message_contents: "didn't complete properly, and ending build"
+            message_contents: "didn't complete properly, and ending build: {{ ansible_hostname }}"
           when: (( api_key_from_env is defined ) and ( api_key_from_env | length > 0 )) and
                 ((phone_from_env is defined ) and ( phone_from_env | length > 0 ))
 
