@@ -21,6 +21,12 @@ function packer_build() {
     vmware-iso)
       packer_build_cmd+=('-only=vmware-iso')
       ;;
+    qemu)
+      packer_build_cmd+=('-only=qemu')
+      ;;
+    *)
+      # just a stop gap to prevent automated tasks from happening.
+      read -rp 'You are about to try and build all the providers at once...are you sure[N/y]' -n 1
   esac
 
 }
