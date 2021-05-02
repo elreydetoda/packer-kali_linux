@@ -320,7 +320,11 @@ jobs:
           pipenv run python --version
       - run-black_linter
 
-  packer-linting_vbox:
+  packer-linting:
+    parameters:
+      hypervisor:
+        description: hypervisor to validate
+        type: string
     docker:
       - image: 'hashicorp/packer:light'
     steps:
@@ -333,37 +337,8 @@ jobs:
       - packer-lint:
           template-file: kali-template.json
           vars-file: variables.json
-          only-builder: virtualbox-iso
+          only-builder: '<< parameters.hypervisor >>'
 
-  packer-linting_vmware:
-    docker:
-      - image: 'hashicorp/packer:light'
-    steps:
-      - attach_workspace:
-          at: /tmp/packer_workspace
-      - checkout
-      - submodule-sync
-      - run: cp -v /tmp/packer_workspace/* .
-      - run: packer version
-      - packer-lint:
-          template-file: kali-template.json
-          vars-file: variables.json
-          only-builder: vmware-iso
-
-  packer-linting_aws:
-    docker:
-      - image: 'hashicorp/packer:light'
-    steps:
-      - attach_workspace:
-          at: /tmp/packer_workspace
-      - checkout
-      - submodule-sync
-      - run: cp -v /tmp/packer_workspace/* .
-      - run: packer version
-      - packer-lint:
-          template-file: templates/template.json
-          vars-file: templates/example-variables.json
-          only-builder: amazon-ebs
 
   terraform-linting:
     # executor: terraform/default
@@ -373,7 +348,7 @@ jobs:
       - run: terraform --version
       # linting the packet terraform files
       - terraform-lint:
-          code-path: ci/packet_terraform-cloud
+          code-path: ci/packet_terraform-cloud-build_all
       # linting the aws terraform files
       # - terraform-lint:
       #     code-path: ci/kali_aws_info
@@ -493,7 +468,7 @@ jobs:
     steps:
       - run: terraform --version
       - terraform-deploy:
-          code-path: ci/packet_terraform-cloud
+          code-path: ci/packet_terraform-cloud-build_all
 
 
   terraform-packet_destroy:
@@ -502,7 +477,7 @@ jobs:
     steps:
       - run: terraform --version
       - terraform-destroy:
-          code-path: ci/packet_terraform-cloud
+          code-path: ci/packet_terraform-cloud-build_all
 
   ansible-bootstrap:
     docker:
@@ -520,6 +495,10 @@ jobs:
   ansible-packer_build:
     docker:
       - image: 'elrey741/ansible-playbook_packet:alpine'
+    parameters:
+      build:
+        description: build target for packer to hit
+        type: string
     steps:
       - ansible-prep
       - add_ssh_keys:
@@ -538,7 +517,7 @@ jobs:
           command: |
             ansible-playbook -i ci/scripts/packet_net.py -u root \
               -e "api_key_from_env=${TEXTBELT_KEY:-} phone_from_env=${PERSONAL_NUM:-}" \
-              -e CIRCLECI="${CIRCLECI:-}" ci/packer_build.yml
+              -e CIRCLECI="${CIRCLECI:-}" ci/packer_build.yml --limit="packer-build-box-<< parameters.build >>"
       - run: |
           mkdir -p /tmp/artifacts
           pwd && ls
@@ -567,18 +546,10 @@ workflows:
       - ansible-linting
       - generate-packer-file
       - generate-packer-vars
-      - packer-linting_vbox:
-          requires:
-            - generate-packer-vars
-            - generate-packer-file
-            - shellcheck-warning
-            - shfmt-linting
-            - terraform-linting
-            - markdown-linting
-            - gh_issues-linting
-            - python-linting
-            - ansible-linting
-      - packer-linting_vmware:
+      - packer-linting:
+          matrix:
+            parameters:
+              hypervisor: [ "virtualbox-iso", "vmware-iso", "qemu" ]
           requires:
             - generate-packer-vars
             - generate-packer-file
@@ -591,12 +562,14 @@ workflows:
             - ansible-linting
       - terraform-packet_deploy:
           requires:
-            - packer-linting_vbox
-            - packer-linting_vmware
+            - packer-linting
       - ansible-bootstrap:
           requires:
             - terraform-packet_deploy
       - ansible-packer_build:
+          matrix:
+            parameters:
+              build: [ "v", "qemu" ]
           requires:
             - ansible-bootstrap
       - terraform-packet_destroy:
@@ -659,11 +632,10 @@ workflows:
               ignore:
                 - master
                 - dev-stage
-      - packer-linting_vbox:
-          requires:
-            - generate-packer-vars
-            - generate-packer-file
-      - packer-linting_vmware:
+      - packer-linting:
+          matrix:
+            parameters:
+              hypervisor: [ "virtualbox-iso", "vmware-iso", "qemu" ]
           requires:
             - generate-packer-vars
             - generate-packer-file
@@ -715,18 +687,10 @@ workflows:
             branches:
               only:
                 - master
-      - packer-linting_vbox:
-          requires:
-            - generate-packer-vars
-            - generate-packer-file
-            - shellcheck-warning
-            - shfmt-linting
-            - terraform-linting
-            - markdown-linting
-            - gh_issues-linting
-            - python-linting
-            - ansible-linting
-      - packer-linting_vmware:
+      - packer-linting:
+          matrix:
+            parameters:
+              hypervisor: [ "virtualbox-iso", "vmware-iso", "qemu" ]
           requires:
             - generate-packer-vars
             - generate-packer-file
@@ -739,12 +703,14 @@ workflows:
             - ansible-linting
       - terraform-packet_deploy:
           requires:
-            - packer-linting_vbox
-            - packer-linting_vmware
+            - packer-linting
       - ansible-bootstrap:
           requires:
             - terraform-packet_deploy
       - ansible-packer_build:
+          matrix:
+            parameters:
+              build: [ "v", "qemu" ]
           requires:
             - ansible-bootstrap
       - terraform-packet_destroy:
@@ -801,18 +767,10 @@ workflows:
             branches:
               only:
                 - dev-stage
-      - packer-linting_vbox:
-          requires:
-            - generate-packer-vars
-            - generate-packer-file
-            - shellcheck-warning
-            - shfmt-linting
-            - terraform-linting
-            - markdown-linting
-            - gh_issues-linting
-            - python-linting
-            - ansible-linting
-      - packer-linting_vmware:
+      - packer-linting:
+          matrix:
+            parameters:
+              hypervisor: [ "virtualbox-iso", "vmware-iso", "qemu" ]
           requires:
             - generate-packer-vars
             - generate-packer-file
@@ -825,12 +783,14 @@ workflows:
             - ansible-linting
       - terraform-packet_deploy:
           requires:
-            - packer-linting_vbox
-            - packer-linting_vmware
+            - packer-linting
       - ansible-bootstrap:
           requires:
             - terraform-packet_deploy
       - ansible-packer_build:
+          matrix:
+            parameters:
+              build: [ "v", "qemu" ]
           requires:
             - ansible-bootstrap
       - terraform-packet_destroy:
