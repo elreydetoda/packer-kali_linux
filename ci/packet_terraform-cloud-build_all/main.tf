@@ -56,7 +56,7 @@ variable "q_server_hostname" {
 variable "provision_plan" {
   description = "The type of the device (server) getting assigned."
   type        = string
-  default = "c3.small.x86"
+  default     = "c3.small.x86"
 }
 
 ##################################################
@@ -92,7 +92,7 @@ resource "metal_device" "v_packer_build_server" {
   operating_system = data.metal_operating_system.v_ubuntu_lts.id
   plan             = var.provision_plan
   facilities       = ["any"]
-  billing_cycle = "hourly"
+  billing_cycle    = "hourly"
   tags = [
     "virtualbox-iso", "vmware"
   ]
@@ -104,7 +104,7 @@ resource "metal_device" "q_packer_build_server" {
   operating_system = data.metal_operating_system.q_ubuntu_lts.id
   plan             = var.provision_plan
   facilities       = ["any"]
-  billing_cycle = "hourly"
+  billing_cycle    = "hourly"
   tags = [
     "qemu"
   ]

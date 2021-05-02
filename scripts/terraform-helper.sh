@@ -101,7 +101,7 @@ function terraform_stuff() {
       -v "$(pwd)/.terraform.d":/root/.terraform.d/ \
       -v "$(pwd)/.terraform":/.terraform/ \
       -v "$(pwd)":"${terraform_folder}/" \
-      hashicorp/terraform:light "${pre_args[@]}"  "${terraform_action}" "${extra_args[@]}"
+      hashicorp/terraform:light "${pre_args[@]}" "${terraform_action}" "${extra_args[@]}"
   else
 
     # shellcheck disable=SC2140
@@ -162,6 +162,6 @@ function main() {
 }
 
 # https://blog.elreydetoda.site/cool-shell-tricks/#bashscriptingbashsmain
-if [[ "${0}" = "${BASH_SOURCE[0]}" ]]; then
+if [[ "${0}" == "${BASH_SOURCE[0]}" ]]; then
   main "${@}"
 fi
