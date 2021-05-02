@@ -348,7 +348,7 @@ jobs:
       - run: terraform --version
       # linting the packet terraform files
       - terraform-lint:
-          code-path: ci/packet_terraform-cloud
+          code-path: ci/packet_terraform-cloud-build_all
       # linting the aws terraform files
       # - terraform-lint:
       #     code-path: ci/kali_aws_info
@@ -468,7 +468,7 @@ jobs:
     steps:
       - run: terraform --version
       - terraform-deploy:
-          code-path: ci/packet_terraform-cloud
+          code-path: ci/packet_terraform-cloud-build_all
 
 
   terraform-packet_destroy:
@@ -477,7 +477,7 @@ jobs:
     steps:
       - run: terraform --version
       - terraform-destroy:
-          code-path: ci/packet_terraform-cloud
+          code-path: ci/packet_terraform-cloud-build_all
 
   ansible-bootstrap:
     docker:
@@ -495,6 +495,10 @@ jobs:
   ansible-packer_build:
     docker:
       - image: 'elrey741/ansible-playbook_packet:alpine'
+    parameters:
+      build:
+        description: build target for packer to hit
+        type: string
     steps:
       - ansible-prep
       - add_ssh_keys:
@@ -513,7 +517,7 @@ jobs:
           command: |
             ansible-playbook -i ci/scripts/packet_net.py -u root \
               -e "api_key_from_env=${TEXTBELT_KEY:-} phone_from_env=${PERSONAL_NUM:-}" \
-              -e CIRCLECI="${CIRCLECI:-}" ci/packer_build.yml
+              -e CIRCLECI="${CIRCLECI:-}" ci/packer_build.yml --limit="packer-build-box-<< parameters.build >>"
       - run: |
           mkdir -p /tmp/artifacts
           pwd && ls
@@ -563,6 +567,9 @@ workflows:
           requires:
             - terraform-packet_deploy
       - ansible-packer_build:
+          matrix:
+            parameters:
+              build: [ "v", "qemu" ]
           requires:
             - ansible-bootstrap
       - terraform-packet_destroy:
@@ -701,6 +708,9 @@ workflows:
           requires:
             - terraform-packet_deploy
       - ansible-packer_build:
+          matrix:
+            parameters:
+              build: [ "v", "qemu" ]
           requires:
             - ansible-bootstrap
       - terraform-packet_destroy:
@@ -778,6 +788,9 @@ workflows:
           requires:
             - terraform-packet_deploy
       - ansible-packer_build:
+          matrix:
+            parameters:
+              build: [ "v", "qemu" ]
           requires:
             - ansible-bootstrap
       - terraform-packet_destroy:

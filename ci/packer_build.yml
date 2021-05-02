@@ -41,14 +41,22 @@
         - name: initial upload to vagrant cloud
           block:
 
+            - name: setting provider string for vbox & vmware
+              set_fact:
+                provider_string: 'virtualbox-iso|vmware-iso'
+              when: ansible_hostname == 'packer-build-box-v'
+
+            - name: setting provider string for qemu
+              set_fact:
+                provider_string: 'qemu'
+              when: ansible_hostname == 'packer-build-box-qemu'
+
             - name: launching the packer build process
               script:
                 cmd: "{{ local_ci_scripts_dir }}/packer_build-wrapper.sh '{{ provider_string }}'"
                 chdir: '{{ kali_project_folder }}'
               args:
                 creates: '{{ kali_project_folder }}/packer_build.log'
-              vars:
-                provider_string: 'virtualbox-iso|vmware-iso'
 
             - name: sending last text message for end
               import_role:

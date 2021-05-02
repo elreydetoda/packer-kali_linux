@@ -14,15 +14,19 @@ function terraform_stuff() {
 
   case "${terraform_action}" in
     init)
-      extra_args=("${terraform_folder}/")
+      pre_args=("-chdir=${terraform_folder}/")
+      extra_args=()
       ;;
     plan)
-      extra_args=("-out" "${plan_file}" "${terraform_folder}/")
+      pre_args=("-chdir=${terraform_folder}/")
+      extra_args=("-out" "${plan_file}")
       ;;
     apply)
       if [[ -n "${TF_VAR_tc_auth_token:-}" ]]; then
-        extra_args=("-auto-approve" "${terraform_folder}/")
+        pre_args=("-chdir=${terraform_folder}/")
+        extra_args=("-auto-approve")
       else
+        pre_args=()
         extra_args=("-state" "${state_file}")
       fi
       ;;
@@ -31,6 +35,7 @@ function terraform_stuff() {
       # wbm: https://web.archive.org/web/20161121105825/http://stackoverflow.com/questions/19482123/extract-part-of-a-string-using-bash-cut-split#answer-19482947
       terraform_action="${terraform_action%-*}"
       extra_args=("-state" "${state_file}" "${plan_file}")
+      pre_args=()
       ;;
     output)
       if [[ -n "${TF_VAR_tc_auth_token:-}" ]]; then
@@ -45,19 +50,22 @@ function terraform_stuff() {
         extra_args+=("${2}")
       fi
       set -u
+      pre_args=()
       terraform_provider='none'
       ;;
     destroy)
       if [[ -n "${TF_VAR_tc_auth_token:-}" ]]; then
-        extra_args=("-auto-approve" "${terraform_folder}/")
+        extra_args=("-auto-approve")
       else
-        extra_args=("-auto-approve" "-state" "${state_file}" "${terraform_folder}/")
+        extra_args=("-auto-approve" "-state" "${state_file}")
       fi
+      pre_args=("-chdir=${terraform_folder}/")
       ;;
     *)
       IFS=" " read -r -a extra_args <<< "${@:2}"
       if [[ -z "${extra_args[*]}" ]]; then
         extra_args=()
+        pre_args=()
       fi
       ;;
 
@@ -93,7 +101,7 @@ function terraform_stuff() {
       -v "$(pwd)/.terraform.d":/root/.terraform.d/ \
       -v "$(pwd)/.terraform":/.terraform/ \
       -v "$(pwd)":"${terraform_folder}/" \
-      hashicorp/terraform:light "${terraform_action}" "${extra_args[@]}"
+      hashicorp/terraform:light "${pre_args[@]}"  "${terraform_action}" "${extra_args[@]}"
   else
 
     # shellcheck disable=SC2140
@@ -103,7 +111,7 @@ function terraform_stuff() {
       "${provider_array[@]}" \
       -v "$(pwd)/.terraform":/.terraform/ \
       -v "$(pwd)":"${terraform_folder}/" \
-      hashicorp/terraform:light "${terraform_action}" "${extra_args[@]}"
+      hashicorp/terraform:light "${pre_args[@]}" "${terraform_action}" "${extra_args[@]}"
   fi
 
 }
