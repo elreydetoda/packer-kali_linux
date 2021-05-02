@@ -64,6 +64,16 @@
             interface: 'vmnet8'
             comment: 'for vmware builder'
 
+        - name: adding vmware access through ufw
+          ufw:
+            # rule: limit
+            # setting it to this for now
+            rule: allow
+            proto: any
+            direction: 'in'
+            interface: 'virbr0'
+            comment: 'for libvirt builder'
+
         - name: enabling ufw
           ufw:
             state: enabled
