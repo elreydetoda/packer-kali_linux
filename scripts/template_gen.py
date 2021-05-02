@@ -156,7 +156,9 @@ def builder_alterations(packer_template_data: dict, new_builder_data: dict) -> d
     prop_update = {
         'iso_url': '{{ user `iso_url` }}'
     }
+    # pylint: disable=line-too-long
     # reminded me to do this: https://gitlab.com/kalilinux/build-scripts/kali-vagrant/-/merge_requests/5
+    # pylint: disable=line-too-long
     # additions to bento project from here: https://github.com/lavabit/robox/blob/5e9838567fc9b396ac43fc947019c7593c5c0010/generic-libvirt.json#L3437-L3442
     qemu_update = {
         "disk_interface": "virtio-scsi",
