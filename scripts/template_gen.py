@@ -156,10 +156,23 @@ def builder_alterations(packer_template_data: dict, new_builder_data: dict) -> d
     prop_update = {
         'iso_url': '{{ user `iso_url` }}'
     }
+    # reminded me to do this: https://gitlab.com/kalilinux/build-scripts/kali-vagrant/-/merge_requests/5
+    # additions to bento project from here: https://github.com/lavabit/robox/blob/5e9838567fc9b396ac43fc947019c7593c5c0010/generic-libvirt.json#L3437-L3442
+    qemu_update = {
+        "disk_interface": "virtio-scsi",
+        "disk_compression": True,
+        "disk_discard": "unmap",
+        "disk_detect_zeroes": "unmap",
+        "disk_cache": "unsafe",
+        "disk_image": False
+    }
 
     for builder_dict in packer_builder_list:
         logging('updated property: {} in: {}'.format(prop_update, builder_dict['type']))
         builder_dict.update(prop_update)
+        # adding libvirt/qemu specific properties
+        if builder_dict['type'] == 'qemu':
+            builder_dict.update(qemu_update)
 
     # logging(packer_builder_list)
 
@@ -385,8 +398,12 @@ def main():
 
     ## builders section of variables
     supported_builder_list = [
-        'virtualbox-iso', 'vmware-iso',
-        'aws-ebs'
+        'virtualbox-iso',
+        'vmware-iso',
+        'aws-ebs',
+        'qemu',
+        # don't have a way to test this...
+        # 'parallels-iso'
     ]
     ## provisioner section of variables
     scripts_removal_list = [
