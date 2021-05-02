@@ -321,6 +321,10 @@ jobs:
       - run-black_linter
 
   packer-linting:
+    parameters:
+      hypervisor:
+        description: hypervisor to validate
+        type: string
     docker:
       - image: 'hashicorp/packer:light'
     steps:
@@ -333,7 +337,7 @@ jobs:
       - packer-lint:
           template-file: kali-template.json
           vars-file: variables.json
-          only-builder: '<< parameters.platform >>'
+          only-builder: '<< parameters.hypervisor >>'
 
   packer-linting_vbox:
     docker:
@@ -692,7 +696,7 @@ workflows:
       - packer-linting:
           matrix:
             parameters:
-              platform: [ "virtualbox-iso", "vmware-iso", "qemu" ]
+              hypervisor: [ "virtualbox-iso", "vmware-iso", "qemu" ]
           requires:
             - generate-packer-vars
             - generate-packer-file
