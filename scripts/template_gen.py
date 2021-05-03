@@ -171,12 +171,21 @@ def builder_alterations(packer_template_data: dict, new_builder_data: dict) -> d
         "disk_cache": "unsafe",
         "disk_image": False,
     }
+    vbox_update = {
+        "gfx_controller": "vmsvga",
+        "gfx_vram_size": "48"
+    }
 
     for builder_dict in packer_builder_list:
         logging("updated property: {} in: {}".format(prop_update, builder_dict["type"]))
         builder_dict.update(prop_update)
+        # adding vbox specific properties
+        if builder_dict["type"] == "virtualbox-iso":
+            logging("updated property: {} in: {}".format(vbox_update, builder_dict["type"]))
+            builder_dict.update(vbox_update)
         # adding libvirt/qemu specific properties
         if builder_dict["type"] == "qemu":
+            logging("updated property: {} in: {}".format(qemu_update, builder_dict["type"]))
             builder_dict.update(qemu_update)
 
     # logging(packer_builder_list)
@@ -397,7 +406,9 @@ def main():
     new_packer_template = project_root / "kali-template.json"
 
     http_preseed_dir = project_root / "install" / "http"
-    http_preseed_file = "kali-linux-rolling-preseed.cfg"
+    # TODO: handle when variables.json doesn't exist and default to below
+    # http_preseed_file = 'kali-linux-rolling-preseed.cfg'
+    http_preseed_file = ''
     vagrant_template_file = project_root / "install" / "vagrantfile-kali_linux.template"
 
     build_cpus = "2"
