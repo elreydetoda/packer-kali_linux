@@ -43,7 +43,11 @@ function docker_group() {
 
 }
 
+function deps(){
+  apt-get install -y curl gnupg
+}
 function main() {
+  deps
   get_current_user
   add_docker_repo
   add_docker
