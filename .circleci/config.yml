@@ -449,6 +449,12 @@ jobs:
   generate-packer-vars:
     docker:
       - image: 'bash'
+    parameters:
+      kalitype:
+        description: version of kali to build ( i.e. default, min, light )
+        type: string
+    environment:
+      KALITYPE: "<< parameters.kalitype >>"
     steps:
       - run: apk add --update --no-cache git
       - checkout
@@ -497,6 +503,9 @@ jobs:
       - image: 'elrey741/ansible-playbook_packet:alpine'
     parameters:
       build:
+        description: hypervisor build target for packer to hit
+        type: string
+      version:
         description: build target for packer to hit
         type: string
     steps:
@@ -517,7 +526,8 @@ jobs:
           command: |
             ansible-playbook -i ci/scripts/packet_net.py -u root \
               -e "api_key_from_env=${TEXTBELT_KEY:-} phone_from_env=${PERSONAL_NUM:-}" \
-              -e CIRCLECI="${CIRCLECI:-}" ci/packer_build.yml --limit="packer-build-box-<< parameters.build >>"
+              -e CIRCLECI="${CIRCLECI:-}" -e build_version="<< parameters.version >>" \
+              ci/packer_build.yml --limit="packer-build-box-<< parameters.build >>"
       - run: |
           mkdir -p /tmp/artifacts
           pwd && ls
@@ -545,7 +555,10 @@ workflows:
       - python-linting
       - ansible-linting
       - generate-packer-file
-      - generate-packer-vars
+      - generate-packer-vars:
+          matrix:
+            parameters:
+              kalitype: [ "", "light", "min" ]
       - packer-linting:
           matrix:
             parameters:
@@ -570,6 +583,7 @@ workflows:
           matrix:
             parameters:
               build: [ "v", "qemu" ]
+              version: [ "", "light", "min" ]
           requires:
             - ansible-bootstrap
       - terraform-packet_destroy:
@@ -627,6 +641,9 @@ workflows:
                 - master
                 - dev-stage
       - generate-packer-vars:
+          matrix:
+            parameters:
+              kalitype: [ "", "light", "min" ]
           filters:
             branches:
               ignore:
@@ -683,6 +700,9 @@ workflows:
               only:
                 - master
       - generate-packer-vars:
+          matrix:
+            parameters:
+              kalitype: [ "", "light", "min" ]
           filters:
             branches:
               only:
@@ -711,6 +731,7 @@ workflows:
           matrix:
             parameters:
               build: [ "v", "qemu" ]
+              version: [ "", "light", "min" ]
           requires:
             - ansible-bootstrap
       - terraform-packet_destroy:
@@ -763,6 +784,9 @@ workflows:
               only:
                 - dev-stage
       - generate-packer-vars:
+          matrix:
+            parameters:
+              kalitype: [ "", "light", "min" ]
           filters:
             branches:
               only:
@@ -791,6 +815,7 @@ workflows:
           matrix:
             parameters:
               build: [ "v", "qemu" ]
+              version: [ "", "light", "min" ]
           requires:
             - ansible-bootstrap
       - terraform-packet_destroy:

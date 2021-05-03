@@ -53,7 +53,7 @@
 
             - name: launching the packer build process
               script:
-                cmd: "{{ local_ci_scripts_dir }}/packer_build-wrapper.sh '{{ provider_string }}'"
+                cmd: "{{ local_ci_scripts_dir }}/packer_build-wrapper.sh '{{ provider_string }}' '{{ build_version | default() }}'"
                 chdir: '{{ kali_project_folder }}'
               args:
                 creates: '{{ kali_project_folder }}/packer_build.log'
