@@ -82,11 +82,11 @@
 
             - name: getting path for all files to remove
               find:
-                paths: '{{ kali_project_folder }}'
+                paths: "{{ kali_project_folder }}/{{ build_version | default('default') }}"
                 recurse: true
                 hidden: true
                 patterns:
-                  - "*{{ build_version | default('default') }}*/**/*.box"
+                  - "*.box"
               register: vagrant_boxes_for_upload
 
             - name: launching the upload process
