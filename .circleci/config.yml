@@ -325,6 +325,9 @@ jobs:
       hypervisor:
         description: hypervisor to validate
         type: string
+      version:
+        description: version of kali to validate
+        type: string
     docker:
       - image: 'hashicorp/packer:light'
     steps:
@@ -336,7 +339,7 @@ jobs:
       - run: packer version
       - packer-lint:
           template-file: kali-template.json
-          vars-file: variables.json
+          vars-file: "variables<< parameters.version>>.json"
           only-builder: '<< parameters.hypervisor >>'
 
 
@@ -451,7 +454,7 @@ jobs:
       - image: 'bash'
     parameters:
       kalitype:
-        description: version of kali to build ( i.e. default, min, light )
+        description: "version of kali to build ( i.e. default, min, light )"
         type: string
     environment:
       KALITYPE: "<< parameters.kalitype >>"
@@ -563,6 +566,7 @@ workflows:
           matrix:
             parameters:
               hypervisor: [ "virtualbox-iso", "vmware-iso", "qemu" ]
+              version: [ "", "-light", "-min" ]
           requires:
             - generate-packer-vars
             - generate-packer-file
@@ -653,6 +657,7 @@ workflows:
           matrix:
             parameters:
               hypervisor: [ "virtualbox-iso", "vmware-iso", "qemu" ]
+              version: [ "", "-light", "-min" ]
           requires:
             - generate-packer-vars
             - generate-packer-file
@@ -711,6 +716,7 @@ workflows:
           matrix:
             parameters:
               hypervisor: [ "virtualbox-iso", "vmware-iso", "qemu" ]
+              version: [ "", "-light", "-min" ]
           requires:
             - generate-packer-vars
             - generate-packer-file
@@ -795,6 +801,7 @@ workflows:
           matrix:
             parameters:
               hypervisor: [ "virtualbox-iso", "vmware-iso", "qemu" ]
+              version: [ "", "-light", "-min" ]
           requires:
             - generate-packer-vars
             - generate-packer-file
