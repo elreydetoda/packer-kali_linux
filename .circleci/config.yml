@@ -325,6 +325,9 @@ jobs:
       hypervisor:
         description: hypervisor to validate
         type: string
+      version:
+        description: version of kali to validate
+        type: string
     docker:
       - image: 'hashicorp/packer:light'
     steps:
@@ -336,7 +339,7 @@ jobs:
       - run: packer version
       - packer-lint:
           template-file: kali-template.json
-          vars-file: variables.json
+          vars-file: "variables<< parameters.version>>.json"
           only-builder: '<< parameters.hypervisor >>'
 
 
@@ -449,6 +452,12 @@ jobs:
   generate-packer-vars:
     docker:
       - image: 'bash'
+    parameters:
+      kalitype:
+        description: "version of kali to build ( i.e. default, min, light )"
+        type: string
+    environment:
+      KALITYPE: "<< parameters.kalitype >>"
     steps:
       - run: apk add --update --no-cache git
       - checkout
@@ -456,11 +465,11 @@ jobs:
       - run: scripts/new-kali.sh
       - run: |
           mkdir -p /tmp/packer_workspace
-          cp -v variables.json /tmp/packer_workspace
+          cp -v variables*.json /tmp/packer_workspace
       - persist_to_workspace:
           root: /tmp/packer_workspace
           paths:
-            - "variables.json"
+            - "variables*.json"
 
   terraform-packet_deploy:
     docker:
@@ -497,6 +506,9 @@ jobs:
       - image: 'elrey741/ansible-playbook_packet:alpine'
     parameters:
       build:
+        description: hypervisor build target for packer to hit
+        type: string
+      version:
         description: build target for packer to hit
         type: string
     steps:
@@ -517,7 +529,8 @@ jobs:
           command: |
             ansible-playbook -i ci/scripts/packet_net.py -u root \
               -e "api_key_from_env=${TEXTBELT_KEY:-} phone_from_env=${PERSONAL_NUM:-}" \
-              -e CIRCLECI="${CIRCLECI:-}" ci/packer_build.yml --limit="packer-build-box-<< parameters.build >>"
+              -e CIRCLECI="${CIRCLECI:-}" -e build_version="<< parameters.version >>" \
+              ci/packer_build.yml --limit="packer-build-box-<< parameters.build >>"
       - run: |
           mkdir -p /tmp/artifacts
           pwd && ls
@@ -545,11 +558,15 @@ workflows:
       - python-linting
       - ansible-linting
       - generate-packer-file
-      - generate-packer-vars
+      - generate-packer-vars:
+          matrix:
+            parameters:
+              kalitype: [ "", "light", "min" ]
       - packer-linting:
           matrix:
             parameters:
               hypervisor: [ "virtualbox-iso", "vmware-iso", "qemu" ]
+              version: [ "", "-light", "-min" ]
           requires:
             - generate-packer-vars
             - generate-packer-file
@@ -570,6 +587,7 @@ workflows:
           matrix:
             parameters:
               build: [ "v", "qemu" ]
+              version: [ "", "light", "min" ]
           requires:
             - ansible-bootstrap
       - terraform-packet_destroy:
@@ -627,6 +645,9 @@ workflows:
                 - master
                 - dev-stage
       - generate-packer-vars:
+          matrix:
+            parameters:
+              kalitype: [ "", "light", "min" ]
           filters:
             branches:
               ignore:
@@ -636,6 +657,7 @@ workflows:
           matrix:
             parameters:
               hypervisor: [ "virtualbox-iso", "vmware-iso", "qemu" ]
+              version: [ "", "-light", "-min" ]
           requires:
             - generate-packer-vars
             - generate-packer-file
@@ -683,6 +705,9 @@ workflows:
               only:
                 - master
       - generate-packer-vars:
+          matrix:
+            parameters:
+              kalitype: [ "", "light", "min" ]
           filters:
             branches:
               only:
@@ -691,6 +716,7 @@ workflows:
           matrix:
             parameters:
               hypervisor: [ "virtualbox-iso", "vmware-iso", "qemu" ]
+              version: [ "", "-light", "-min" ]
           requires:
             - generate-packer-vars
             - generate-packer-file
@@ -711,6 +737,7 @@ workflows:
           matrix:
             parameters:
               build: [ "v", "qemu" ]
+              version: [ "", "light", "min" ]
           requires:
             - ansible-bootstrap
       - terraform-packet_destroy:
@@ -763,6 +790,9 @@ workflows:
               only:
                 - dev-stage
       - generate-packer-vars:
+          matrix:
+            parameters:
+              kalitype: [ "", "light", "min" ]
           filters:
             branches:
               only:
@@ -771,6 +801,7 @@ workflows:
           matrix:
             parameters:
               hypervisor: [ "virtualbox-iso", "vmware-iso", "qemu" ]
+              version: [ "", "-light", "-min" ]
           requires:
             - generate-packer-vars
             - generate-packer-file
@@ -791,6 +822,7 @@ workflows:
           matrix:
             parameters:
               build: [ "v", "qemu" ]
+              version: [ "", "light", "min" ]
           requires:
             - ansible-bootstrap
       - terraform-packet_destroy:

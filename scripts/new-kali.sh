@@ -152,6 +152,11 @@ function info_enum() {
   currentKaliReleaseVersion=$(grep -oP '\d{4}\.\w' <<< "${currentKaliISO}")
   printf '\nthe selected release for kali is: %s\n' "${currentKaliReleaseVersion}"
 
+  preseed_path="kali-linux-rolling${kaliInstallType}-preseed.cfg"
+  printf '\nthe current install type is : %s\n' "${install_type_print}"
+  printf '\nwhich means preseed file chosen is this : %s\n' "${preseed_path}"
+  packer_var_json_string+="$(printf '"preseed_path":"%s",' "${preseed_path}")"
+
   printf '\nthe current version of the box is: %s\n\n' "${vm_version}"
   packer_var_json_string+="$(printf '"vm_version":"%s"' "${vm_version}")"
 
@@ -210,6 +215,9 @@ function main() {
   # this is the iso version you would like to install
   #   i.e. installer-amd64.iso or netinst-amd64.iso
   kaliInstallISOVersion='netinst-amd64'
+  # this is the install type ( i.e. default, light, min)
+  #   so, this will limit how many tools will get installed with your kali installation
+  kaliInstallType="${KALITYPE:-}"
   # the hash algorithm wanted for the kali version
   #   NOTE: try and always make this the best it can be
   hashAlg='SHA256SUMS'
@@ -220,11 +228,20 @@ function main() {
 
   ## vagrant box information
   # name of the vagrant box
-  if [[ "$(git branch --show-current)" == dev* ]] || [[ "${CIRCLE_BRANCH:-}" == dev* ]]; then
+  if [[ "$(git branch --show-current)" == dev* ]] || [[ "$(git branch --show-current)" == feat/* ]] || [[ "${CIRCLE_BRANCH:-}" == dev* ]]; then
     dev_branch='-dev'
   fi
-  namez="kali-linux_amd64${dev_branch:-}"
-  variables_out_file='variables.json'
+
+  # type of install
+  if [[ -z "${kaliInstallType}" ]]; then
+    install_type_print='default'
+  else
+    install_type_print="${kaliInstallType}"
+    kaliInstallType="-${kaliInstallType}"
+  fi
+
+  # name of the vagrant box
+  namez="kali-linux_amd64${kaliInstallType}${dev_branch:-}"
 
   ## commands and combined variables
   # current version of kali's url combined with the base path
@@ -238,21 +255,27 @@ function main() {
   hashiName="${VAGRANT_CLOUD_USER:-}"
   vagrant_cloud_token="${VAGRANT_CLOUD_TOKEN:-}"
 
+  if [[ -n "${CIRCLECI}" ]]; then
+    variables_out_file="variables${kaliInstallType}.json"
+  else
+    variables_out_file='variables.json'
+  fi
+
   packer_var_json_string='{'
 
   deps_install
   cryptographical_verification
   hashicorp_setup_env
   info_enum
-  if [[ -z "${CIRCLECI}" ]] && command -v docker; then
-    aws_env
-  fi
+  # if [[ -z "${CIRCLECI}" ]] && command -v docker; then
+  #   aws_env
+  # fi
   packer_out
   cleanup
 
 }
 
 # https://blog.elreydetoda.site/cool-shell-tricks/#bashscriptingbashsmain
-if [[ "${0}" = "${BASH_SOURCE[0]}" ]]; then
+if [[ "${0}" == "${BASH_SOURCE[0]}" ]]; then
   main "${@}"
 fi

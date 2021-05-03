@@ -5,7 +5,7 @@ set -${-//[s]/}eu${DEBUG+xv}o pipefail
 
 function get_current_user() {
 
-  case "$PACKER_BUILDER_TYPE" in
+  case "${PACKER_BUILDER_TYPE:-}" in
     amazon-*)
       userz='kali'
       ;;

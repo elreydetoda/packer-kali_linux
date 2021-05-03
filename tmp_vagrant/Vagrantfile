@@ -2,7 +2,7 @@
 # vi: set ft=ruby :
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "kali-linux-2018_dev"
+  config.vm.box = "kali-linux-dev"
   # for provisioning I would always recommend
   # a script, because then you can leave
   # documentation
