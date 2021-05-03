@@ -158,7 +158,10 @@ def builder_alterations(packer_template_data: dict, new_builder_data: dict) -> d
                 logging("removed: {} from: {}".format(prop_rm, builder_dict["type"]))
                 del builder_dict[prop_rm]
 
-    prop_update = {"iso_url": "{{ user `iso_url` }}"}
+    prop_update = {
+        "iso_url": "{{ user `iso_url` }}",
+        "vm_name": "{{ user `template` }}-{{ user `build_directory` }}",
+    }
     # pylint: disable=line-too-long
     # reminded me to do this: https://gitlab.com/kalilinux/build-scripts/kali-vagrant/-/merge_requests/5
     # pylint: disable=line-too-long
