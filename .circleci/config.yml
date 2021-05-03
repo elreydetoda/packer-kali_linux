@@ -462,11 +462,11 @@ jobs:
       - run: scripts/new-kali.sh
       - run: |
           mkdir -p /tmp/packer_workspace
-          cp -v variables.json /tmp/packer_workspace
+          cp -v variables*.json /tmp/packer_workspace
       - persist_to_workspace:
           root: /tmp/packer_workspace
           paths:
-            - "variables.json"
+            - "variables*.json"
 
   terraform-packet_deploy:
     docker:
