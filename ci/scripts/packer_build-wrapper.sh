@@ -8,7 +8,7 @@ function setup_env() {
   export PACKER_LOG=1
   PACKER_LOG_DIR="${PACKER_LOG_DIR:-/opt/packerAutoKali/}"
   # PACKER_LOG_PATH=./packer_build.log
-  export PACKER_LOG_PATH="${PACKER_LOG_PATH:-${PACKER_LOG_DIR}}/packer_build.log"
+  export PACKER_LOG_PATH="${PACKER_LOG_PATH:-${PACKER_LOG_DIR}}/packer_build-${build_version}.log"
 }
 
 function packer_build() {

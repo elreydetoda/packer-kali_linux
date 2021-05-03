@@ -86,7 +86,7 @@
                 recurse: true
                 hidden: true
                 patterns:
-                  - '*.box'
+                  - "*{{ build_version | default('default') }}/*.box"
               register: vagrant_boxes_for_upload
 
             - name: launching the upload process

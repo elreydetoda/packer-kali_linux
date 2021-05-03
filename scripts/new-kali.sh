@@ -50,6 +50,7 @@ function deps_install() {
 function packer_out() {
 
   packer_var_json_string+=",$(printf '"vagrant_cloud_token":"%s"' "${vagrant_cloud_token}")"
+  packer_var_json_string+=",$(printf '"build_directory":"%s"' "${install_type_print}")"
 
   if [[ -z "${CIRCLECI}" ]]; then
     read -n 1 -r -p 'Would you like this to be headless?[Y/n] ' set_headless

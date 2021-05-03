@@ -87,7 +87,7 @@ def variable_alterations(packer_template_data: dict, new_vars: dict) -> dict:
     sub_dict = {
         "bento_debian_dir": str(new_vars["bento_debian_dir"]),
         "box_basename": str(new_vars["build_vm_base_output_name"]),
-        "build_directory": str(new_vars["build_vm_output_dir"]),
+        "build_directory": "",
         "build_script_dir": str(new_vars["packer_script_dir"]),
         "cpus": new_vars["build_cpus"],
         "headless": "",
