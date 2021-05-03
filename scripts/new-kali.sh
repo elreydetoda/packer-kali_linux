@@ -255,7 +255,7 @@ function main() {
   hashiName="${VAGRANT_CLOUD_USER:-}"
   vagrant_cloud_token="${VAGRANT_CLOUD_TOKEN:-}"
 
-  if [[ -n "${CIRCLECI}" ]] ; then
+  if [[ -n "${CIRCLECI}" ]]; then
     variables_out_file="variables${kaliInstallType}.json"
   else
     variables_out_file='variables.json'
@@ -276,6 +276,6 @@ function main() {
 }
 
 # https://blog.elreydetoda.site/cool-shell-tricks/#bashscriptingbashsmain
-if [[ "${0}" = "${BASH_SOURCE[0]}" ]]; then
+if [[ "${0}" == "${BASH_SOURCE[0]}" ]]; then
   main "${@}"
 fi

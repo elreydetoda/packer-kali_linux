@@ -16,37 +16,37 @@ function packer_build() {
 
   case "${provider}" in
     virtualbox-iso)
-        packer_build_cmd+=('-only=virtualbox-iso')
+      packer_build_cmd+=('-only=virtualbox-iso')
       ;;
     vmware-iso)
-        packer_build_cmd+=('-only=vmware-iso')
+      packer_build_cmd+=('-only=vmware-iso')
       ;;
     qemu)
-        packer_build_cmd+=('-only=qemu')
+      packer_build_cmd+=('-only=qemu')
       ;;
     *)
       # just a stop gap to prevent automated tasks from happening.
-        exit 1
+      exit 1
       ;;
   esac
 
 }
 
-function get_variables(){
+function get_variables() {
   build_version="${1}"
   case "${build_version}" in
     light)
-        packer_build_cmd+=( 'variables-light.json' )
+      packer_build_cmd+=('variables-light.json')
       ;;
     min)
-        packer_build_cmd+=( 'variables-min.json' )
+      packer_build_cmd+=('variables-min.json')
       ;;
     '')
-        packer_build_cmd+=( 'variables.json' )
+      packer_build_cmd+=('variables.json')
       ;;
     *)
-        # just a stop gap to prevent automated tasks from happening.
-        exit 1
+      # just a stop gap to prevent automated tasks from happening.
+      exit 1
       ;;
   esac
 }
