@@ -43,7 +43,7 @@ function docker_group() {
 
 }
 
-function deps(){
+function deps() {
   apt-get install -y curl gnupg
 }
 function main() {
@@ -55,6 +55,6 @@ function main() {
 }
 
 # https://blog.elreydetoda.site/cool-shell-tricks/#bashscriptingbashsmain
-if [[ "${0}" = "${BASH_SOURCE[0]}" ]]; then
+if [[ "${0}" == "${BASH_SOURCE[0]}" ]]; then
   main "${@}"
 fi
