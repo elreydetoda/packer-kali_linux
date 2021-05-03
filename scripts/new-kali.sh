@@ -242,7 +242,7 @@ function main() {
   fi
 
   # name of the vagrant box
-  namez="kali-linux_amd64${kaliInstallType}${dev_branch:-}"
+  namez="kali${kaliInstallType}-linux_amd64${dev_branch:-}"
 
   ## commands and combined variables
   # current version of kali's url combined with the base path
