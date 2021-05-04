@@ -136,6 +136,10 @@
             path: '{{ item.path }}'
           loop: '{{ files_to_remove.files }}'
 
+        - name: failing, since previous failed but wanted logs...
+          ansible.builtin.fail:
+            msg: "upload failed, so check the logs for issues"
+
     - name: log block
       block:
 

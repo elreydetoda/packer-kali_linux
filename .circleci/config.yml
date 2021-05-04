@@ -531,11 +531,14 @@ jobs:
               -e "api_key_from_env=${TEXTBELT_KEY:-} phone_from_env=${PERSONAL_NUM:-}" \
               -e CIRCLECI="${CIRCLECI:-}" -e build_version="<< parameters.version >>" \
               ci/packer_build.yml --limit="packer-build-box-<< parameters.build >>"
-      - run: |
-          mkdir -p /tmp/artifacts
-          pwd && ls
-          cp -v kali-template.json *.log /tmp/artifacts
+      - run:
+          when: always
+          command: |
+            mkdir -p /tmp/artifacts
+            pwd && ls
+            cp -v kali-template.json *.log /tmp/artifacts
       - store_artifacts:
+          when: always
           path: /tmp/artifacts
 
 
