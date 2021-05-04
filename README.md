@@ -1,6 +1,8 @@
 # Automated Kali Vagrant Box
 
-[![Kali Vagrant img](https://www.kali.org/wp-content/uploads/2018/10/kali-on-vagrant-768x273.png)](https://github.com/elreydetoda/packer-kali_linux)
+[![Kali Vagrant img](https://www.kali.org/blog/announcing-kali-for-vagrant/images/kali-on-vagrant.png)](https://github.com/elreydetoda/packer-kali_linux)
+
+[credit/src](https://www.kali.org/blog/announcing-kali-for-vagrant/) for image.
 
 **NOTE:** not Officially OffSec implementation of Vagrant and Kali.
 
@@ -18,6 +20,9 @@
 * Video
   * (coming soon)[SELF (Southeast Linuxfest)](https://www.youtube.com/user/southeastlinuxfest/playlists)
   * [bsides chs](http://youtu.be/9EnDotVmcl8)
+  * Vagrant for Pentesters ( not directly tied to project, but applicable )
+    
+    [![vagrant for pentesters vid](https://i.ytimg.com/vi_webp/Gb0peU3bckQ/maxresdefault.webp)](https://youtu.be/Gb0peU3bckQ)
 * Blog posts
   * Part 1: [https://blog.secureideas.com/2018/09/automating-red-team-homelabs-part-1-kali-automation.html](https://blog.secureideas.com/2018/09/automating-red-team-homelabs-part-1-kali-automation.html)
     * This blog post is a high level overview as to what I want to use this repo for
