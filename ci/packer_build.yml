@@ -88,6 +88,7 @@
                 patterns:
                   - "*.box"
               register: vagrant_boxes_for_upload
+              failed_when: "vagrant_boxes_for_upload.matched == 0"
 
             - name: launching the upload process
               shell:
