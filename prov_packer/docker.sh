@@ -5,7 +5,7 @@ set -${-//[s]/}eu${DEBUG+xv}o pipefail
 
 function get_current_user() {
 
-  case "$PACKER_BUILDER_TYPE" in
+  case "${PACKER_BUILDER_TYPE:-}" in
     amazon-*)
       userz='kali'
       ;;
@@ -43,7 +43,11 @@ function docker_group() {
 
 }
 
+function deps() {
+  apt-get install -y curl gnupg
+}
 function main() {
+  deps
   get_current_user
   add_docker_repo
   add_docker
@@ -51,6 +55,6 @@ function main() {
 }
 
 # https://blog.elreydetoda.site/cool-shell-tricks/#bashscriptingbashsmain
-if [[ "${0}" = "${BASH_SOURCE[0]}" ]]; then
+if [[ "${0}" == "${BASH_SOURCE[0]}" ]]; then
   main "${@}"
 fi

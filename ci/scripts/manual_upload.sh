@@ -191,18 +191,40 @@ function deps_check() {
 
 }
 
-function main() {
+function get_variables() {
+  build_version="${1}"
+  case "${build_version}" in
+    light)
+      variables_file='variables-light.json'
+      ;;
+    min)
+      variables_file='variables-min.json'
+      ;;
+    '')
+      variables_file='variables.json'
+      ;;
+    *)
+      # just a stop gap to prevent automated tasks from happening.
+      exit 1
+      ;;
+  esac
+}
 
-  variables_file='variables.json'
-  variables_file_path="${PWD}/${variables_file}"
+function main() {
 
   if [[ $# -eq 5 ]]; then
     help
   elif [[ -n "${CIRCLECI:-}" ]]; then
+
+    file_location="${1}"
+    build_version="${2}"
+    get_variables "${build_version}"
+    variables_file_path="${PWD}/${variables_file}"
+
     # this is an alternative logic path for specifically the CI
     #   this will only take 1 arg ( the path to the box ) as an arg
     #   for file upload
-    ci_get_vars "${@}"
+    ci_get_vars "${file_location}"
   else
     case $1 in
       -h | --help)

@@ -87,7 +87,7 @@ def variable_alterations(packer_template_data: dict, new_vars: dict) -> dict:
     sub_dict = {
         "bento_debian_dir": str(new_vars["bento_debian_dir"]),
         "box_basename": str(new_vars["build_vm_base_output_name"]),
-        "build_directory": str(new_vars["build_vm_output_dir"]),
+        "build_directory": "",
         "build_script_dir": str(new_vars["packer_script_dir"]),
         "cpus": new_vars["build_cpus"],
         "headless": "",
@@ -158,7 +158,10 @@ def builder_alterations(packer_template_data: dict, new_builder_data: dict) -> d
                 logging("removed: {} from: {}".format(prop_rm, builder_dict["type"]))
                 del builder_dict[prop_rm]
 
-    prop_update = {"iso_url": "{{ user `iso_url` }}"}
+    prop_update = {
+        "iso_url": "{{ user `iso_url` }}",
+        "vm_name": "{{ user `template` }}-{{ user `build_directory` }}",
+    }
     # pylint: disable=line-too-long
     # reminded me to do this: https://gitlab.com/kalilinux/build-scripts/kali-vagrant/-/merge_requests/5
     # pylint: disable=line-too-long
@@ -171,12 +174,21 @@ def builder_alterations(packer_template_data: dict, new_builder_data: dict) -> d
         "disk_cache": "unsafe",
         "disk_image": False,
     }
+    vbox_update = {
+        "gfx_controller": "vmsvga",
+        "gfx_vram_size": "48"
+    }
 
     for builder_dict in packer_builder_list:
         logging("updated property: {} in: {}".format(prop_update, builder_dict["type"]))
         builder_dict.update(prop_update)
+        # adding vbox specific properties
+        if builder_dict["type"] == "virtualbox-iso":
+            logging("updated property: {} in: {}".format(vbox_update, builder_dict["type"]))
+            builder_dict.update(vbox_update)
         # adding libvirt/qemu specific properties
         if builder_dict["type"] == "qemu":
+            logging("updated property: {} in: {}".format(qemu_update, builder_dict["type"]))
             builder_dict.update(qemu_update)
 
     # logging(packer_builder_list)
@@ -397,7 +409,9 @@ def main():
     new_packer_template = project_root / "kali-template.json"
 
     http_preseed_dir = project_root / "install" / "http"
-    http_preseed_file = "kali-linux-rolling-preseed.cfg"
+    # TODO: handle when variables.json doesn't exist and default to below
+    # http_preseed_file = 'kali-linux-rolling-preseed.cfg'
+    http_preseed_file = ''
     vagrant_template_file = project_root / "install" / "vagrantfile-kali_linux.template"
 
     build_cpus = "2"

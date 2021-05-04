@@ -53,10 +53,10 @@
 
             - name: launching the packer build process
               script:
-                cmd: "{{ local_ci_scripts_dir }}/packer_build-wrapper.sh '{{ provider_string }}'"
+                cmd: "{{ local_ci_scripts_dir }}/packer_build-wrapper.sh '{{ provider_string }}' '{{ build_version | default() }}'"
                 chdir: '{{ kali_project_folder }}'
               args:
-                creates: '{{ kali_project_folder }}/packer_build.log'
+                creates: '{{ kali_project_folder }}/packer_build-{{ build_version | default() }}.log'
 
             - name: sending last text message for end
               import_role:
@@ -82,18 +82,18 @@
 
             - name: getting path for all files to remove
               find:
-                paths: '{{ kali_project_folder }}'
+                paths: "{{ kali_project_folder }}/{{ build_version | default('default') }}"
                 recurse: true
                 hidden: true
                 patterns:
-                  - '*.box'
+                  - "*.box"
               register: vagrant_boxes_for_upload
 
             - name: launching the upload process
               shell:
                 cmd: |
                   export CIRCLECI='{{ CIRCLECI | default('') }}' # DEBUG=true
-                  ci/scripts/manual_upload.sh '{{ item.path }}' > curl-upload.log 2>&1
+                  ci/scripts/manual_upload.sh '{{ item.path }}' '{{ build_version | default() }}' > curl-upload.log 2>&1
                 chdir: '{{ kali_project_folder }}'
               loop: '{{ vagrant_boxes_for_upload.files }}'
 
