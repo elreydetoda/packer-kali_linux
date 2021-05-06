@@ -21,7 +21,7 @@
   * (coming soon)[SELF (Southeast Linuxfest)](https://www.youtube.com/user/southeastlinuxfest/playlists)
   * [bsides chs](http://youtu.be/9EnDotVmcl8)
   * Vagrant for Pentesters ( not directly tied to project, but applicable )
-    
+
     [![vagrant for pentesters vid](https://i.ytimg.com/vi_webp/Gb0peU3bckQ/maxresdefault.webp)](https://youtu.be/Gb0peU3bckQ)
 * Blog posts
   * Part 1: [https://blog.secureideas.com/2018/09/automating-red-team-homelabs-part-1-kali-automation.html](https://blog.secureideas.com/2018/09/automating-red-team-homelabs-part-1-kali-automation.html)
