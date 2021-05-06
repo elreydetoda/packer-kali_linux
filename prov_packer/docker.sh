@@ -19,7 +19,7 @@ function get_current_user() {
 function add_docker_repo() {
 
   # getting docker
-  curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
+  curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
   echo 'deb https://download.docker.com/linux/debian stretch stable' > /etc/apt/sources.list.d/docker.list
   # for outdated kali's
   # apt-get update
