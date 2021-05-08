@@ -3,14 +3,14 @@
 # https://elrey.casa/bash/scripting/harden
 set -${-//[s]/}eu${DEBUG+xv}o pipefail
 
-function podman_install(){
+function podman_install() {
   reg_file='/etc/containers/registries.conf'
 
   export DEBIAN_FRONTEND=noninteractive
 
   apt-get install -y podman
 
-  if grep '\[registries.search\]' "${reg_file}" ; then
+  if grep '\[registries.search\]' "${reg_file}"; then
     echo "Your registry search already exists...gotta have a better script to handle this..."
     exit 1
   else
@@ -46,6 +46,6 @@ function main() {
   :
 }
 # https://blog.elreydetoda.site/cool-shell-tricks/#bashscriptingbashsmain
-if [[ "${0}" = "${BASH_SOURCE[0]}" ]]; then
+if [[ "${0}" == "${BASH_SOURCE[0]}" ]]; then
   main "${@}"
 fi
