@@ -80,9 +80,14 @@
               when: (( api_key_from_env is defined ) and ( api_key_from_env | length > 0 )) and
                     ((phone_from_env is defined ) and ( phone_from_env | length > 0 ))
 
+            - name: setting build_version to default
+              set_fact:
+                build_version: 'default'
+              when: ( build_version | length == 0 )
+
             - name: getting path for all files to remove
               find:
-                paths: "{{ kali_project_folder }}/{{ build_version | default('default') }}"
+                paths: "{{ kali_project_folder }}/{{ build_version }}"
                 recurse: true
                 hidden: true
                 patterns:
