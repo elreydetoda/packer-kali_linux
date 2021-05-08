@@ -3,7 +3,25 @@
 # https://elrey.casa/bash/scripting/harden
 set -${-//[s]/}eu${DEBUG+xv}o pipefail
 
+function podman_install(){
+  reg_file='/etc/containers/registries.conf'
+
+  export DEBIAN_FRONTEND=noninteractive
+
+  apt-get install -y podman
+
+  if grep '\[registries.search\]' "${reg_file}" ; then
+    echo "Your registry search already exists...gotta have a better script to handle this..."
+    exit 1
+  else
+    echo -e "[registries.search]\nregistries = [ 'docker.io', 'quay.io' ]" >> "${reg_file}"
+  fi
+}
+
 function main() {
+
+  podman_install
+
   # this sets the dock to a fixed width instead of autohiding.
   # no longer needed since 2019.4
   #dconf write /org/gnome/shell/extensions/dash-to-dock/dock-fixed true
