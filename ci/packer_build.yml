@@ -80,20 +80,27 @@
               when: (( api_key_from_env is defined ) and ( api_key_from_env | length > 0 )) and
                     ((phone_from_env is defined ) and ( phone_from_env | length > 0 ))
 
-            - name: setting build_version to default
+            - name: setting new_build_version to default
               set_fact:
-                build_version: 'default'
+                new_build_version: 'default'
               when: ( build_version | length == 0 )
+
+            - name: setting new_build_version for other builders
+              set_fact:
+                new_build_version: '{{ build_version }}'
+              when: ( build_version | length > 0 )
 
             - name: getting path for all files to remove
               find:
-                paths: "{{ kali_project_folder }}/{{ build_version }}"
+                paths: "{{ kali_project_folder }}/{{ new_build_version }}"
                 recurse: true
                 hidden: true
                 patterns:
                   - "*.box"
               register: vagrant_boxes_for_upload
-              failed_when: "vagrant_boxes_for_upload.matched == 0"
+              failed_when:
+                - "vagrant_boxes_for_upload.matched == 0"
+                - "vagrant_boxes_for_upload.matched > 2"
 
             - name: launching the upload process
               shell:
