@@ -39,7 +39,8 @@ commands:
           code_folder_path='<< parameters.code-folder-path >>'
           path_to_check="${code_folder_path:-${PWD}}"
           find "${path_to_check}" -not \( -path "${path_to_check}/.git/*" \
-            -o -path "${path_to_check}/prov_packer/bento/*" \) -type f -iname "*.yml" \
+            -o -path "${path_to_check}/prov_packer/bento/*" \
+            -o -path "${path_to_check}/.circleci/*" \) -type f -iname "*.yml" \
             -print0 | xargs -0 file | grep 'ASCII text' | grep -vP '.*-requirements.yml' | cut -d ':' -f 1 |
             xargs -t pipenv run << parameters.linting-options >>
 
