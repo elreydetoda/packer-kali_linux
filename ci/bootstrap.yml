@@ -78,7 +78,6 @@
           ufw:
             state: enabled
 
-
     - name: building block prep
       vars:
         kali_project_folder: '/opt/packerAutoKali/'
