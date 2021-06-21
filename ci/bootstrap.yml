@@ -98,4 +98,3 @@
             src: '{{ project_folder }}/'
             dest: '{{ kali_project_folder }}'
             compress: true
-
