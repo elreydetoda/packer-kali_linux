@@ -77,3 +77,26 @@
         - name: enabling ufw
           ufw:
             state: enabled
+
+
+    - name: building block prep
+      vars:
+        kali_project_folder: '/opt/packerAutoKali/'
+        project_folder: "{{ lookup('env','HOME') }}/project/"
+      block:
+
+        - name: making sure build folder exists
+          file:
+            path: '{{ kali_project_folder }}'
+            state: directory
+            mode: '640'
+            owner: root
+            group: root
+
+        - name: rsync'ing to build server
+          synchronize:
+            partial: true
+            src: '{{ project_folder }}/'
+            dest: '{{ kali_project_folder }}'
+            compress: true
+
