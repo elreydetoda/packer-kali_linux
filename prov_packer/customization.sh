@@ -3,7 +3,7 @@
 # https://elrey.casa/bash/scripting/harden
 set -${-//[s]/}eu${DEBUG+xv}o pipefail
 
-function manage_interactive(){
+function manage_interactive() {
 
   if [[ -n "${DEBIAN_FRONTEND}" ]]; then
     # remove if it exists
