@@ -18,12 +18,13 @@ function get_current_user() {
 
 function add_docker_repo() {
 
-  # getting docker
-  curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
-  echo 'deb https://download.docker.com/linux/debian buster stable' > /etc/apt/sources.list.d/docker.list
-  # for outdated kali's
-  # apt-get update
-  # apt-key adv --keyserver hkp://keys.gnupg.net --recv-keys 7D8D0BF6
+  # https://github.com/elreydetoda/all-linux-tings/blob/c8642bbbd0232a9272b01711bea7e11c15a494bf/scripts/finished/hashicorp_repos-kali.sh#L8
+  debian_version="$(curl -fsSL 'https://www.debian.org/releases/stable/' | grep 'Release Information' | grep '<h1>' | grep -oP ';.*&' | tr -d ';|&')"
+  # updating based on kali docs PR:
+  # https://gitlab.com/kalilinux/documentation/kali-docs/-/merge_requests/115
+  curl -fsSL https://download.docker.com/linux/debian/gpg |
+    sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/docker-ce-archive-keyring.gpg
+  apt-add-repository -u "deb https://download.docker.com/linux/debian ${debian_version} stable"
   apt-get update
 
 }
