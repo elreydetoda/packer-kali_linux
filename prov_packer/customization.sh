@@ -3,10 +3,37 @@
 # https://elrey.casa/bash/scripting/harden
 set -${-//[s]/}eu${DEBUG+xv}o pipefail
 
+function manage_interactive(){
+
+  if [[ -n "${DEBIAN_FRONTEND}" ]] ; then
+    # remove if it exists
+    export -n DEBIAN_FRONTEND
+  else
+    # export if it doesn't
+    export DEBIAN_FRONTEND=noninteractive
+  fi
+
+}
+
+function wanted_packages(){
+  # enable
+  manage_interactive
+
+  packages=(
+    # normally installed with ubuntu
+    'software-properties-common'
+  )
+  
+  apt-get install -y "${packages[@]}"
+  # disable
+  manage_interactive
+  
+}
+
 function podman_install() {
   reg_file='/etc/containers/registries.conf'
-
-  export DEBIAN_FRONTEND=noninteractive
+  # enable
+  manage_interactive
 
   apt-get install -y podman
 
@@ -16,10 +43,13 @@ function podman_install() {
   else
     echo -e "[registries.search]\nregistries = [ 'docker.io', 'quay.io' ]" >> "${reg_file}"
   fi
+  # disable
+  manage_interactive
 }
 
 function main() {
 
+  wanted_packages
   podman_install
 
   # this sets the dock to a fixed width instead of autohiding.
