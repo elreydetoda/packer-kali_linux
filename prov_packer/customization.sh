@@ -5,7 +5,7 @@ set -${-//[s]/}eu${DEBUG+xv}o pipefail
 
 function manage_interactive(){
 
-  if [[ -n "${DEBIAN_FRONTEND}" ]] ; then
+  if [[ -n "${DEBIAN_FRONTEND}" ]]; then
     # remove if it exists
     export -n DEBIAN_FRONTEND
   else
@@ -15,7 +15,7 @@ function manage_interactive(){
 
 }
 
-function wanted_packages(){
+function wanted_packages() {
   # enable
   manage_interactive
 
@@ -23,11 +23,11 @@ function wanted_packages(){
     # normally installed with ubuntu
     'software-properties-common'
   )
-  
+
   apt-get install -y "${packages[@]}"
   # disable
   manage_interactive
-  
+
 }
 
 function podman_install() {
