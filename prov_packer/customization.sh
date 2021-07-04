@@ -5,7 +5,7 @@ set -${-//[s]/}eu${DEBUG+xv}o pipefail
 
 function manage_interactive() {
 
-  if [[ -n "${DEBIAN_FRONTEND}" ]]; then
+  if [[ -n "${DEBIAN_FRONTEND:-}" ]]; then
     # remove if it exists
     export -n DEBIAN_FRONTEND
   else
