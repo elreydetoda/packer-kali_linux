@@ -17,3 +17,7 @@ fi
 
 # packer build -var-file variables.json -only amazon-ebs kali-template.json
 # sudo ufw disable && packer build -except=amazon-ebs -var-file variables.json kali-template.json ; sudo ufw enable
+
+# libvirt_cmds
+# source prov_vagrant/env_vars
+# vagrant destroy -f && sleep 5 && vagrant up --no-destroy-on-error --no-provision main ; vagrant provision --provision-with fix-dns $_ && vagrant reload $_ && vagrant provision $_ && vagrant ssh $_
