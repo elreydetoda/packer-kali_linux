@@ -7,24 +7,6 @@
     local_ci_scripts_dir: 'scripts'
   tasks:
 
-    - name: building block prep
-      block:
-
-        - name: making sure build folder exists
-          file:
-            path: '{{ kali_project_folder }}'
-            state: directory
-            mode: '640'
-            owner: root
-            group: root
-
-        - name: rsync'ing to build server
-          synchronize:
-            partial: true
-            src: '{{ project_folder }}/'
-            dest: '{{ kali_project_folder }}'
-            compress: true
-
     - name: building block
       block:
 

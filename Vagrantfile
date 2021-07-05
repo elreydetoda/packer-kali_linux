@@ -38,7 +38,26 @@ Vagrant.configure("2") do |config|
   config.vm.box = "bento/ubuntu-20.04"
 
   config.vm.define "main", primary: true do |main|
-    main.vm.network "private_network", ip: "192.168.34.22", virtualbox__intnet: "building_network"
+
+    main.vm.provider :libvirt do |lv, override|
+      override.vm.allowed_synced_folder_types = [:libvirt, :nfs]
+      override.vm.box = "generic/ubuntu2004"
+      override.vm.synced_folder ".", "/vagrant", nfs_version: 4, nfs_udp: false
+      override.vm.synced_folder ".", "/home/vagrant/project", nfs_version: 4, nfs_udp: false
+      override.vm.provision 'fix-dns', type: "shell", run: 'never' do |script|
+        script.inline = <<-SHELL
+          sudo sed -i -e '/nameservers:/d' -e '/addresses:/d' /etc/netplan/01-netcfg.yaml
+          sudo netplan generate && sudo netplan apply
+          sudo sed -i 's/^[[:alpha:]]/#&/' /etc/systemd/resolved.conf
+          sudo systemctl restart systemd-resolved.service
+        SHELL
+      end
+    end
+
+    main.vm.provider "virtualbox" do |vb, override|
+      override.vm.network "private_network", ip: "192.168.34.22", virtualbox__intnet: "building_network"
+    end
+
     main.vm.synced_folder ".", "/home/vagrant/project"
     main.vm.synced_folder ".", "/vagrant"
     # main.vm.synced_folder "~/src/mine/ansible_virtualization", "/roles"
@@ -69,7 +88,14 @@ Vagrant.configure("2") do |config|
     SHELL
   end
   config.vm.define "builder", autostart: false do |remote|
-    remote.vm.network "private_network", ip: "192.168.34.23", virtualbox__intnet: "building_network"
+    remote.vm.provider "virtualbox" do |vb, override|
+      override.vm.network "private_network", ip: "192.168.34.23", nfs_version: 4, virtualbox__intnet: "building_network"
+    end
+    remote.vm.provider :libvirt do |lv, override|
+      override.vm.box = "generic/ubuntu2004"
+      override.vm.synced_folder ".", "/vagrant", nfs_udp: false
+      override.vm.allowed_synced_folder_types = [:libvirt, :nfs]
+    end
     remote.vm.provision 'remote-setup', type: 'ansible' do |ansible|
       ansible.playbook = 'prov_vagrant/base.yml'
       ansible.version = 'latest'
