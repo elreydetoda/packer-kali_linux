@@ -1,10 +1,8 @@
 # Automated Kali Vagrant Box
 
-[![Kali Vagrant img](https://www.kali.org/blog/announcing-kali-for-vagrant/images/kali-on-vagrant.png)](https://github.com/elreydetoda/packer-kali_linux)
+[![Kali Vagrant img](https://www.kali.org/blog/announcing-kali-for-vagrant/images/kali-on-vagrant.jpg)](https://github.com/elreydetoda/packer-kali_linux)
 
-[credit/src](https://www.kali.org/blog/announcing-kali-for-vagrant/) for image.
-
-**NOTE:** not Officially OffSec implementation of Vagrant and Kali.
+[credit/src](https://www.kali.org/blog/announcing-kali-for-vagrant/) [¹](#footnotes) for image.
 
 [![CircleCI](https://circleci.com/gh/elreydetoda/packer-kali_linux/tree/master.svg?style=svg)](https://circleci.com/gh/elreydetoda/packer-kali_linux/tree/master)
 [![CodeFactor](https://www.codefactor.io/repository/github/elreydetoda/packer-kali_linux/badge)](https://www.codefactor.io/repository/github/elreydetoda/packer-kali_linux)
@@ -116,3 +114,7 @@ before `vagrant destroy`
 * [ ] Create different kali box automations (i.e. with empire and other frameworks)
 * [ ] docs...eventually :D
 * [ ] different virtualization platforms (virtualbox)
+
+## Footnotes
+
+[1] KALI LINUX ™ is a trademark of Offensive Security. This repo is not the official implementation of Vagrant and Kali. You can find that [here](https://gitlab.com/kalilinux/build-scripts/kali-vagrant/)
