@@ -45,7 +45,7 @@ function docker_group() {
 }
 
 function deps() {
-  apt-get install -y curl gnupg
+  apt-get install -y curl gnupg software-properties-common
 }
 function main() {
   deps
