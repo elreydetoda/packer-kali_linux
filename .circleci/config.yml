@@ -558,7 +558,7 @@ workflows:
                 - master
     jobs:
       - shellcheck-warning
-      - shfmt-linting
+      # - shfmt-linting
       - terraform-linting
       - markdown-linting
       - gh_issues-linting
