@@ -578,7 +578,7 @@ workflows:
             - generate-packer-vars
             - generate-packer-file
             - shellcheck-warning
-            - shfmt-linting
+            # - shfmt-linting
             - terraform-linting
             - markdown-linting
             - gh_issues-linting
@@ -676,11 +676,11 @@ workflows:
             branches:
               only:
                 - master
-      - shfmt-linting:
-          filters:
-            branches:
-              only:
-                - master
+      # - shfmt-linting:
+      #    filters:
+      #      branches:
+      #        only:
+      #          - master
       - terraform-linting:
           filters:
             branches:
@@ -728,7 +728,7 @@ workflows:
             - generate-packer-vars
             - generate-packer-file
             - shellcheck-warning
-            - shfmt-linting
+            # - shfmt-linting
             - terraform-linting
             - markdown-linting
             - gh_issues-linting
