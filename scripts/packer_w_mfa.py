@@ -61,7 +61,7 @@ def write_setup(aws_cred_path, temp_creds: dict, provisioning_profile: dict,
 
     config.clear()
 
-    config['profile {}'.format(profile_name)] = {
+    config[f'profile {profile_name}'] = {
         'region': provisioning_profile['region'],
         'role_arn': provisioning_profile['role_arn']
     }
