@@ -790,7 +790,6 @@ workflows:
             branches:
               only:
                 - dev-stage
-
       - generate-packer-file:
           filters:
             branches:
