@@ -141,7 +141,7 @@ function info_enum() {
       sort -t '-' -k2,2V |
       # select the top result ( should be the highest semver)
       head -n 1
-    )
+  )
   printf '\ngetting filename of the kali iso: %s\n' "${currentKaliISO}"
 
   currentKaliISOUrl="${kaliCurrentUrl}/${currentKaliISO}"
