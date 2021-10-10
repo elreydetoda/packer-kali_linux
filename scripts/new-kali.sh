@@ -131,7 +131,17 @@ function info_enum() {
   # getting the current kali iso filename
   #   sed command, came from here: https://github.com/SamuraiWTF/samuraiwtf/pull/103#commitcomment-35941962
   #   NOTE: this is only compatible for >= 2020.1
-  currentKaliISO=$($curl "${kaliCurrentUrl}" | sed -n "/href=\".*${kaliInstallISOVersion}.iso\"/p" | awk -F'["]' '{print $8}')
+  currentKaliISO=$(
+    $curl "${kaliCurrentUrl}" |
+      # parses the html and only grabs the lines with iso and version info
+      sed -n "/href=\".*${kaliInstallISOVersion}.iso\"/p" |
+      # specifically grabs the iso names
+      awk -F'["]' '{print $8}' |
+      # sort by '-' as a separator and sort on the 2'nd field ( starts at zero I guess ) with a version sort
+      sort -t '-' -k2,2V |
+      # select the top result ( should be the highest semver)
+      head -n 1
+  )
   printf '\ngetting filename of the kali iso: %s\n' "${currentKaliISO}"
 
   currentKaliISOUrl="${kaliCurrentUrl}/${currentKaliISO}"

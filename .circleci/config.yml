@@ -381,12 +381,12 @@ jobs:
     description: this is the desired degree of shellcheck
     executor:
       name: go/default
-      tag: '1.15'
+      tag: '1.17.2'
     steps:
       - checkout
       - run: |
           set -euxo pipefail
-          go get -v github.com/mvdan/sh/cmd/shfmt
+          go install mvdan.cc/sh/v3/cmd/shfmt@latest
       - run: |
           set -euxo pipefail
           shfmt -version
@@ -460,7 +460,7 @@ jobs:
     environment:
       KALITYPE: "<< parameters.kalitype >>"
     steps:
-      - run: apk add --update --no-cache git
+      - run: apk add --update --no-cache git coreutils
       - checkout
       - run: bash --version
       - run: scripts/new-kali.sh
@@ -790,7 +790,6 @@ workflows:
             branches:
               only:
                 - dev-stage
-
       - generate-packer-file:
           filters:
             branches:
