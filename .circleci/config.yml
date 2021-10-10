@@ -460,7 +460,7 @@ jobs:
     environment:
       KALITYPE: "<< parameters.kalitype >>"
     steps:
-      - run: apk add --update --no-cache git
+      - run: apk add --update --no-cache git coreutils
       - checkout
       - run: bash --version
       - run: scripts/new-kali.sh
