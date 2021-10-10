@@ -26,7 +26,7 @@ def section_meta(current_status: str, current_func: str) -> NoReturn:
     print("")
 
     # using logging function to print
-    logging("{} {} function".format(current_status, current_func))
+    logging(f"{current_status} {current_func} function")
 
     # adding extra spacing
     print("")
@@ -80,7 +80,7 @@ def variable_alterations(packer_template_data: dict, new_vars: dict) -> dict:
 
     # removing all items in list above
     for var in remove_list:
-        logging("removed: {}".format(var))
+        logging(f"removed: {var}")
         del variables_section[var]
 
     # either adding or updating values in template
@@ -117,11 +117,7 @@ def sensitive_variables(packer_template_data: dict, sensitive_vars: list) -> dic
     """
     section_meta("starting", getframeinfo(currentframe()).function)
 
-    logging(
-        "adding variables to sensative vars secions: {}".format(
-            ", ".join(sensitive_vars)
-        )
-    )
+    logging(f"adding variables to sensative vars secions: {', '.join(sensitive_vars)}")
     packer_template_data["sensitive-variables"] = sensitive_vars
 
     section_meta("exiting", getframeinfo(currentframe()).function)
@@ -145,7 +141,7 @@ def builder_alterations(packer_template_data: dict, new_builder_data: dict) -> d
             removing_builders_list.append(builder)
 
     for removed_builder in removing_builders_list:
-        logging("removing: {}".format(removed_builder["type"]))
+        logging(f"removing: {removed_builder['type']}")
         packer_builder_list.remove(removed_builder)
 
     # defining what properties have to be removed from builder
@@ -155,7 +151,7 @@ def builder_alterations(packer_template_data: dict, new_builder_data: dict) -> d
     for prop_rm in prop_removal:
         for builder_dict in packer_builder_list:
             if prop_rm in builder_dict:
-                logging("removed: {} from: {}".format(prop_rm, builder_dict["type"]))
+                logging(f"removed: {prop_rm} from: {builder_dict['type']}")
                 del builder_dict[prop_rm]
 
     prop_update = {
@@ -180,15 +176,15 @@ def builder_alterations(packer_template_data: dict, new_builder_data: dict) -> d
     }
 
     for builder_dict in packer_builder_list:
-        logging("updated property: {} in: {}".format(prop_update, builder_dict["type"]))
+        logging(f"updated property: {prop_update} in: {builder_dict['type']}")
         builder_dict.update(prop_update)
         # adding vbox specific properties
         if builder_dict["type"] == "virtualbox-iso":
-            logging("updated property: {} in: {}".format(vbox_update, builder_dict["type"]))
+            logging(f"updated property: {vbox_update} in: {builder_dict['type']}")
             builder_dict.update(vbox_update)
         # adding libvirt/qemu specific properties
         if builder_dict["type"] == "qemu":
-            logging("updated property: {} in: {}".format(qemu_update, builder_dict["type"]))
+            logging(f"updated property: {qemu_update} in: {builder_dict['type']}")
             builder_dict.update(qemu_update)
 
     # logging(packer_builder_list)
@@ -246,9 +242,7 @@ def provisioner_alterations(packer_template_data: dict, new_prov_data: dict) -> 
     del bento_copy_prov["type"]
     # altering the the path for the cleanup.sh, so it
     # doesn't try to uninstall X11 packages
-    bento_copy_prov["scripts"][0] = "{}/cleanup.sh".format(
-        new_prov_data["prov_packer_dir"]
-    )
+    bento_copy_prov["scripts"][0] = f"{new_prov_data['prov_packer_dir']}/cleanup.sh"
 
     packerlicious_prov = packer_provisioner.Shell().from_dict(
         title="CleanupBentoScripts", d=bento_copy_prov
@@ -348,7 +342,7 @@ def get_builder_aws_ebs() -> packer_builder:
         )
         current_profile = profile_prompt.launch()
 
-        variable_dictionary.update({"profile": "{}".format(current_profile)})
+        variable_dictionary.update({"profile": f"{current_profile}"})
 
     elif auth_type == "AWS Access Key":
 
@@ -360,7 +354,7 @@ def get_builder_aws_ebs() -> packer_builder:
         )
 
     else:
-        print("unknown auth type: {}".format(auth_type))
+        print(f"unknown auth type: {auth_type}")
 
     aws_ebs_builder = packer_builder.AmazonEbs().from_dict(
         "AmazonEBS", d=variable_dictionary
@@ -432,12 +426,12 @@ def main():
     scripts_removal_list = ["virtualbox.sh"]
     prov_packer_dir_str = str(prov_packer_dir)
     scripts_custom_list = [
-        "{}/full-update.sh".format(prov_packer_dir_str),
-        "{}/vagrant.sh".format(prov_packer_dir_str),
-        "{}/customization.sh".format(prov_packer_dir_str),
-        "{}/docker.sh".format(prov_packer_dir_str),
-        "{}/networking.sh".format(prov_packer_dir_str),
-        "{}/virtualbox.sh".format(prov_packer_dir_str),
+        f"{prov_packer_dir_str}/full-update.sh",
+        f"{prov_packer_dir_str}/vagrant.sh",
+        f"{prov_packer_dir_str}/customization.sh",
+        f"{prov_packer_dir_str}/docker.sh",
+        f"{prov_packer_dir_str}/networking.sh",
+        f"{prov_packer_dir_str}/virtualbox.sh",
     ]
 
     parser = ArgumentParser(
