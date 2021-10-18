@@ -22,6 +22,11 @@ function wanted_packages() {
   packages=(
     # normally installed with ubuntu
     'software-properties-common'
+    ## from: https://github.com/wimpysworld/quickemu/tree/c0f03e6c9c146af569d3fd1309d2c9887d702b1f#ubuntu-guest
+    # used to enable clipboard support (QEMU)
+    'spice-vdagent'
+    # used to enable file sharing (QEMU)
+    'spice-webdavd'
   )
 
   apt-get install -y "${packages[@]}"
