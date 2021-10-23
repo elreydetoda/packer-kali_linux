@@ -97,6 +97,9 @@ function hashicorp_setup_env() {
 
 function cryptographical_verification() {
 
+  # overriding till fixed: https://github.com/elreydetoda/packer-kali_linux/issues/125
+  kaliCurrentHashUrl='https://mirrors.ocf.berkeley.edu/kali-images/kali-2021.3/SHA256SUMS'
+
   # showing the hash signature url
   printf '\ncurrent url for hash algorithm for the %s version is:\n%s\n\n' "${kaliInstallVersion}" "${kaliCurrentHashUrl}"
   # show mirror where retrieved from
@@ -107,11 +110,8 @@ function cryptographical_verification() {
 
   echo "Starting ISO signature validation process."
   # downloading the hash algorithm file contents
-  # $curl "${kaliCurrentHashUrl}" -o "${tmpDir}/$hashAlg"
-  kaliCurrentHashUrl='https://mirrors.ocf.berkeley.edu/kali-images/kali-2021.3/SHA256SUMS'
   $curl "${kaliCurrentHashUrl}" -o "${tmpDir}/$hashAlg"
   # downloading the hash algorithms signature file contents
-  # $curl "${kaliCurrentHashUrl}.gpg" -o "${tmpDir}/${hashAlg}.gpg"
   $curl "${kaliCurrentHashUrl}.gpg" -o "${tmpDir}/${hashAlg}.gpg"
   # import gpg key to system keys
   $curl "${kaliKeyUrl}" | gpg --import
