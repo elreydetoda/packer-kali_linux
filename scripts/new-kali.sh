@@ -107,8 +107,11 @@ function cryptographical_verification() {
 
   echo "Starting ISO signature validation process."
   # downloading the hash algorithm file contents
+  # $curl "${kaliCurrentHashUrl}" -o "${tmpDir}/$hashAlg"
+  kaliCurrentHashUrl='https://mirrors.ocf.berkeley.edu/kali-images/kali-2021.3/SHA256SUMS'
   $curl "${kaliCurrentHashUrl}" -o "${tmpDir}/$hashAlg"
   # downloading the hash algorithms signature file contents
+  # $curl "${kaliCurrentHashUrl}.gpg" -o "${tmpDir}/${hashAlg}.gpg"
   $curl "${kaliCurrentHashUrl}.gpg" -o "${tmpDir}/${hashAlg}.gpg"
   # import gpg key to system keys
   $curl "${kaliKeyUrl}" | gpg --import
