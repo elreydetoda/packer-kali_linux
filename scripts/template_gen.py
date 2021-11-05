@@ -383,7 +383,7 @@ def append_builder(packer_template_data: dict, new_builder: dict) -> dict:
     return packer_template_data
 
 
-# pylint: disable=C0116
+# pylint: disable=C0116,too-many-statements
 def main():
 
     ### section with lots of variables to get used throughout the script
@@ -449,10 +449,12 @@ def main():
         help="Do not add additional post provisioners (defaults to including all post provisioners)"
     )
     parser.add_argument(
-        "-ap", "--add-post-provisioner", help="path to file where the json for another post povisioner is located"
+        "-ap", "--add-post-provisioner",
+        help="path to file where the json for another post povisioner is located"
     )
     parser.add_argument(
-        "-rv", "--remove-vagrant",action="store_true", help="remove the vagrant post processor completely"
+        "-rv", "--remove-vagrant",action="store_true",
+        help="remove the vagrant post processor completely"
     )
 
     # parser.add_argument(
@@ -551,9 +553,10 @@ def main():
             del updated_packer_data["post-processors"]
 
     if args.add_post_provisioner:
-        updated_packer_data = post_processor_alterations(
-            updated_packer_data, 
-        )
+        print()
+        # updated_packer_data = post_processor_alterations(
+        #     updated_packer_data,
+        # )
     # logging(updated_packer_data)
 
     # writing out to file
