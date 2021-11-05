@@ -444,6 +444,16 @@ def main():
     parser.add_argument(
         "-a", "--aws", action="store_true", help="also build the aws-ebs builder"
     )
+    parser.add_argument(
+        "-p", "--post-provisioner", action="store_false", default=True,
+        help="Do not add additional post provisioners (defaults to including all post provisioners)"
+    )
+    parser.add_argument(
+        "-ap", "--add-post-provisioner", help="path to file where the json for another post povisioner is located"
+    )
+    parser.add_argument(
+        "-rv", "--remove-vagrant",action="store_true", help="remove the vagrant post processor completely"
+    )
 
     # parser.add_argument(
     #     '-b','--builders', nargs='*', default=[ 'all' ],
@@ -524,13 +534,26 @@ def main():
             "version": "{{user `vm_version`}}",
         },
     }
-    if not args.aws:
-        updated_packer_data = post_processor_alterations(
-            updated_packer_data, post_processor_dict
-        )
-    elif args.aws:
-        del updated_packer_data["post-processors"]
 
+    if args.remove_vagrant:
+        for i in range(len(updated_packer_data["post-processors"])):
+            if updated_packer_data["post-processors"][i]["type"] == 'vagrant':
+                del updated_packer_data["post-processors"][i]
+        if len(updated_packer_data["post-processors"]) == 0:
+            del updated_packer_data["post-processors"]
+    else:
+        if not args.aws:
+            if args.post_provisioner:
+                updated_packer_data = post_processor_alterations(
+                    updated_packer_data, post_processor_dict
+                )
+        elif args.aws:
+            del updated_packer_data["post-processors"]
+
+    if args.add_post_provisioner:
+        updated_packer_data = post_processor_alterations(
+            updated_packer_data, 
+        )
     # logging(updated_packer_data)
 
     # writing out to file
