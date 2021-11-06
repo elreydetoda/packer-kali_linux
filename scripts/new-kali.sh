@@ -97,9 +97,6 @@ function hashicorp_setup_env() {
 
 function cryptographical_verification() {
 
-  # overriding till fixed: https://github.com/elreydetoda/packer-kali_linux/issues/125
-  kaliCurrentHashUrl='https://mirrors.ocf.berkeley.edu/kali-images/kali-2021.3/SHA256SUMS'
-
   # showing the hash signature url
   printf '\ncurrent url for hash algorithm for the %s version is:\n%s\n\n' "${kaliInstallVersion}" "${kaliCurrentHashUrl}"
   # show mirror where retrieved from
