@@ -97,6 +97,9 @@ function hashicorp_setup_env() {
 
 function cryptographical_verification() {
 
+  # overriding till fixed: https://github.com/elreydetoda/packer-kali_linux/issues/125
+  kaliCurrentHashUrl='https://mirrors.ocf.berkeley.edu/kali-images/kali-2021.3/SHA256SUMS'
+
   # showing the hash signature url
   printf '\ncurrent url for hash algorithm for the %s version is:\n%s\n\n' "${kaliInstallVersion}" "${kaliCurrentHashUrl}"
   # show mirror where retrieved from
@@ -217,9 +220,7 @@ function main() {
 
   ## relevant kali information necessary
   # base url for where to download the kali isos
-  #kaliBaseUrl='https://cdimage.kali.org'
-  # overriding till fixed: https://github.com/elreydetoda/packer-kali_linux/issues/125
-  kaliBaseUrl='https://mirrors.ocf.berkeley.edu/kali-images'
+  kaliBaseUrl='https://cdimage.kali.org'
   # this is the version in the web path for the folder that has the kali ISOs in it
   #   i.e. https://cdimage.kali.org/kali-weekly/ or https://cdimage.kali.org/kali-2020.3/
   # TODO: perscribed by offsec patch for #85 in github
