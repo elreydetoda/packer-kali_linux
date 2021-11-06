@@ -28,7 +28,6 @@
     * This blog post is a deep dive into using packer and how I automated this github repo.
 
 <!--
-
 ## Quick Start
 
 ### Use case #1
