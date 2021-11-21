@@ -35,6 +35,10 @@ function ci_get_vars() {
     FILE="${1}"
     PROVIDER="$(printf '%s' "${FILE}" | rev | cut -d '.' -f 2 | rev)"
 
+    if [[ "${PROVIDER,,}" == 'vmware' ]]; then
+      # https://github.com/elreydetoda/packer-kali_linux/issues/131
+      PROVIDER='vmware_desktop'
+    fi
   fi
 }
 
