@@ -110,12 +110,13 @@ function cryptographical_verification() {
   $curl "${kaliCurrentHashUrl}" -o "${tmpDir}/$hashAlg"
   # downloading the hash algorithms signature file contents
   $curl "${kaliCurrentHashUrl}.gpg" -o "${tmpDir}/${hashAlg}.gpg"
+
   # import gpg key to system keys
-  $curl "${kaliKeyUrl}" | gpg --import
+  gpg --keyserver "${kaliKeyServer}" --recv-key "${kaliKeyID}"
 
   # printing out the fingerprint for the key
   echo "showing gpg key info"
-  gpg --fingerprint
+  gpg --fingerprint "${kaliKeyID}"
 
   # checking the hash for it's integrity
   echo "verifying hash signature "
@@ -234,8 +235,11 @@ function main() {
   hashAlg='SHA256SUMS'
   # doing this because if hash alg changes it should still get everything except the SUMS
   hashAlgOut=$(printf '%s' "${hashAlg}" | rev | cut -d 'S' -f 3- | rev | tr '[:upper:]' '[:lower:]')
-  # the url for the gpg key that is used to sign the hashes for the ISOs
-  kaliKeyUrl='https://archive.kali.org/archive-key.asc'
+  
+  # the id of Kali's key to import later on based on: https://gitlab.com/kalilinux/documentation/kali-docs/-/blob/4470df2e17183133b1a4ec05dd4c7979cf1c3bbd/introduction/download-images-securely/index.md#L17
+  kaliKeyID='44C6513A8E4FB3D30875F758ED444FF07D8D0BF6'
+  # key server recommended by kali: https://gitlab.com/kalilinux/documentation/kali-docs/-/blob/4470df2e17183133b1a4ec05dd4c7979cf1c3bbd/introduction/download-images-securely/index.md#L15
+  kaliKeyServer='hkps://keys.openpgp.org'
 
   ## vagrant box information
   # name of the vagrant box
