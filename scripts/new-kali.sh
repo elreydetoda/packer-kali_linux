@@ -14,7 +14,7 @@ function deps_install() {
   OS_VERSION="$(grep '^ID=' /etc/os-release | cut -d '=' -f 2)"
   case "${OS_VERSION}" in
     debian | ubuntu)
-      packages=("gpg" "curl" "jq" "git")
+      packages=("gpg" "curl" "jq" "git" "ca-certificates")
       package_manager='apt'
       package_manager_install_cmd=('install' '-y')
       ;;
@@ -239,7 +239,7 @@ function main() {
   # the id of Kali's key to import later on based on: https://gitlab.com/kalilinux/documentation/kali-docs/-/blob/4470df2e17183133b1a4ec05dd4c7979cf1c3bbd/introduction/download-images-securely/index.md#L17
   kaliKeyID='44C6513A8E4FB3D30875F758ED444FF07D8D0BF6'
   # key server recommended by kali: https://gitlab.com/kalilinux/documentation/kali-docs/-/blob/4470df2e17183133b1a4ec05dd4c7979cf1c3bbd/introduction/download-images-securely/index.md#L15
-  kaliKeyServer='hkps://keys.gnupg.net'
+  kaliKeyServer='hkps://keyserver.ubuntu.com'
 
   ## vagrant box information
   # name of the vagrant box
