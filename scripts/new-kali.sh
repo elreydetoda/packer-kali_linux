@@ -235,11 +235,11 @@ function main() {
   hashAlg='SHA256SUMS'
   # doing this because if hash alg changes it should still get everything except the SUMS
   hashAlgOut=$(printf '%s' "${hashAlg}" | rev | cut -d 'S' -f 3- | rev | tr '[:upper:]' '[:lower:]')
-  
+
   # the id of Kali's key to import later on based on: https://gitlab.com/kalilinux/documentation/kali-docs/-/blob/4470df2e17183133b1a4ec05dd4c7979cf1c3bbd/introduction/download-images-securely/index.md#L17
   kaliKeyID='44C6513A8E4FB3D30875F758ED444FF07D8D0BF6'
   # key server recommended by kali: https://gitlab.com/kalilinux/documentation/kali-docs/-/blob/4470df2e17183133b1a4ec05dd4c7979cf1c3bbd/introduction/download-images-securely/index.md#L15
-  kaliKeyServer='hkps://keys.openpgp.org'
+  kaliKeyServer='hkps://keys.gnupg.net'
 
   ## vagrant box information
   # name of the vagrant box
