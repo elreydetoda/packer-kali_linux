@@ -398,7 +398,10 @@ def get_builder_hyperv( packer_template_data: dict ) -> packer_builder:
 
     variable_dictionary = {
         'generation': 1,
-        'type': 'hyperv-iso'
+        'type': 'hyperv-iso',
+        # based on this:
+        # https://docs.microsoft.com/en-us/windows-server/virtualization/hyper-v/best-practices-for-running-linux-on-hyper-v#tuning-linux-file-systems-on-dynamic-vhdx-files
+        'disk_block_size': 1
     }
 
     for wanted_key in wanted_keys:
@@ -480,6 +483,7 @@ def main():
         f"{prov_packer_dir_str}/docker.sh",
         f"{prov_packer_dir_str}/networking.sh",
         f"{prov_packer_dir_str}/virtualbox.sh",
+        f"{prov_packer_dir_str}/hyperv.sh",
     ]
 
     parser = ArgumentParser(
