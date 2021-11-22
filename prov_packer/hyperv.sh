@@ -75,6 +75,7 @@ function main() {
       configure_xrdp
       configure_polkit
       load_hv_s_module
+      startup_service
       ;;
   esac
 }
