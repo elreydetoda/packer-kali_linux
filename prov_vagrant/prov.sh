@@ -117,11 +117,11 @@ function selection() {
 
   action_array=(
     'done'
-    'variables_gen' # this is used to ONLY generate the variables file
-    'circle_ci' # this is used to run an imitated environment of what circleci would do
-    'development' # normal local development
+    'variables_gen'    # this is used to ONLY generate the variables file
+    'circle_ci'        # this is used to run an imitated environment of what circleci would do
+    'development'      # normal local development
     'development_w_CI' # development with the CI environment setup
-    'prez' # for when doing a presentation to not reveal sensative info on recording
+    'prez'             # for when doing a presentation to not reveal sensative info on recording
   )
 
   until [ "${action:-}" == 'done' ]; do
