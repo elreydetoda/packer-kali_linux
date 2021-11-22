@@ -63,7 +63,7 @@ Vagrant.configure("2") do |config|
           sudo netplan generate || exit 1
           sudo sed -i 's/^[[:alpha:]]/#&/' /etc/systemd/resolved.conf
           sudo systemctl restart systemd-resolved.service
-          sudo netplan apply
+          sudo netplan apply &
           exit 0
         SHELL
       end
