@@ -401,7 +401,8 @@ def get_builder_hyperv( packer_template_data: dict ) -> packer_builder:
         'type': 'hyperv-iso',
         # based on this:
         # https://docs.microsoft.com/en-us/windows-server/virtualization/hyper-v/best-practices-for-running-linux-on-hyper-v#tuning-linux-file-systems-on-dynamic-vhdx-files
-        'disk_block_size': 1
+        'disk_block_size': 1,
+        'switch_name': '{{ user `switch_name` }}'
     }
 
     for wanted_key in wanted_keys:
@@ -463,6 +464,7 @@ def main():
     build_memory = "4096"
     build_vm_output_dir = project_root
     build_vm_base_output_name = "red-automated_kali"
+    hyperv_switch_name = ''
 
     ## builders section of variables
     supported_builder_list = [
@@ -549,6 +551,7 @@ def main():
         "vagrant_template_file": vagrant_template_file,
         "build_vm_output_dir": build_vm_output_dir,
         "build_vm_base_output_name": build_vm_base_output_name,
+        "switch_name": hyperv_switch_name
     }
 
     # updating variables
