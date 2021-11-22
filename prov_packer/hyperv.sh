@@ -48,15 +48,24 @@ function deps(){
   DEBIAN_FRONTEND=noninteractive apt-get install -y "${deps[@]}" | tee -a $logz
 }
 
+function startup_service(){
+  systemctl enable --now "${services[@]}"
+}
+
 function main(){
 
   deps=(
     'xrdp'
+    # should already be installed, but just in case
+    'hyperv-daemons'
   )
   xrdp_base='/etc/xrdp'
   modified_files=(
     "${xrdp_base}/xrdp.ini"
     "${xrdp_base}/sesman.ini"
+  )
+  services=(
+    'xrdp'
   )
 
   case "$PACKER_BUILDER_TYPE" in
