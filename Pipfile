@@ -20,8 +20,8 @@ bullet = "*"
 boto3 = "*"
 # for infra prov
 ansible = "*"
-packerlicious = "*"
 packet-python = "*"
+packerlicious = {ref = "ef834f547117e6c90e4ad30d295c3dfe129a6528", git = "https://github.com/elastic/packerlicious.git"}
 
 [requires]
 python_version = "3"
