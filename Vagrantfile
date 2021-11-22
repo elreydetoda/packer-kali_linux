@@ -54,6 +54,21 @@ Vagrant.configure("2") do |config|
       end
     end
 
+    main.vm.provider "hyperv" do |h, override|
+      override.vm.box = "generic/ubuntu2004"
+      override.vm.provision 'fix-dns', type: "shell", run: 'never' do |script|
+        script.inline = <<-SHELL
+          set -x
+          sudo sed -i -e '/nameservers:/d' -e '/addresses:/d' /etc/netplan/01-netcfg.yaml
+          sudo netplan generate || exit 1
+          sudo sed -i 's/^[[:alpha:]]/#&/' /etc/systemd/resolved.conf
+          sudo systemctl restart systemd-resolved.service
+          sudo netplan apply
+          exit 0
+        SHELL
+      end
+    end
+
     main.vm.provider "virtualbox" do |vb, override|
       override.vm.network "private_network", ip: "192.168.34.22", virtualbox__intnet: "building_network"
     end
