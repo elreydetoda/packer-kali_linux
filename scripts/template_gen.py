@@ -9,15 +9,18 @@ from typing import NoReturn
 from copy import deepcopy
 
 # from packerlicious import Template as packer_template
-from packerlicious import provisioner as packer_provisioner
-from packerlicious import builder as packer_builder
-from packerlicious import post_processor as packer_post_processor
+from packerlicious import (
+    provisioner as packer_provisioner,
+    builder as packer_builder,
+    post_processor as packer_post_processor
+)
+
 from bullet import Bullet, Input  # , YesNo
 
 # TODO: add more + better logging, w/cli arg optional
 
 # start each section with a pre-defined message and it's name
-def section_meta(current_status: str, current_func: str) -> NoReturn:
+def section_meta(current_status: str, current_func: str) -> None:
     """
     this is a meta function for logging information, to help you understand
     where you are in the script if it exits early or anything else like that
@@ -33,7 +36,7 @@ def section_meta(current_status: str, current_func: str) -> NoReturn:
 
 
 # logging func
-def logging(log_str: str) -> NoReturn:
+def logging(log_str: str) -> None:
     """
     this is to help print things out nicely (since most of data is json)
     """
@@ -366,8 +369,53 @@ def get_builder_aws_ebs() -> packer_builder:
     return aws_ebs_builder_dict
 
 
-# TODO: adding aspirations
-# def add_builder_hyperv():
+def get_builder_hyperv( packer_template_data: dict ) -> packer_builder:
+    """
+    build the aws builder section
+    """
+    section_meta("starting", getframeinfo(currentframe()).function)
+
+    packer_builder_list = packer_template_data["builders"]
+
+    wanted_keys = [
+        'boot_command',
+        'boot_wait',
+        'cpus',
+        'disk_size',
+        'http_directory',
+        'iso_checksum',
+        'iso_url',
+        'memory',
+        'output_directory',
+        'shutdown_command',
+        'ssh_password',
+        'ssh_port',
+        'ssh_timeout',
+        'ssh_username',
+        'vm_name',
+        'headless'
+    ]
+
+    variable_dictionary = {
+        'generation': 1,
+        'type': 'hyperv-iso'
+    }
+
+    for wanted_key in wanted_keys:
+        current_value = packer_builder_list[0][wanted_key]
+        if wanted_key == 'output_directory':
+            # replacing whatever provider was present with hyperv
+            current_value = '-'.join(current_value.split('-')[:-1]) + '-hyperv'
+            logging(f'updating property: {current_value}')
+        variable_dictionary[wanted_key] = current_value
+
+    # hyperv_builder = packer_builder.HypervIso().from_dict(
+    #     "HyperVISO", d=variable_dictionary
+    # )
+    logging(f'adding builder: {variable_dictionary["type"]}')
+
+    section_meta("exiting", getframeinfo(currentframe()).function)
+    return variable_dictionary
 
 
 def append_builder(packer_template_data: dict, new_builder: dict) -> dict:
@@ -514,6 +562,8 @@ def main():
     ### builder alterations section
     builder_info_dict = {"supported_builder_list": supported_builder_list}
     updated_packer_data = builder_alterations(updated_packer_data, builder_info_dict)
+
+    append_builder(updated_packer_data, get_builder_hyperv(updated_packer_data))
 
     if args.aws:
         append_builder(updated_packer_data, get_builder_aws_ebs())
