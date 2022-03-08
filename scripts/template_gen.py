@@ -5,7 +5,6 @@ import pathlib
 from argparse import ArgumentParser
 from inspect import getframeinfo, currentframe
 from pprint import pprint
-from typing import NoReturn
 from copy import deepcopy
 
 # from packerlicious import Template as packer_template
@@ -17,7 +16,7 @@ from bullet import Bullet, Input  # , YesNo
 # TODO: add more + better logging, w/cli arg optional
 
 # start each section with a pre-defined message and it's name
-def section_meta(current_status: str, current_func: str) -> NoReturn:
+def section_meta(current_status: str, current_func: str) -> None:
     """
     this is a meta function for logging information, to help you understand
     where you are in the script if it exits early or anything else like that
@@ -33,7 +32,7 @@ def section_meta(current_status: str, current_func: str) -> NoReturn:
 
 
 # logging func
-def logging(log_str: str) -> NoReturn:
+def logging(log_str: str) -> None:
     """
     this is to help print things out nicely (since most of data is json)
     """
@@ -90,6 +89,7 @@ def variable_alterations(packer_template_data: dict, new_vars: dict) -> dict:
         "build_directory": "",
         "build_script_dir": str(new_vars["packer_script_dir"]),
         "cpus": new_vars["build_cpus"],
+        "format": new_vars["format"],
         "headless": "",
         "http_directory": str(new_vars["http_dir"]),
         "iso_checksum": "",
@@ -157,6 +157,7 @@ def builder_alterations(packer_template_data: dict, new_builder_data: dict) -> d
     prop_update = {
         "iso_url": "{{ user `iso_url` }}",
         "vm_name": "{{ user `template` }}-{{ user `build_directory` }}",
+        "format": "{{user `format`}}",
     }
     # pylint: disable=line-too-long
     # reminded me to do this: https://gitlab.com/kalilinux/build-scripts/kali-vagrant/-/merge_requests/5
@@ -298,7 +299,7 @@ def post_processor_alterations(packer_template_data: dict, new_post_data: dict) 
 
 def write_packer_template(
     packer_template_path: pathlib, packer_template_data: dict
-) -> NoReturn:
+) -> None:
     """
     write the post processors section to disk
     """
@@ -456,6 +457,18 @@ def main():
         "-rv", "--remove-vagrant",action="store_true",
         help="remove the vagrant post processor completely"
     )
+    parser.add_argument(
+        "-bvb", "--builder-vbox",action="store_true",
+        help="output a single builder (virtualbox)"
+    )
+    parser.add_argument(
+        "-bvm", "--builder-vmware",action="store_true",
+        help="output a single builder (vmware)"
+    )
+    parser.add_argument(
+        "-oa", "--output-ova",action="store_true",
+        help="output a single builder in the ova format"
+    )
 
     # parser.add_argument(
     #     '-b','--builders', nargs='*', default=[ 'all' ],
@@ -484,6 +497,18 @@ def main():
     # read in bento template
     old_packer_data = get_packer_template(bento_current_packer_template)
 
+    if args.output_ova:
+        if args.builder_vbox:
+            supported_builder_list = ["virtualbox-iso"]
+        elif args.builder_vmware:
+            supported_builder_list = ["vmware-iso"]
+        else:
+            supported_builder_list = [Bullet(
+                choices = [
+                    "virtualbox-iso",
+                    "vmware-iso",
+                ]
+            ).launch()]
     ### variable alterations section
     # variables to update
     new_variables = {
@@ -497,7 +522,11 @@ def main():
         "vagrant_template_file": vagrant_template_file,
         "build_vm_output_dir": build_vm_output_dir,
         "build_vm_base_output_name": build_vm_base_output_name,
+        "format": "",
     }
+
+    if args.output_ova:
+        new_variables["format"] = "ova"
 
     # updating variables
     updated_packer_data = variable_alterations(old_packer_data, new_variables)
