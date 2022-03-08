@@ -157,7 +157,7 @@ function info_enum() {
     exit 1
   fi
 
-  currentHashSum=$(grep "${currentKaliISO}" "${tmpDir}/${hashAlg}" | cut -d ' ' -f 1)
+  currentHashSum=$(grep "${currentKaliISO}" "${tmpDir}/${hashAlg}" | grep -v '.torrent$' | cut -d ' ' -f 1)
   printf '\nthe current hash for that file is: %s\n' "${currentHashSum}"
   packer_var_json_string+="$(printf '"iso_checksum":"%s",' "${currentHashSum}")"
 
