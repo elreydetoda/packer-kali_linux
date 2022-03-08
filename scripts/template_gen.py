@@ -384,7 +384,7 @@ def append_builder(packer_template_data: dict, new_builder: dict) -> dict:
     return packer_template_data
 
 
-# pylint: disable=C0116,too-many-statements
+# pylint: disable=C0116,too-many-statements,too-many-branches
 def main():
 
     ### section with lots of variables to get used throughout the script
