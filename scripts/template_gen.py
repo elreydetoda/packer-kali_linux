@@ -159,6 +159,10 @@ def builder_alterations(packer_template_data: dict, new_builder_data: dict) -> d
         "vm_name": "{{ user `template` }}-{{ user `build_directory` }}",
         "format": "{{user `format`}}",
     }
+
+    if new_builder_data.get('boot_wait'):
+        prop_update['boot_wait'] = str(new_builder_data['boot_wait'])
+
     # pylint: disable=line-too-long
     # reminded me to do this: https://gitlab.com/kalilinux/build-scripts/kali-vagrant/-/merge_requests/5
     # pylint: disable=line-too-long
@@ -469,6 +473,10 @@ def main():
         "-oa", "--output-ova",action="store_true",
         help="output a single builder in the ova format"
     )
+    parser.add_argument(
+        "-bw", "--boot-wait",
+        help="change the boot wait time (example: https://www.packer.io/docs/provisioners/breakpoint#timeout)"
+    )
 
     # parser.add_argument(
     #     '-b','--builders', nargs='*', default=[ 'all' ],
@@ -542,6 +550,8 @@ def main():
     #   when 'all' is the array
     ### builder alterations section
     builder_info_dict = {"supported_builder_list": supported_builder_list}
+    if args.boot_wait:
+        builder_info_dict["boot_wait"] = str(args.boot_wait)
     updated_packer_data = builder_alterations(updated_packer_data, builder_info_dict)
 
     if args.aws:
