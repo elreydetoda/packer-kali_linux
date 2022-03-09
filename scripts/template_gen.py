@@ -425,7 +425,7 @@ def main():
     ]
     ## provisioner section of variables
     scripts_removal_list = ["virtualbox.sh"]
-    prov_packer_dir_str = str(prov_packer_dir)
+    prov_packer_dir_str = str(prov_packer_dir.relative_to(project_root))
     scripts_custom_list = [
         f"{prov_packer_dir_str}/full-update.sh",
         f"{prov_packer_dir_str}/vagrant.sh",
