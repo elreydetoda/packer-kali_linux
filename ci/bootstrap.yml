@@ -8,6 +8,13 @@
     - name: installation of software
       block:
 
+        - name: installing packages
+          package:
+            state: present
+            name:
+              - jq
+              - ufw
+
         - name: installing hypervisors
           block:
 
@@ -41,11 +48,6 @@
 
     - name: ufw setup
       block:
-
-        - name: install ufw
-          package:
-            name: ufw
-            state: present
 
         - name: adding ssh to allow
           ufw:
