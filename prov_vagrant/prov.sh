@@ -30,7 +30,7 @@ function general_deps() {
 
   variables_gen
   sudo snap install go --classic
-  go get -v github.com/mvdan/sh/cmd/shfmt
+  go install -v github.com/mvdan/sh/cmd/shfmt@latest
   # shellcheck disable=SC2016
   echo 'export PATH="${PATH}:${HOME}/go/bin"' >> ~/.bashrc
   sudo apt-get install -y python3-pip
