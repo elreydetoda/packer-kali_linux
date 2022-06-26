@@ -118,7 +118,7 @@
 
         - name: getting path for all files to remove
           find:
-            paths: '{{ kali_project_folder }}'
+            paths: '{{ kali_project_folder }}/{{ build_version | default("default") }}'
             recurse: true
             file_type: any
             hidden: true
