@@ -4,7 +4,7 @@
   vars:
     kali_project_folder: '/opt/packerAutoKali/'
     project_folder: "{{ lookup('env','HOME') }}/project/"
-    local_ci_scripts_dir: 'scripts'
+    local_ci_scripts_dir: 'ci/scripts'
   tasks:
 
     - name: building block
@@ -37,7 +37,7 @@
               shell:
                 cmd: |
                   export DEBUG=true
-                  "{{ local_ci_scripts_dir }}/packer_build-wrapper.sh '{{ provider_string }}' '{{ build_version | default() }}'"
+                  {{ local_ci_scripts_dir }}/packer_build-wrapper.sh '{{ provider_string }}' '{{ build_version | default() }}'
                 chdir: '{{ kali_project_folder }}'
               args:
                 creates: '{{ kali_project_folder }}/packer_build-{{ build_version | default() }}.log'
@@ -118,7 +118,7 @@
 
         - name: getting path for all files to remove
           find:
-            paths: '{{ kali_project_folder }}'
+            paths: '{{ kali_project_folder }}/{{ build_version | default("default") }}'
             recurse: true
             file_type: any
             hidden: true
