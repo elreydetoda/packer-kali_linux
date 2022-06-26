@@ -475,6 +475,7 @@ def main():
     )
     parser.add_argument(
         "-bw", "--boot-wait",
+        # pylint: disable=line-too-long
         help="change the boot wait time (example: https://www.packer.io/docs/provisioners/breakpoint#timeout)"
     )
 
