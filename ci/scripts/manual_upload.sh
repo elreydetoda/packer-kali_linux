@@ -216,6 +216,8 @@ function get_variables() {
 
 function main() {
 
+
+  export TERM=xterm
   if [[ $# -eq 5 ]]; then
     help
   elif [[ -n "${CIRCLECI:-}" ]]; then
