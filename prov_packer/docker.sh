@@ -56,6 +56,6 @@ function main() {
 }
 
 # https://blog.elreydetoda.site/cool-shell-tricks/#bashscriptingbashsmain
-if [[ "${0}" == "${BASH_SOURCE[0]}" ]]; then
+if [[ "${0}" == "${BASH_SOURCE[0]:-bash}" ]]; then
   main "${@}"
 fi
