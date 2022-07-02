@@ -529,8 +529,8 @@ jobs:
       - run: cp -v /tmp/packer_workspace/* .
       - run: ansible-playbook --version
       - run:
-          # no_output_timeout: 2h
-          no_output_timeout: 1h
+          no_output_timeout: 2h
+          # no_output_timeout: 1h
           command: |
             ansible-playbook -i ci/scripts/packet_net.py -u root \
               -e "api_key_from_env=${TEXTBELT_KEY:-} phone_from_env=${PERSONAL_NUM:-}" \
