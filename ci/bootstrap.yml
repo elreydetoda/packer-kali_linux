@@ -5,9 +5,8 @@
     - elreydetoda.virtualization
   pre_tasks:
     - name: updating cache
-      become: true
       apt:
-        update_cache: yes
+        update_cache: true
         cache_valid_time: 3600
 
   tasks:
