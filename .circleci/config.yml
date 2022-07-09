@@ -552,7 +552,7 @@ workflows:
   master_weekly-kali_build:
     triggers:
       - schedule:
-          cron: "30 12 * * 6"
+          cron: "30 14 * * 6"
           filters:
             branches:
               only:
