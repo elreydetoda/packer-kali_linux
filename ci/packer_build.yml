@@ -10,15 +10,15 @@
     - name: building block
       block:
 
-        - name: sending initial text message for start
-          import_role:
-            name: elreydetoda.textbelt
-          vars:
-            api_key: '{{ api_key_from_env }}'
-            phone_number: '{{ phone_from_env }}'
-            message_contents: 'starting build: {{ ansible_hostname }}'
-          when: (( api_key_from_env is defined ) and ( api_key_from_env | length > 0 )) and
-                ((phone_from_env is defined ) and ( phone_from_env | length > 0 ))
+        # - name: sending initial text message for start
+        #   import_role:
+        #     name: elreydetoda.textbelt
+        #   vars:
+        #     api_key: '{{ api_key_from_env }}'
+        #     phone_number: '{{ phone_from_env }}'
+        #     message_contents: 'starting build: {{ ansible_hostname }}'
+        #   when: (( api_key_from_env is defined ) and ( api_key_from_env | length > 0 )) and
+        #         ((phone_from_env is defined ) and ( phone_from_env | length > 0 ))
 
         - name: initial upload to vagrant cloud
           block:
@@ -42,27 +42,27 @@
               args:
                 creates: '{{ kali_project_folder }}/packer_build-{{ build_version | default() }}.log'
 
-            - name: sending last text message for end
-              import_role:
-                name: elreydetoda.textbelt
-              vars:
-                api_key: '{{ api_key_from_env }}'
-                phone_number: '{{ phone_from_env }}'
-                message_contents: 'finished successfuly, and ending build: {{ ansible_hostname }}'
-              when: (( api_key_from_env is defined ) and ( api_key_from_env | length > 0 )) and
-                    ((phone_from_env is defined ) and ( phone_from_env | length > 0 ))
+            # - name: sending last text message for end
+            #   import_role:
+            #     name: elreydetoda.textbelt
+            #   vars:
+            #     api_key: '{{ api_key_from_env }}'
+            #     phone_number: '{{ phone_from_env }}'
+            #     message_contents: 'finished successfuly, and ending build: {{ ansible_hostname }}'
+            #   when: (( api_key_from_env is defined ) and ( api_key_from_env | length > 0 )) and
+            #         ((phone_from_env is defined ) and ( phone_from_env | length > 0 ))
 
           rescue:
 
-            - name: sending last text message for end
-              import_role:
-                name: elreydetoda.textbelt
-              vars:
-                api_key: '{{ api_key_from_env }}'
-                phone_number: '{{ phone_from_env }}'
-                message_contents: 'build failed (probably upload), but trying to upload with curl script: {{ ansible_hostname }}'
-              when: (( api_key_from_env is defined ) and ( api_key_from_env | length > 0 )) and
-                    ((phone_from_env is defined ) and ( phone_from_env | length > 0 ))
+            # - name: sending last text message for end
+            #   import_role:
+            #     name: elreydetoda.textbelt
+            #   vars:
+            #     api_key: '{{ api_key_from_env }}'
+            #     phone_number: '{{ phone_from_env }}'
+            #     message_contents: 'build failed (probably upload), but trying to upload with curl script: {{ ansible_hostname }}'
+            #   when: (( api_key_from_env is defined ) and ( api_key_from_env | length > 0 )) and
+            #         ((phone_from_env is defined ) and ( phone_from_env | length > 0 ))
 
             - name: setting new_build_version to default
               set_fact:
@@ -94,27 +94,27 @@
                 chdir: '{{ kali_project_folder }}'
               loop: '{{ vagrant_boxes_for_upload.files }}'
 
-            - name: sending last text message for end
-              import_role:
-                name: elreydetoda.textbelt
-              vars:
-                api_key: '{{ api_key_from_env }}'
-                phone_number: '{{ phone_from_env }}'
-                message_contents: 'finished successfuly, and ending build: {{ ansible_hostname }}'
-              when: (( api_key_from_env is defined ) and ( api_key_from_env | length > 0 )) and
-                    ((phone_from_env is defined ) and ( phone_from_env | length > 0 ))
+            # - name: sending last text message for end
+            #   import_role:
+            #     name: elreydetoda.textbelt
+            #   vars:
+            #     api_key: '{{ api_key_from_env }}'
+            #     phone_number: '{{ phone_from_env }}'
+            #     message_contents: 'finished successfuly, and ending build: {{ ansible_hostname }}'
+            #   when: (( api_key_from_env is defined ) and ( api_key_from_env | length > 0 )) and
+            #         ((phone_from_env is defined ) and ( phone_from_env | length > 0 ))
 
       rescue:
 
-        - name: sending last text message for end
-          import_role:
-            name: elreydetoda.textbelt
-          vars:
-            api_key: '{{ api_key_from_env }}'
-            phone_number: '{{ phone_from_env }}'
-            message_contents: "didn't complete properly, and ending build: {{ ansible_hostname }}"
-          when: (( api_key_from_env is defined ) and ( api_key_from_env | length > 0 )) and
-                ((phone_from_env is defined ) and ( phone_from_env | length > 0 ))
+        # - name: sending last text message for end
+        #   import_role:
+        #     name: elreydetoda.textbelt
+        #   vars:
+        #     api_key: '{{ api_key_from_env }}'
+        #     phone_number: '{{ phone_from_env }}'
+        #     message_contents: "didn't complete properly, and ending build: {{ ansible_hostname }}"
+        #   when: (( api_key_from_env is defined ) and ( api_key_from_env | length > 0 )) and
+        #         ((phone_from_env is defined ) and ( phone_from_env | length > 0 ))
 
         - name: getting path for all files to remove
           find:
