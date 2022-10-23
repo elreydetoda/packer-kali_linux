@@ -623,11 +623,11 @@ workflows:
                 - master
                 - dev-stage
       # - markdown-linting:
-          filters:
-            branches:
-              ignore:
-                - master
-                - dev-stage
+      #    filters:
+      #      branches:
+      #        ignore:
+      #          - master
+      #          - dev-stage
       - gh_issues-linting:
           filters:
             branches:
@@ -688,10 +688,10 @@ workflows:
               only:
                 - master
       # - markdown-linting:
-          filters:
-            branches:
-              only:
-                - master
+      #    filters:
+      #      branches:
+      #        only:
+      #          - master
       - gh_issues-linting:
           filters:
             branches:
@@ -770,10 +770,10 @@ workflows:
               only:
                 - dev-stage
       # - markdown-linting:
-          filters:
-            branches:
-              only:
-                - dev-stage
+      #    filters:
+      #      branches:
+      #        only:
+      #          - dev-stage
 
       - gh_issues-linting:
           filters:
