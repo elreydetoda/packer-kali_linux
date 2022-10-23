@@ -561,7 +561,7 @@ workflows:
       - shellcheck-warning
       # - shfmt-linting
       - terraform-linting
-      - markdown-linting
+      # - markdown-linting
       - gh_issues-linting
       - python-linting
       - ansible-linting
@@ -581,7 +581,7 @@ workflows:
             - shellcheck-warning
             # - shfmt-linting
             - terraform-linting
-            - markdown-linting
+            # - markdown-linting
             - gh_issues-linting
             - python-linting
             - ansible-linting
@@ -622,7 +622,7 @@ workflows:
               ignore:
                 - master
                 - dev-stage
-      - markdown-linting:
+      # - markdown-linting:
           filters:
             branches:
               ignore:
@@ -687,7 +687,7 @@ workflows:
             branches:
               only:
                 - master
-      - markdown-linting:
+      # - markdown-linting:
           filters:
             branches:
               only:
@@ -731,7 +731,7 @@ workflows:
             - shellcheck-warning
             # - shfmt-linting
             - terraform-linting
-            - markdown-linting
+            # - markdown-linting
             - gh_issues-linting
             - python-linting
             - ansible-linting
@@ -769,7 +769,7 @@ workflows:
             branches:
               only:
                 - dev-stage
-      - markdown-linting:
+      # - markdown-linting:
           filters:
             branches:
               only:
@@ -815,7 +815,7 @@ workflows:
             - shellcheck-warning
             - shfmt-linting
             - terraform-linting
-            - markdown-linting
+            # - markdown-linting
             - gh_issues-linting
             - python-linting
             - ansible-linting
