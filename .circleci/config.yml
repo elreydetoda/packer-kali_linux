@@ -563,8 +563,8 @@ workflows:
       - terraform-linting
       # - markdown-linting
       - gh_issues-linting
-      - python-linting
-      - ansible-linting
+      #- python-linting
+      #- ansible-linting
       - generate-packer-file
       - generate-packer-vars:
           matrix:
@@ -583,8 +583,8 @@ workflows:
             - terraform-linting
             # - markdown-linting
             - gh_issues-linting
-            - python-linting
-            - ansible-linting
+            #- python-linting
+            #- ansible-linting
       - terraform-packet_deploy:
           requires:
             - packer-linting
@@ -634,18 +634,18 @@ workflows:
               ignore:
                 - master
                 - dev-stage
-      - python-linting:
-          filters:
-            branches:
-              ignore:
-                - master
-                - dev-stage
-      - ansible-linting:
-          filters:
-            branches:
-              ignore:
-                - master
-                - dev-stage
+      #- python-linting:
+      #    filters:
+      #      branches:
+      #        ignore:
+      #          - master
+      #          - dev-stage
+      #- ansible-linting:
+      #    filters:
+      #      branches:
+      #        ignore:
+      #          - master
+      #          - dev-stage
       - generate-packer-file:
           filters:
             branches:
@@ -697,16 +697,16 @@ workflows:
             branches:
               only:
                 - master
-      - python-linting:
-          filters:
-            branches:
-              only:
-                - master
-      - ansible-linting:
-          filters:
-            branches:
-              only:
-                - master
+      #- python-linting:
+      #    filters:
+      #      branches:
+      #        only:
+      #          - master
+      #- ansible-linting:
+      #    filters:
+      #      branches:
+      #        only:
+      #          - master
       - generate-packer-file:
           filters:
             branches:
@@ -733,8 +733,8 @@ workflows:
             - terraform-linting
             # - markdown-linting
             - gh_issues-linting
-            - python-linting
-            - ansible-linting
+            #- python-linting
+            #- ansible-linting
       - terraform-packet_deploy:
           requires:
             - packer-linting
@@ -781,16 +781,16 @@ workflows:
               only:
                 - dev-stage
 
-      - python-linting:
-          filters:
-            branches:
-              only:
-                - dev-stage
-      - ansible-linting:
-          filters:
-            branches:
-              only:
-                - dev-stage
+      #- python-linting:
+      #    filters:
+      #      branches:
+      #        only:
+      #          - dev-stage
+      #- ansible-linting:
+      #    filters:
+      #      branches:
+      #        only:
+      #          - dev-stage
       - generate-packer-file:
           filters:
             branches:
@@ -817,8 +817,8 @@ workflows:
             - terraform-linting
             # - markdown-linting
             - gh_issues-linting
-            - python-linting
-            - ansible-linting
+            #- python-linting
+            #- ansible-linting
       - terraform-packet_deploy:
           requires:
             - packer-linting
