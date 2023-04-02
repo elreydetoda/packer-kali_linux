@@ -35,13 +35,13 @@ SCRIPT
 
 Vagrant.configure("2") do |config|
 
-  config.vm.box = "bento/ubuntu-20.04"
+  config.vm.box = "bento/ubuntu-22.04"
 
   config.vm.define "main", primary: true do |main|
 
     main.vm.provider :libvirt do |lv, override|
       override.vm.allowed_synced_folder_types = [:libvirt, :nfs]
-      override.vm.box = "generic/ubuntu2004"
+      override.vm.box = "generic/ubuntu2204"
       override.vm.synced_folder ".", "/vagrant", nfs_version: 4, nfs_udp: false
       override.vm.synced_folder ".", "/home/vagrant/project", nfs_version: 4, nfs_udp: false
       override.vm.provision 'fix-dns', type: "shell", run: 'never' do |script|
@@ -55,7 +55,7 @@ Vagrant.configure("2") do |config|
     end
 
     main.vm.provider "hyperv" do |h, override|
-      override.vm.box = "generic/ubuntu2004"
+      override.vm.box = "generic/ubuntu2204"
       override.vm.provision 'fix-dns', type: "shell", run: 'never' do |script|
         script.inline = <<-SHELL
           set -x
@@ -107,7 +107,7 @@ Vagrant.configure("2") do |config|
       override.vm.network "private_network", ip: "192.168.34.23", nfs_version: 4, virtualbox__intnet: "building_network"
     end
     remote.vm.provider :libvirt do |lv, override|
-      override.vm.box = "generic/ubuntu2004"
+      override.vm.box = "generic/ubuntu2204"
       override.vm.synced_folder ".", "/vagrant", nfs_udp: false
       override.vm.allowed_synced_folder_types = [:libvirt, :nfs]
     end
