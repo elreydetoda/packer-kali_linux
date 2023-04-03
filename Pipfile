@@ -20,6 +20,10 @@ bullet = "*"
 # for python CI/CD (automation)
 dagger-io = "*"
 click = "*"
+pyyaml = "*"
+pydantic = "*"
+# for distutils.version: https://peps.python.org/pep-0632/#migration-advice
+packaging = "*"
 # for infra prov
 ansible-core = "2.14.4"
 packet-python = "*"
