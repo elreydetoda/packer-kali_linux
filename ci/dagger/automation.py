@@ -41,6 +41,9 @@ def check(ctx_obj: dict):
 @click.argument("pattern")
 @click.pass_context
 def find(ctx: click_Context, pattern: str):
+    """
+    Finds files based on the given pattern
+    """
     conf: ConfigObj = ctx.obj["CONFIG"]
     paths = set(Path(conf.git_root).glob(f"**/{pattern}"))
     result = {
@@ -52,14 +55,6 @@ def find(ctx: click_Context, pattern: str):
         if ".git" not in str(path) and "bento" not in str(path)
     }
     return result
-    # result = s_run(
-    #     f'find "{conf.git_root}" -iname "{pattern}"'.split(),
-    #     check=True,
-    #     stdout=PIPE,
-    #     stderr=PIPE,
-    #     shell=True,
-    # )
-    # click.echo((result.stdout.decode(), result.stderr.decode()))
 
 
 @main.command("lint")

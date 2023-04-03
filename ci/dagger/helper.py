@@ -215,7 +215,6 @@ def packer_lint(_: ConfigObj, files: Set[Path]) -> List[LintReturnObj]:
     """
 
     folders = list({str(file.parent) for file in files})
-    click.echo(folders)
     return_list = []
 
     packer_fmt_version = s_run(
