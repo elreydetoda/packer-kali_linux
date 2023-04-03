@@ -11,7 +11,7 @@ from yaml import safe_load as y_safe_load
 from models.helper import LintReturnObj
 from models.config import ConfigObj
 
-import helper
+import linting
 
 
 @click.group()
@@ -106,18 +106,18 @@ def lint(
     conf: ConfigObj = ctx.obj["CONFIG"]
 
     if ansible:
-        helper.prep_lint("ansible", ctx, lint_dict)
+        linting.prep_lint("ansible", ctx, lint_dict)
     if python:
-        helper.prep_lint("python", ctx, lint_dict)
+        linting.prep_lint("python", ctx, lint_dict)
     if terraform:
-        helper.prep_lint("terraform", ctx, lint_dict)
+        linting.prep_lint("terraform", ctx, lint_dict)
     if packer:
-        helper.prep_lint("packer", ctx, lint_dict)
+        linting.prep_lint("packer", ctx, lint_dict)
     if shell:
-        helper.prep_lint("shell", ctx, lint_dict)
+        linting.prep_lint("shell", ctx, lint_dict)
 
     for func_str, lint_dict_vals in lint_dict.items():
-        func_to_run = getattr(helper, f"{func_str}_lint")
+        func_to_run = getattr(linting, f"{func_str}_lint")
         lint_dict_vals["results"].extend(func_to_run(conf, lint_dict_vals["files"]))
 
     for tool_name, tool_data in lint_dict.items():
