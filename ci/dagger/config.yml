@@ -1,0 +1,32 @@
+container_images:
+  # shellcheck: docker.io/koalaman/shellcheck:v0.9.0
+  shellcheck: docker.io/koalaman/shellcheck:stable
+  # shfmt: docker.io/mvdan/shfmt:v3.6.0
+  shfmt: docker.io/mvdan/shfmt:v3
+  # terraform: docker.io/hashicorp/terraform:1.4.4
+  terraform: docker.io/hashicorp/terraform:light
+  # packer: docker.io/hashicorp/packer:light-1.8.6
+  packer: docker.io/hashicorp/packer:light
+  # ansible: quay.io/ansible/creator-ee:v0.14.1
+  ansible: quay.io/ansible/creator-ee:latest
+  # python: docker.io/python:3.10.10-slim
+  python: docker.io/python:3.10-slim
+  # base: docker.io/ubuntu:jammy-20230308
+  base: docker.io/ubuntu:22.04
+python_version: 3.10
+ansible:
+  patterns:
+    - "*-playbook.yml"
+    - "requirements.yml"
+shell:
+  patterns:
+    - "*.sh"
+terraform:
+  patterns:
+    - "*.tf"
+packer:
+  patterns:
+    - "*.pkr.hcl"
+python:
+  patterns:
+    - "*.py"

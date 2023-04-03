@@ -1,8 +1,7 @@
-#kinds:
-#  - playbook: "**/*.{yml,yaml}"
-#  - playbook: "../../../../../home/elbruto/.ansible/roles/elreydetoda.textbelt/tasks/main.yml"
+kinds:
+  - playbook: "**/*-playbooks.{yml,yaml}"
   # - galaxy: "**/folder/galaxy.yml"
   # - tasks: "**/tasks/*.yml"
   # - vars: "**/vars/*.yml"
   # - meta: "**/meta/main.yml"
-  #- yaml: "**/*.yaml-too"
+  - yaml: "**/requirements.yml"
