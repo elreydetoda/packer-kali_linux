@@ -265,3 +265,68 @@ def packer_lint(_: ConfigObj, files: Set[Path]) -> List[LintReturnObj]:
         )
 
     return return_list
+
+
+def shell_lint(conf: ConfigObj, files: Set[Path]) -> List[LintReturnObj]:
+    """
+    Runs shell linting (shellcheck & shfmt) on the given files
+    """
+
+    return_list = []
+    file_strs = [str(file) for file in files]
+
+    shellcheck_results = s_run(
+        str(
+            # actual command
+            "shellcheck"
+            # parameters
+            + " -S warning"
+        ).split()
+        + file_strs,
+        cwd=conf.git_root,
+        stdout=PIPE,
+        stderr=PIPE,
+        check=False,
+    )
+    shellcheck_version = s_run(
+        str("shellcheck --version").split(),
+        stdout=PIPE,
+        check=True,
+    )
+
+    return_list.append(
+        LintReturnObj(
+            "shellcheck",
+            shellcheck_version.stdout.decode().split("\n")[1].split()[1],
+            shellcheck_version.stdout.decode(),
+            shellcheck_results.returncode,
+            shellcheck_results.stdout.decode(),
+            shellcheck_results.stderr.decode(),
+        )
+    )
+
+    shfmt_results = s_run(
+        str("shfmt -i 2 -ci -sr -l -d").split() + file_strs,
+        cwd=conf.git_root,
+        stdout=PIPE,
+        stderr=PIPE,
+        check=False,
+    )
+    shfmt_version = s_run(
+        "shfmt --version".split(),
+        stdout=PIPE,
+        check=True,
+    )
+
+    return_list.append(
+        LintReturnObj(
+            "shfmt",
+            shfmt_version.stdout.decode(),
+            shfmt_version.stdout.decode(),
+            shfmt_results.returncode,
+            shfmt_results.stdout.decode(),
+            shfmt_results.stderr.decode(),
+        ),
+    )
+
+    return return_list
