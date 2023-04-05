@@ -1,19 +1,16 @@
 from pathlib import Path
 from subprocess import run as s_run, PIPE
 from typing import List, Set
-import click
 
-from click.core import Context as click_Context
-
+from helper import find
 from models.config import ConfigObj
-from models.helper import LintReturnObj
+from models.linting import LintReturnObj
 
-from automation import find
 
 
 def prep_lint(
     base_key: str,
-    ctx: click_Context,
+    conf: ConfigObj,
     return_dict: dict,
 ) -> None:
     """
@@ -21,14 +18,12 @@ def prep_lint(
     and also setting some default values
     """
 
-    conf: ConfigObj = ctx.obj["CONFIG"]
-
     return_dict.setdefault(base_key, {})
     return_dict[base_key]["files"] = set()
     return_dict[base_key]["results"] = []
 
     for pattern in conf.config_data[base_key]["patterns"]:
-        result = ctx.invoke(find, pattern=pattern)
+        result = find(conf, pattern=pattern)
         return_dict[base_key]["files"].update(result)
 
 

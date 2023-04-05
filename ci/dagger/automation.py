@@ -8,7 +8,7 @@ import anyio, dagger, click
 from click.core import Context as click_Context
 from yaml import safe_load as y_safe_load
 
-from models.helper import LintReturnObj
+from models.linting import LintReturnObj
 from models.config import ConfigObj
 
 import linting
@@ -27,7 +27,7 @@ def main(
         base_path,
         git_root,
         config_data,
-        Path(git_root / ".linting-configs"),
+        Path(git_root / ".linting-configs").relative_to(git_root),
     )
 
 
@@ -37,28 +37,8 @@ def check(ctx_obj: dict):
     click.echo(ctx_obj)
 
 
-@main.command("find")
-@click.argument("pattern")
-@click.pass_context
-def find(ctx: click_Context, pattern: str):
-    """
-    Finds files based on the given pattern
-    """
-    conf: ConfigObj = ctx.obj["CONFIG"]
-    paths = set(Path(conf.git_root).glob(f"**/{pattern}"))
-    result = {
-        # return the sanitized path
-        path
-        # loop through all the results
-        for path in paths
-        # ensure they're not returning bento files or from .git/
-        if ".git" not in str(path) and "bento" not in str(path)
-    }
-    return result
-
-
 @main.command("lint")
-@click.pass_context
+@click.pass_obj
 @click.option(
     "-a",
     "--ansible",
@@ -90,7 +70,7 @@ def find(ctx: click_Context, pattern: str):
     help="Lint shell files",
 )
 def lint(
-    ctx: click_Context,
+    ctx_obj: dict,
     ansible: bool,
     python: bool,
     terraform: bool,
@@ -103,18 +83,18 @@ def lint(
 
     lint_dict = {}
 
-    conf: ConfigObj = ctx.obj["CONFIG"]
+    conf: ConfigObj = ctx_obj["CONFIG"]
 
     if ansible:
-        linting.prep_lint("ansible", ctx, lint_dict)
+        linting.prep_lint("ansible", conf, lint_dict)
     if python:
-        linting.prep_lint("python", ctx, lint_dict)
+        linting.prep_lint("python", conf, lint_dict)
     if terraform:
-        linting.prep_lint("terraform", ctx, lint_dict)
+        linting.prep_lint("terraform", conf, lint_dict)
     if packer:
-        linting.prep_lint("packer", ctx, lint_dict)
+        linting.prep_lint("packer", conf, lint_dict)
     if shell:
-        linting.prep_lint("shell", ctx, lint_dict)
+        linting.prep_lint("shell", conf, lint_dict)
 
     for func_str, lint_dict_vals in lint_dict.items():
         func_to_run = getattr(linting, f"{func_str}_lint")
@@ -131,6 +111,14 @@ def lint(
             click.echo(result.return_code)
             click.echo(result.return_stdout)
             click.echo(result.return_stderr)
+
+
+# async def cli():
+#     cfg = dagger.Config(log_output=sys.stderr)
+
+#     async with dagger.Connection(cfg) as client:
+#         ctr = client.container().from_("python:3.9")
+# ctr.
 
 
 if __name__ == "__main__":
