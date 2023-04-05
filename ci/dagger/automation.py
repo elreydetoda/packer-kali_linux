@@ -117,9 +117,9 @@ def lint(
         for result in results:
             click.echo(f"sub-tool: {result.tool_name}")
             click.echo(f"version: {result.tool_version}")
-            click.echo(result.return_code)
-            click.echo(result.return_stdout)
-            click.echo(result.return_stderr)
+            click.echo(f"return code: {result.return_code}")
+            click.echo(f"stdout: {result.return_stdout}")
+            click.echo(f"stderr: {result.return_stderr}")
 
 
 # async def cli():

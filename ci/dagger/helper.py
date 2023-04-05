@@ -1,7 +1,7 @@
 import re
 from abc import ABC
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Tuple
 
 import click
 from dagger.api.gen import Container, Client
@@ -52,6 +52,9 @@ def dagger_python_prep(
     container: Container,
     prod: bool = False,
 ) -> Container:
+    """
+    prepare container for python specific needs (i.e. install pipenv, deps, etc.)
+    """
     return (
         container
         # system level deps
@@ -84,15 +87,20 @@ def dagger_python_prep(
 
 
 class DaggerParseQueryError(ABC):
+    """
+    Class to take in a QueryError, parse it, and assign to appropriate properties
+    """
+
     # pylint: disable=line-too-long
     pattern = re.compile(
-        r"(?:exit\s+code:\s+)(?P<exit_code>\d+).*?(?:Stdout:)(?P<stdout>.*?)(?:Stderr:)(?P<stderr>.*?)(?:CUSTOM_EOF)",
+        r"(?:exit\s+code:\s+)(?P<exit_code>\d+).(?:Stdout:)(?P<stdout>.*?)(?:Stderr:)(?P<stderr>.*?)(?:CUSTOM_EOF)",
         re.MULTILINE | re.DOTALL,
     )
 
     def __init__(self, query_err: QueryError) -> None:
         super().__init__()
-        self._matched = self.pattern.search(str(query_err) + "CUSTOM_EOF").groupdict()
+        self._raw_input = str(query_err) + "CUSTOM_EOF"
+        self._matched = self.pattern.search(self._raw_input).groupdict()
 
     @property
     def exit_code(self) -> Optional[int]:
@@ -114,3 +122,22 @@ class DaggerParseQueryError(ABC):
         Returns the stderr from the QueryError
         """
         return self._matched.get("stderr").strip()
+
+
+async def dagger_handle_query_error(container: Container) -> Tuple[str, str, int]:
+    """
+    handle dagger query errors, and return all relevant data based on error or not
+    """
+    try:
+        return (
+            await container.stdout(),
+            await container.stderr(),
+            await container.exit_code(),
+        )
+    except QueryError as query_err:
+        parsed_error = DaggerParseQueryError(query_err)
+        return (
+            parsed_error.stdout,
+            parsed_error.stderr,
+            parsed_error.exit_code,
+        )

@@ -6,7 +6,12 @@ import click
 from dagger.api.gen import Client
 from dagger.exceptions import QueryError
 
-from helper import DaggerParseQueryError, find, dagger_general_prep, dagger_python_prep
+from helper import (
+    dagger_handle_query_error,
+    find,
+    dagger_general_prep,
+    dagger_python_prep,
+)
 from models.config import ConfigObj
 from models.linting import LintReturnObj, LintSubDict
 
@@ -81,8 +86,6 @@ async def python_lint(
     Runs pylint and black on the given files
     """
 
-    return_list = []
-
     exclude_set = {
         # from old project, and will eventually be removed
         "packer_w_mfa.py",
@@ -112,59 +115,18 @@ async def python_lint(
         )
     )
 
-    try:
-        pylint_results_stdout, pylint_results_stderr, pylint_results_exitcode = (
-            await pylint_results.stdout(),
-            await pylint_results.stderr(),
-            await pylint_results.exit_code(),
-        )
-    except QueryError as query_err:
-        click.echo("Python linting failed")
-        parsed_error = DaggerParseQueryError(query_err)
-        pylint_results_stdout, pylint_results_stderr, pylint_results_exitcode = (
-            parsed_error.stdout,
-            parsed_error.stderr,
-            parsed_error.exit_code,
-        )
-        # click.echo(str(query_err) + "CUSTOM_EOF")
-        # click.echo("#" * 50)
-        # click.echo(query_err.args)
-        # click.echo("#" * 50)
-        # click.echo(query_err.errors)
-        # click.echo("#" * 50)
-        # click.echo(query_err.__dict__)
-        # click.echo("#" * 50)
+    (
+        pylint_results_stdout,
+        pylint_results_stderr,
+        pylint_results_exitcode,
+    ) = await dagger_handle_query_error(pylint_results)
 
-    # click.echo(pylint_results._ctx)
-
-    # pylint_results = s_run(
-    #     str(
-    #         cmd_prep
-    #         # actual command
-    #         + "pylint"
-    #         # configuration files
-    #         + f" --rcfile {Path(conf.lintrc_dir/'pylintrc')}"
-    #     ).split()
-    #     + file_strs,
-    #     cwd=conf.git_root,
-    #     stdout=PIPE,
-    #     stderr=PIPE,
-    #     check=False,
-    # )
-    click.echo(f"{'#'*50}\n{'#'*20} Reached 0 {'#'*20}\n{'#'*50}")
     pylint_version = python_prepped.with_exec(
         str(cmd_prep + "pylint --version").split(),
     )
-    click.echo(f"{'#'*50}\n{'#'*20} Reached 1 {'#'*20}\n{'#'*50}")
     pylint_version_stdout = await pylint_version.stdout()
-    click.echo(f"{'#'*50}\n{'#'*20} Reached 2 {'#'*20}\n{'#'*50}")
-    # pylint_version = s_run(
-    #     str(cmd_prep + "pylint --version").split(),
-    #     stdout=PIPE,
-    #     check=True,
-    # )
 
-    return_list.append(
+    lint_sub_dict.results.append(
         LintReturnObj(
             "pylint",
             pylint_version_stdout.split()[1],
@@ -174,41 +136,43 @@ async def python_lint(
             pylint_results_stderr,
         )
     )
-    click.echo(f"{'#'*50}\n{'#'*20} Reached 3 {'#'*20}\n{'#'*50}")
 
-    black_results = s_run(
-        str(
-            cmd_prep
-            # actual command
-            + "black"
-            # parameters
-            + " --check --diff --color"
-        ).split()
-        + file_strs,
-        cwd=conf.git_root,
-        stdout=PIPE,
-        stderr=PIPE,
-        check=False,
-    )
-
-    black_version = s_run(
-        str(cmd_prep + "black --version").split(),
-        stdout=PIPE,
-        check=True,
-    )
-
-    return_list.append(
-        LintReturnObj(
-            "black",
-            black_version.stdout.decode().split()[1],
-            black_version.stdout.decode(),
-            black_results.returncode,
-            black_results.stdout.decode(),
-            black_results.stderr.decode(),
+    black_results = (
+        python_prepped
+        # run black
+        .with_exec(
+            str(
+                cmd_prep
+                # actual command
+                + "black"
+                # parameters
+                + " --check --diff --color"
+            ).split()
+            + file_strs,
         )
     )
 
-    return return_list
+    (
+        black_results_stdout,
+        black_results_stderr,
+        black_results_exitcode,
+    ) = await dagger_handle_query_error(black_results)
+
+    black_version = python_prepped.with_exec(
+        str(cmd_prep + "black --version").split(),
+    )
+    black_version_stdout = await black_version.stdout()
+
+    lint_sub_dict.results.append(
+        LintReturnObj(
+            "black",
+            black_version_stdout.split()[1],
+            black_version_stdout,
+            black_results_exitcode,
+            black_results_stdout,
+            black_results_stderr,
+        )
+    )
 
 
 def terraform_lint(
