@@ -14,6 +14,7 @@ container_images:
   # base: docker.io/ubuntu:jammy-20230308
   base: docker.io/ubuntu:22.04
 python_version: 3.10
+pipenv_version: 2023.3.20
 ansible:
   patterns:
     - "*-playbook.yml"
