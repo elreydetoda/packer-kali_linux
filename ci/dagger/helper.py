@@ -1,6 +1,11 @@
+import re
+from abc import ABC
 from pathlib import Path
+from typing import Optional
 
+import click
 from dagger.api.gen import Container, Client
+from dagger.exceptions import QueryError
 
 from models.config import ConfigObj
 
@@ -42,14 +47,31 @@ def dagger_general_prep(
 
 
 def dagger_python_prep(
+    client: Client,
     conf: ConfigObj,
     container: Container,
     prod: bool = False,
 ) -> Container:
     return (
         container
+        # system level deps
+        .with_mounted_cache(
+            "/root/.local",
+            client.cache_volume("system_python"),
+        )
+        # adding a project cache for .venv
+        .with_mounted_cache(
+            "/src/.venv",
+            client.cache_volume("project_python"),
+        )
         # installing pipenv for deps
-        .with_exec(f"pip3 install pipenv=={conf.config_data['pipenv_version']}".split())
+        .with_exec(
+            f"pip3 install --user pipenv=={conf.config_data['pipenv_version']}".split()
+        )
+        # expanding path to include local install of pipenv
+        .with_env_variable("PATH", "/root/.local/bin:$PATH")
+        # setting pipenv to use the project's venv (i.e. .venv/)
+        .with_env_variable("PIPENV_VENV_IN_PROJECT", "1")
         # installing deps
         .with_exec(
             # return if prod environment, don't install dev deps
@@ -59,3 +81,36 @@ def dagger_python_prep(
             else "pipenv sync -d".split()
         )
     )
+
+
+class DaggerParseQueryError(ABC):
+    # pylint: disable=line-too-long
+    pattern = re.compile(
+        r"(?:exit\s+code:\s+)(?P<exit_code>\d+).*?(?:Stdout:)(?P<stdout>.*?)(?:Stderr:)(?P<stderr>.*?)(?:CUSTOM_EOF)",
+        re.MULTILINE | re.DOTALL,
+    )
+
+    def __init__(self, query_err: QueryError) -> None:
+        super().__init__()
+        self._matched = self.pattern.search(str(query_err) + "CUSTOM_EOF").groupdict()
+
+    @property
+    def exit_code(self) -> Optional[int]:
+        """
+        Returns the exit code from the QueryError
+        """
+        return self._matched.get("exit_code")
+
+    @property
+    def stdout(self) -> Optional[str]:
+        """
+        Returns the stdout from the QueryError
+        """
+        return self._matched.get("stdout").strip()
+
+    @property
+    def stderr(self) -> Optional[str]:
+        """
+        Returns the stderr from the QueryError
+        """
+        return self._matched.get("stderr").strip()

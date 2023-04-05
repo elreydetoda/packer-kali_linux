@@ -6,7 +6,7 @@ import click
 from dagger.api.gen import Client
 from dagger.exceptions import QueryError
 
-from helper import find, dagger_general_prep, dagger_python_prep
+from helper import DaggerParseQueryError, find, dagger_general_prep, dagger_python_prep
 from models.config import ConfigObj
 from models.linting import LintReturnObj, LintSubDict
 
@@ -93,7 +93,7 @@ async def python_lint(
     ]
 
     base_prep = dagger_general_prep(client, conf, "python")
-    python_prepped = dagger_python_prep(conf, base_prep)
+    python_prepped = dagger_python_prep(client, conf, base_prep)
 
     cmd_prep = "pipenv run "
 
@@ -113,24 +113,29 @@ async def python_lint(
     )
 
     try:
-        await pylint_results.exit_code(),
+        pylint_results_stdout, pylint_results_stderr, pylint_results_exitcode = (
+            await pylint_results.stdout(),
+            await pylint_results.stderr(),
+            await pylint_results.exit_code(),
+        )
     except QueryError as query_err:
         click.echo("Python linting failed")
-        click.echo(query_err)
-        click.echo("#" * 50)
-        click.echo(query_err.args)
-        click.echo("#" * 50)
-        click.echo(query_err.errors)
-        click.echo("#" * 50)
-        click.echo(query_err.__dict__)
-        click.echo("#" * 50)
+        parsed_error = DaggerParseQueryError(query_err)
+        pylint_results_stdout, pylint_results_stderr, pylint_results_exitcode = (
+            parsed_error.stdout,
+            parsed_error.stderr,
+            parsed_error.exit_code,
+        )
+        # click.echo(str(query_err) + "CUSTOM_EOF")
+        # click.echo("#" * 50)
+        # click.echo(query_err.args)
+        # click.echo("#" * 50)
+        # click.echo(query_err.errors)
+        # click.echo("#" * 50)
+        # click.echo(query_err.__dict__)
+        # click.echo("#" * 50)
 
-    click.echo(pylint_results._ctx)
-    pylint_results_stdout, pylint_results_stderr, pylint_results_exitcode = (
-        await pylint_results.stdout(),
-        await pylint_results.stderr(),
-        await pylint_results.exit_code(),
-    )
+    # click.echo(pylint_results._ctx)
 
     # pylint_results = s_run(
     #     str(
@@ -146,10 +151,13 @@ async def python_lint(
     #     stderr=PIPE,
     #     check=False,
     # )
+    click.echo(f"{'#'*50}\n{'#'*20} Reached 0 {'#'*20}\n{'#'*50}")
     pylint_version = python_prepped.with_exec(
         str(cmd_prep + "pylint --version").split(),
     )
+    click.echo(f"{'#'*50}\n{'#'*20} Reached 1 {'#'*20}\n{'#'*50}")
     pylint_version_stdout = await pylint_version.stdout()
+    click.echo(f"{'#'*50}\n{'#'*20} Reached 2 {'#'*20}\n{'#'*50}")
     # pylint_version = s_run(
     #     str(cmd_prep + "pylint --version").split(),
     #     stdout=PIPE,
@@ -166,6 +174,7 @@ async def python_lint(
             pylint_results_stderr,
         )
     )
+    click.echo(f"{'#'*50}\n{'#'*20} Reached 3 {'#'*20}\n{'#'*50}")
 
     black_results = s_run(
         str(
