@@ -2,9 +2,11 @@ from pathlib import Path
 from subprocess import run as s_run, PIPE
 from typing import List, Set
 
+import click
 from dagger.api.gen import Client
+from dagger.exceptions import QueryError
 
-from helper import find
+from helper import find, dagger_general_prep, dagger_python_prep
 from models.config import ConfigObj
 from models.linting import LintReturnObj, LintSubDict
 
@@ -27,7 +29,7 @@ def prep_lint(
 
 
 def ansible_lint(
-    # client: Client,
+    client: Client,
     conf: ConfigObj,
     files: Set[Path],
 ) -> List[LintReturnObj]:
@@ -70,52 +72,98 @@ def ansible_lint(
     return return_list
 
 
-def python_lint(
-    # client: Client,
+async def python_lint(
+    client: Client,
     conf: ConfigObj,
-    files: Set[Path],
-) -> List[LintReturnObj]:
+    lint_sub_dict: LintSubDict,
+) -> None:
     """
     Runs pylint and black on the given files
     """
 
     return_list = []
+
     exclude_set = {
+        # from old project, and will eventually be removed
         "packer_w_mfa.py",
         "template_gen.py",
     }
-    file_strs = [str(file) for file in files if file.name not in exclude_set]
+    file_strs = [
+        str(file) for file in lint_sub_dict.files if file.name not in exclude_set
+    ]
+
+    base_prep = dagger_general_prep(client, conf, "python")
+    python_prepped = dagger_python_prep(conf, base_prep)
 
     cmd_prep = "pipenv run "
 
-    pylint_results = s_run(
-        str(
-            cmd_prep
-            # actual command
-            + "pylint"
-            # configuration files
-            + f" --rcfile {Path(conf.lintrc_dir/'pylintrc')}"
-        ).split()
-        + file_strs,
-        cwd=conf.git_root,
-        stdout=PIPE,
-        stderr=PIPE,
-        check=False,
+    pylint_results = (
+        python_prepped
+        # run pylint
+        .with_exec(
+            str(
+                cmd_prep
+                # actual command
+                + "pylint"
+                # configuration files
+                + f" --rcfile {Path(conf.lintrc_dir/'pylintrc')}"
+            ).split()
+            + file_strs,
+        )
     )
-    pylint_version = s_run(
+
+    try:
+        await pylint_results.exit_code(),
+    except QueryError as query_err:
+        click.echo("Python linting failed")
+        click.echo(query_err)
+        click.echo("#" * 50)
+        click.echo(query_err.args)
+        click.echo("#" * 50)
+        click.echo(query_err.errors)
+        click.echo("#" * 50)
+        click.echo(query_err.__dict__)
+        click.echo("#" * 50)
+
+    click.echo(pylint_results._ctx)
+    pylint_results_stdout, pylint_results_stderr, pylint_results_exitcode = (
+        await pylint_results.stdout(),
+        await pylint_results.stderr(),
+        await pylint_results.exit_code(),
+    )
+
+    # pylint_results = s_run(
+    #     str(
+    #         cmd_prep
+    #         # actual command
+    #         + "pylint"
+    #         # configuration files
+    #         + f" --rcfile {Path(conf.lintrc_dir/'pylintrc')}"
+    #     ).split()
+    #     + file_strs,
+    #     cwd=conf.git_root,
+    #     stdout=PIPE,
+    #     stderr=PIPE,
+    #     check=False,
+    # )
+    pylint_version = python_prepped.with_exec(
         str(cmd_prep + "pylint --version").split(),
-        stdout=PIPE,
-        check=True,
     )
+    pylint_version_stdout = await pylint_version.stdout()
+    # pylint_version = s_run(
+    #     str(cmd_prep + "pylint --version").split(),
+    #     stdout=PIPE,
+    #     check=True,
+    # )
 
     return_list.append(
         LintReturnObj(
             "pylint",
-            pylint_version.stdout.decode().split()[1],
-            pylint_version.stdout.decode(),
-            pylint_results.returncode,
-            pylint_results.stdout.decode(),
-            pylint_results.stderr.decode(),
+            pylint_version_stdout.split()[1],
+            pylint_version_stdout,
+            pylint_results_exitcode,
+            pylint_results_stdout,
+            pylint_results_stderr,
         )
     )
 
@@ -155,7 +203,7 @@ def python_lint(
 
 
 def terraform_lint(
-    # client: Client,
+    client: Client,
     _: ConfigObj,
     files: Set[Path],
 ) -> List[LintReturnObj]:
@@ -216,7 +264,7 @@ def terraform_lint(
 
 
 def packer_lint(
-    # client: Client,
+    client: Client,
     _: ConfigObj,
     files: Set[Path],
 ) -> List[LintReturnObj]:
@@ -277,7 +325,7 @@ def packer_lint(
 
 
 def shell_lint(
-    # client: Client,
+    client: Client,
     conf: ConfigObj,
     files: Set[Path],
 ) -> List[LintReturnObj]:

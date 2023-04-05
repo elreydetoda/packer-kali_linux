@@ -102,13 +102,13 @@ def lint(
     if shell:
         linting.prep_lint("shell", conf, lint_dict)
 
-    # resultz = anyio.run(main_lint, conf, lint_dict)
-    for func_str, lint_dict_vals in lint_dict.items():
-        lint_dict_vals: LintSubDict
-        func_to_run = getattr(linting, f"{func_str}_lint")
-        lint_dict_vals.results.extend(func_to_run(conf, lint_dict_vals.files))
+    resultz = anyio.run(main_lint, conf, lint_dict)
+    # for func_str, lint_dict_vals in lint_dict.items():
+    #     lint_dict_vals: LintSubDict
+    #     func_to_run = getattr(linting, f"{func_str}_lint")
+    #     lint_dict_vals.results.extend(func_to_run(conf, lint_dict_vals.files))
 
-    for tool_name, tool_data in lint_dict.items():
+    for tool_name, tool_data in resultz.items():
         tool_data: LintSubDict
         results = tool_data.results
 
