@@ -2,10 +2,11 @@ from pathlib import Path
 from subprocess import run as s_run, PIPE
 from typing import List, Set
 
+from dagger.api.gen import Client
+
 from helper import find
 from models.config import ConfigObj
-from models.linting import LintReturnObj
-
+from models.linting import LintReturnObj, LintSubDict
 
 
 def prep_lint(
@@ -19,15 +20,17 @@ def prep_lint(
     """
 
     return_dict.setdefault(base_key, {})
-    return_dict[base_key]["files"] = set()
-    return_dict[base_key]["results"] = []
+    return_dict[base_key] = LintSubDict()
 
     for pattern in conf.config_data[base_key]["patterns"]:
-        result = find(conf, pattern=pattern)
-        return_dict[base_key]["files"].update(result)
+        return_dict[base_key].files.update(find(conf, pattern=pattern))
 
 
-def ansible_lint(conf: ConfigObj, files: Set[Path]) -> List[LintReturnObj]:
+def ansible_lint(
+    # client: Client,
+    conf: ConfigObj,
+    files: Set[Path],
+) -> List[LintReturnObj]:
     """
     Runs ansible-lint on the given files
     """
@@ -67,7 +70,11 @@ def ansible_lint(conf: ConfigObj, files: Set[Path]) -> List[LintReturnObj]:
     return return_list
 
 
-def python_lint(conf: ConfigObj, files: Set[Path]) -> List[LintReturnObj]:
+def python_lint(
+    # client: Client,
+    conf: ConfigObj,
+    files: Set[Path],
+) -> List[LintReturnObj]:
     """
     Runs pylint and black on the given files
     """
@@ -147,7 +154,11 @@ def python_lint(conf: ConfigObj, files: Set[Path]) -> List[LintReturnObj]:
     return return_list
 
 
-def terraform_lint(_: ConfigObj, files: Set[Path]) -> List[LintReturnObj]:
+def terraform_lint(
+    # client: Client,
+    _: ConfigObj,
+    files: Set[Path],
+) -> List[LintReturnObj]:
     """
     Runs terraform fmt on the given files
     """
@@ -204,7 +215,11 @@ def terraform_lint(_: ConfigObj, files: Set[Path]) -> List[LintReturnObj]:
     return return_list
 
 
-def packer_lint(_: ConfigObj, files: Set[Path]) -> List[LintReturnObj]:
+def packer_lint(
+    # client: Client,
+    _: ConfigObj,
+    files: Set[Path],
+) -> List[LintReturnObj]:
     """
     Runs packer fmt on the given files
     """
@@ -261,7 +276,11 @@ def packer_lint(_: ConfigObj, files: Set[Path]) -> List[LintReturnObj]:
     return return_list
 
 
-def shell_lint(conf: ConfigObj, files: Set[Path]) -> List[LintReturnObj]:
+def shell_lint(
+    # client: Client,
+    conf: ConfigObj,
+    files: Set[Path],
+) -> List[LintReturnObj]:
     """
     Runs shell linting (shellcheck & shfmt) on the given files
     """

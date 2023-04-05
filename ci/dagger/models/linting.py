@@ -1,5 +1,7 @@
-from typing import Optional
+from pathlib import Path
+from typing import Optional, Set, List
 
+from pydantic import BaseModel
 from pydantic.dataclasses import dataclass as py_dataclass
 from packaging.version import Version
 
@@ -41,3 +43,8 @@ class LintReturnObj:
 
     class Config:
         arbitrary_types_allowed = True
+
+
+class LintSubDict(BaseModel):
+    files: Optional[Set[Path]] = set()
+    results: Optional[List[LintReturnObj]] = []

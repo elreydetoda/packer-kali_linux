@@ -4,14 +4,15 @@ from pathlib import Path
 from subprocess import run as s_run, PIPE
 from typing import List, Set
 
-import anyio, dagger, click
+import anyio, click
 from click.core import Context as click_Context
 from yaml import safe_load as y_safe_load
 
-from models.linting import LintReturnObj
-from models.config import ConfigObj
 
 import linting
+from async_interface import main_lint
+from models.linting import LintReturnObj, LintSubDict
+from models.config import ConfigObj
 
 
 @click.group()
@@ -37,8 +38,10 @@ def check(ctx_obj: dict):
     click.echo(ctx_obj)
 
 
+# ELREY_PKR_LINT_PYTHON=true
 @main.command("lint")
 @click.pass_obj
+# @click.pass_context
 @click.option(
     "-a",
     "--ansible",
@@ -71,6 +74,7 @@ def check(ctx_obj: dict):
 )
 def lint(
     ctx_obj: dict,
+    # ctx: click_Context,
     ansible: bool,
     python: bool,
     terraform: bool,
@@ -84,6 +88,8 @@ def lint(
     lint_dict = {}
 
     conf: ConfigObj = ctx_obj["CONFIG"]
+    # conf: ConfigObj = ctx.obj["CONFIG"]
+    # print(ctx.params)
 
     if ansible:
         linting.prep_lint("ansible", conf, lint_dict)
@@ -96,12 +102,15 @@ def lint(
     if shell:
         linting.prep_lint("shell", conf, lint_dict)
 
+    # resultz = anyio.run(main_lint, conf, lint_dict)
     for func_str, lint_dict_vals in lint_dict.items():
+        lint_dict_vals: LintSubDict
         func_to_run = getattr(linting, f"{func_str}_lint")
-        lint_dict_vals["results"].extend(func_to_run(conf, lint_dict_vals["files"]))
+        lint_dict_vals.results.extend(func_to_run(conf, lint_dict_vals.files))
 
     for tool_name, tool_data in lint_dict.items():
-        results: List[LintReturnObj] = tool_data["results"]
+        tool_data: LintSubDict
+        results = tool_data.results
 
         click.echo(f"tool: {tool_name}")
 
@@ -123,4 +132,4 @@ def lint(
 
 if __name__ == "__main__":
     # pylint: disable=no-value-for-parameter
-    main()
+    main(auto_envvar_prefix="ELREY_PKR")
