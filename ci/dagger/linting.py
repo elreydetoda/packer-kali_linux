@@ -3,7 +3,7 @@ from subprocess import run as s_run, PIPE
 from typing import List, Set
 
 import click
-from dagger.api.gen import Client
+from dagger import Client
 from dagger.exceptions import QueryError
 
 from helper import (

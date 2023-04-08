@@ -4,7 +4,8 @@ from pathlib import Path
 from typing import Optional, Tuple
 
 import click
-from dagger.api.gen import Container, Client
+
+from dagger import Client, Container
 from dagger.exceptions import QueryError
 
 from models.config import ConfigObj
