@@ -100,77 +100,71 @@ async def python_lint(
 
     cmd_prep = "pipenv run "
 
-    pylint_results = (
-        python_prepped
-        # run pylint
-        .with_exec(
-            str(
-                cmd_prep
-                # actual command
-                + "pylint"
-                # configuration files
-                + f" --rcfile {Path(conf.lintrc_dir/'pylintrc')}"
-            ).split()
-            + file_strs,
+    pylint_results = await dagger_handle_query_error(
+        (
+            python_prepped
+            # run pylint
+            .with_exec(
+                str(
+                    cmd_prep
+                    # actual command
+                    + "pylint"
+                    # configuration files
+                    + f" --rcfile {Path(conf.lintrc_dir/'pylintrc')}"
+                ).split()
+                + file_strs,
+            )
         )
     )
 
-    (
-        pylint_results_stdout,
-        pylint_results_stderr,
-        pylint_results_exitcode,
-    ) = await dagger_handle_query_error(pylint_results)
-
-    pylint_version = python_prepped.with_exec(
-        str(cmd_prep + "pylint --version").split(),
+    pylint_version_results = await dagger_handle_query_error(
+        python_prepped.with_exec(
+            str(cmd_prep + "pylint --version").split(),
+        )
     )
-    pylint_version_stdout = await pylint_version.stdout()
 
     lint_sub_dict.results.append(
         LintReturnObj(
             "pylint",
-            pylint_version_stdout.split()[1],
-            pylint_version_stdout,
-            pylint_results_exitcode,
-            pylint_results_stdout,
-            pylint_results_stderr,
+            pylint_version_results.stdout.split()[1],
+            pylint_version_results.stdout,
+            pylint_results.exit_code,
+            pylint_results.stdout,
+            pylint_results.stderr,
         )
     )
 
-    black_results = (
-        python_prepped
-        # run black
-        .with_exec(
-            str(
-                cmd_prep
-                # actual command
-                + "black"
-                # parameters
-                + " --check --diff --color"
-            ).split()
-            + file_strs,
+    black_results = await dagger_handle_query_error(
+        (
+            python_prepped
+            # run black
+            .with_exec(
+                str(
+                    cmd_prep
+                    # actual command
+                    + "black"
+                    # parameters
+                    + " --check --diff --color"
+                ).split()
+                + file_strs,
+            )
         )
     )
 
-    (
-        black_results_stdout,
-        black_results_stderr,
-        black_results_exitcode,
-    ) = await dagger_handle_query_error(black_results)
-
-    black_version = python_prepped.with_exec(
-        str(cmd_prep + "black --version").split(),
+    black_version = await dagger_handle_query_error(
+        python_prepped.with_exec(
+            str(cmd_prep + "black --version").split(),
+        )
     )
-    black_version_stdout = await black_version.stdout()
 
     lint_sub_dict.results.append(
         LintReturnObj(
             "black",
-            black_version_stdout.split()[1],
-            black_version_stdout,
-            black_results_exitcode,
-            black_results_stdout,
-            black_results_stderr,
+            black_version.stdout.split()[1],
+            black_version.stdout,
+            black_results.exit_code,
+            black_version.stdout,
+            black_version.stderr,
         )
     )
 

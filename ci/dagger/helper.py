@@ -1,14 +1,13 @@
 import re
-from abc import ABC
 from pathlib import Path
-from typing import Optional, Tuple
 
-import click
+import click  # pylint: disable=unused-import
 
 from dagger import Client, Container
 from dagger.exceptions import QueryError
 
 from models.config import ConfigObj
+from models.misc import DaggerExecResult
 
 
 def find(conf: ConfigObj, pattern: str):
@@ -87,58 +86,38 @@ def dagger_python_prep(
     )
 
 
-class DaggerParseQueryError(ABC):
-    """
-    Class to take in a QueryError, parse it, and assign to appropriate properties
-    """
-
-    # pylint: disable=line-too-long
-    pattern = re.compile(
-        r"(?:exit\s+code:\s+)(?P<exit_code>\d+).(?:Stdout:)(?P<stdout>.*?)(?:Stderr:)(?P<stderr>.*?)(?:CUSTOM_EOF)",
-        re.MULTILINE | re.DOTALL,
-    )
-
-    def __init__(self, query_err: QueryError) -> None:
-        super().__init__()
-        self._raw_input = str(query_err) + "CUSTOM_EOF"
-        self._matched = self.pattern.search(self._raw_input).groupdict()
-
-    @property
-    def exit_code(self) -> Optional[int]:
-        """
-        Returns the exit code from the QueryError
-        """
-        return self._matched.get("exit_code")
-
-    @property
-    def stdout(self) -> Optional[str]:
-        """
-        Returns the stdout from the QueryError
-        """
-        return self._matched.get("stdout").strip()
-
-    @property
-    def stderr(self) -> Optional[str]:
-        """
-        Returns the stderr from the QueryError
-        """
-        return self._matched.get("stderr").strip()
-
-
-async def dagger_handle_query_error(container: Container) -> Tuple[str, str, int]:
+async def dagger_handle_query_error(container: Container) -> DaggerExecResult:
     """
     handle dagger query errors, and return all relevant data based on error or not
     """
     try:
-        return (
+        return DaggerExecResult(
             await container.stdout(),
             await container.stderr(),
             await container.exit_code(),
         )
     except QueryError as query_err:
-        parsed_error = DaggerParseQueryError(query_err)
-        return (
-            parsed_error.stdout,
-            parsed_error.stderr,
-            parsed_error.exit_code,
+        # FIXME: hack till there's an official process, based off of
+        msg = str(query_err)
+        # https://github.com/dagger/dagger/issues/4706#issuecomment-1499371201
+        if "exit code:" not in msg:
+            # this could be a network error for example
+            raise
+
+        # pylint: disable=line-too-long
+        matched_dict = re.search(
+            r"(?P<error_msg>.*?)(?:exit\s+code:\s+)(?P<exit_code>\d+).(?:Stdout:)(?P<stdout>.*?)(?:Stderr:)(?P<stderr>.*?)(?:CUSTOM_EOF)",
+            msg + "CUSTOM_EOF",
+            re.MULTILINE | re.DOTALL,
+        ).groupdict()
+
+        # TODO: add more error handling here
+        #   i.e. expected errors for specific tools
+        #   based on the error_msg extrated text
+
+        return DaggerExecResult(
+            matched_dict.get("stdout").strip(),
+            matched_dict.get("stderr").strip(),
+            matched_dict.get("exit_code"),
+            matched_dict.get("error_msg").strip(),
         )
