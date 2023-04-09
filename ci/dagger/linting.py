@@ -290,70 +290,57 @@ async def packer_lint(
         )
 
 
-def shell_lint(
+async def shell_lint(
     client: Client,
     conf: ConfigObj,
-    files: Set[Path],
+    lint_sub_dict: LintSubDict,
 ) -> List[LintReturnObj]:
     """
     Runs shell linting (shellcheck & shfmt) on the given files
     """
 
-    return_list = []
-    file_strs = [str(file) for file in files]
+    file_strs = [str(file) for file in lint_sub_dict.files]
 
-    shellcheck_results = s_run(
-        str(
-            # actual command
-            "shellcheck"
-            # parameters
-            + " -S warning"
-        ).split()
-        + file_strs,
-        cwd=conf.git_root,
-        stdout=PIPE,
-        stderr=PIPE,
-        check=False,
+    sh_check_prep = dagger_general_prep(client, conf, "shellcheck")
+
+    shellcheck_results = await dagger_handle_query_error(
+        sh_check_prep.with_exec(
+            "-S warning".split() + file_strs,
+        )
     )
-    shellcheck_version = s_run(
-        str("shellcheck --version").split(),
-        stdout=PIPE,
-        check=True,
+    shellcheck_version = await dagger_handle_query_error(
+        sh_check_prep.with_exec("--version".split())
     )
 
-    return_list.append(
+    lint_sub_dict.results.append(
         LintReturnObj(
             "shellcheck",
-            shellcheck_version.stdout.decode().split("\n")[1].split()[1],
-            shellcheck_version.stdout.decode(),
-            shellcheck_results.returncode,
-            shellcheck_results.stdout.decode(),
-            shellcheck_results.stderr.decode(),
+            shellcheck_version.stdout.split("\n")[1].split()[1],
+            shellcheck_version.stdout,
+            shellcheck_results.exit_code,
+            shellcheck_results.stdout,
+            shellcheck_results.stderr,
         )
     )
 
-    shfmt_results = s_run(
-        str("shfmt -i 2 -ci -sr -l -d").split() + file_strs,
-        cwd=conf.git_root,
-        stdout=PIPE,
-        stderr=PIPE,
-        check=False,
+    sh_fmt_prep = dagger_general_prep(client, conf, "shfmt")
+
+    shfmt_results = await dagger_handle_query_error(
+        sh_fmt_prep.with_exec(
+            "-i 2 -ci -sr -l -d".split() + file_strs,
+        )
     )
-    shfmt_version = s_run(
-        "shfmt --version".split(),
-        stdout=PIPE,
-        check=True,
+    shfmt_version = await dagger_handle_query_error(
+        sh_fmt_prep.with_exec("--version".split())
     )
 
-    return_list.append(
+    lint_sub_dict.results.append(
         LintReturnObj(
             "shfmt",
-            shfmt_version.stdout.decode(),
-            shfmt_version.stdout.decode(),
-            shfmt_results.returncode,
-            shfmt_results.stdout.decode(),
-            shfmt_results.stderr.decode(),
+            shfmt_version.stdout,
+            shfmt_version.stdout,
+            shfmt_results.exit_code,
+            shfmt_results.stdout,
+            shfmt_results.stderr,
         ),
     )
-
-    return return_list
