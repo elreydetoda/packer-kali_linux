@@ -46,18 +46,24 @@ def dagger_general_prep(
     )
 
 
-def dagger_python_prep(
+async def dagger_python_prep(
     client: Client,
     conf: ConfigObj,
     container: Container,
     prod: bool = False,
+    system: bool = False,
 ) -> Container:
     """
     prepare container for python specific needs (i.e. install pipenv, deps, etc.)
     """
+    pipenv_cmd = "pipenv sync"
+    if not prod:
+        pipenv_cmd += " --dev"
+    if system:
+        pipenv_cmd += " --system"
     return (
         container
-        # system level deps
+        # system python level deps
         .with_mounted_cache(
             "/root/.local",
             client.cache_volume("system_python"),
@@ -72,18 +78,50 @@ def dagger_python_prep(
             f"pip3 install --user pipenv=={conf.config_data['pipenv_version']}".split()
         )
         # expanding path to include local install of pipenv
-        .with_env_variable("PATH", "/root/.local/bin:$PATH")
+        .with_env_variable(
+            "PATH", f"/root/.local/bin:{await container.env_variable('PATH')}"
+        )
+        # .with_env_variable("PATH", "/root/.local/bin:$PATH")
         # setting pipenv to use the project's venv (i.e. .venv/)
         .with_env_variable("PIPENV_VENV_IN_PROJECT", "1")
         # installing deps
+        .with_exec(pipenv_cmd.split())
+    )
+
+
+def dagger_ansible_prep(
+    client: Client,
+    container: Container,
+) -> Container:
+    """
+    prepare container for ansible specific needs (i.e. install collections, roles, etc.)
+    """
+    pipenv_cmd = "pipenv run"
+    return (
+        container
+        # adding a project cache for roles
+        .with_mounted_cache(
+            "/root/.ansible/roles",
+            client.cache_volume("project_ansible_roles"),
+        )
+        # adding a project cache for collections
+        .with_mounted_cache(
+            "/root/.ansible/collections",
+            client.cache_volume("project_ansible_collections"),
+        )
+        # installing collections
         .with_exec(
-            # return if prod environment, don't install dev deps
-            "pipenv sync".split()
-            if prod
-            # return if dev environment (Default: prod=False)
-            else "pipenv sync -d".split()
+            f"{pipenv_cmd} ansible-galaxy collection install -r ci/ansible/requirements.yml".split()
+        )
+        # installing roles
+        .with_exec(
+            f"{pipenv_cmd} ansible-galaxy role install -r ci/ansible/requirements.yml".split()
         )
     )
+
+
+##################################################
+# TEMPORARY
 
 
 async def dagger_handle_query_error(container: Container) -> DaggerExecResult:
@@ -114,10 +152,13 @@ async def dagger_handle_query_error(container: Container) -> DaggerExecResult:
         # TODO: add more error handling here
         #   i.e. expected errors for specific tools
         #   based on the error_msg extrated text
-
         return DaggerExecResult(
             matched_dict.get("stdout").strip(),
             matched_dict.get("stderr").strip(),
             matched_dict.get("exit_code"),
             matched_dict.get("error_msg").strip(),
+            # _raw=msg,
         )
+
+
+##################################################

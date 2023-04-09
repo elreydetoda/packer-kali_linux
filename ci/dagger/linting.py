@@ -4,9 +4,9 @@ from typing import List, Set
 
 import click
 from dagger import Client
-from dagger.exceptions import QueryError
 
 from helper import (
+    dagger_ansible_prep,
     dagger_handle_query_error,
     find,
     dagger_general_prep,
@@ -33,55 +33,60 @@ def prep_lint(
         return_dict[base_key].files.update(find(conf, pattern=pattern))
 
 
-def ansible_lint(
+async def ansible_lint(
     client: Client,
     conf: ConfigObj,
-    files: Set[Path],
-) -> List[LintReturnObj]:
+    lint_sub_dict: LintSubDict,
+):
     """
     Runs ansible-lint on the given files
     """
-    return_list = []
+
+    ansible_base = dagger_general_prep(client, conf, "python")
+    python_prepped = await dagger_python_prep(client, conf, ansible_base)
+    ansible_prepped = dagger_ansible_prep(client, python_prepped)
 
     cmd_prep = "pipenv run "
-    lint_result = s_run(
-        str(
-            cmd_prep
-            # actual command
-            + "ansible-lint"
-            # configuration files
-            + f" -c {Path(conf.lintrc_dir/'ansible-lint')}"
-        ).split()
-        + [str(file) for file in files],
-        cwd=conf.git_root,
-        stdout=PIPE,
-        stderr=PIPE,
-        check=False,
-    )
-    ansible_lint_version = s_run(
-        str(cmd_prep + "ansible-lint --version --nocolor").split(),
-        stdout=PIPE,
-        check=True,
-    )
-    return_list.append(
-        LintReturnObj(
-            "ansible-lint",
-            ansible_lint_version.stdout.decode().split()[1],
-            ansible_lint_version.stdout.decode(),
-            lint_result.returncode,
-            lint_result.stdout.decode(),
-            lint_result.stderr.decode(),
+
+    ansible_lint_result = await dagger_handle_query_error(
+        ansible_prepped.with_exec(
+            str(
+                cmd_prep
+                + "ansible-lint"
+                # configuration files
+                + f" -c {Path(conf.lintrc_dir/'ansible-lint')}"
+            ).split()
+            + [str(file) for file in lint_sub_dict.files],
         )
     )
-
-    return return_list
+    ansible_lint_version = await dagger_handle_query_error(
+        ansible_prepped.with_exec(
+            f"{cmd_prep} ansible-lint --version --nocolor".split(),
+        )
+    )
+    click.echo(ansible_lint_version)
+    # ansible_lint_version = s_run(
+    #     str(cmd_prep + "ansible-lint --version --nocolor").split(),
+    #     stdout=PIPE,
+    #     check=True,
+    # )
+    lint_sub_dict.results.append(
+        LintReturnObj(
+            "ansible-lint",
+            ansible_lint_version.stdout.split()[1],
+            ansible_lint_version.stdout,
+            ansible_lint_result.exit_code,
+            ansible_lint_result.stdout,
+            ansible_lint_result.stderr,
+        )
+    )
 
 
 async def python_lint(
     client: Client,
     conf: ConfigObj,
     lint_sub_dict: LintSubDict,
-) -> None:
+):
     """
     Runs pylint and black on the given files
     """
@@ -96,7 +101,7 @@ async def python_lint(
     ]
 
     base_prep = dagger_general_prep(client, conf, "python")
-    python_prepped = dagger_python_prep(client, conf, base_prep)
+    python_prepped = await dagger_python_prep(client, conf, base_prep)
 
     cmd_prep = "pipenv run "
 
