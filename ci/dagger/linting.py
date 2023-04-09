@@ -64,12 +64,7 @@ async def ansible_lint(
             f"{cmd_prep} ansible-lint --version --nocolor".split(),
         )
     )
-    click.echo(ansible_lint_version)
-    # ansible_lint_version = s_run(
-    #     str(cmd_prep + "ansible-lint --version --nocolor").split(),
-    #     stdout=PIPE,
-    #     check=True,
-    # )
+
     lint_sub_dict.results.append(
         LintReturnObj(
             "ansible-lint",
