@@ -37,6 +37,7 @@ class LintReturnObj:
     return_code: int
     return_stdout: str
     return_stderr: Optional[str] = None
+    cwd: Optional[Path] = None
 
     def __hash__(self) -> int:
         return hash(self.tool_name) ^ hash(self.return_code)

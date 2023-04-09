@@ -230,65 +230,64 @@ def terraform_lint(
     return return_list
 
 
-def packer_lint(
+async def packer_lint(
     client: Client,
-    _: ConfigObj,
-    files: Set[Path],
-) -> List[LintReturnObj]:
+    conf: ConfigObj,
+    lint_sub_dict: LintSubDict,
+):
     """
     Runs packer fmt on the given files
     """
 
-    folders = list({str(file.parent) for file in files})
-    return_list = []
+    folders = list({str(file.parent) for file in lint_sub_dict.files})
 
-    packer_fmt_version = s_run(
-        "packer -version".split(),
-        stdout=PIPE,
-        check=True,
+    packer_prep = dagger_general_prep(client, conf, "packer")
+
+    packer_version = await dagger_handle_query_error(
+        packer_prep.with_exec(
+            "version".split(),
+        )
     )
 
     for folder in folders:
-        s_run("packer init .".split(), cwd=folder, check=True)
+        relative_packer = packer_prep.with_workdir(f"/src/{folder}")
 
-        packer_fmt_results = s_run(
-            "packer fmt -check -diff .".split(),
-            cwd=folder,
-            stdout=PIPE,
-            stderr=PIPE,
-            check=False,
+        await relative_packer.with_exec("init .".split()).exit_code()
+
+        packer_fmt_results = await dagger_handle_query_error(
+            relative_packer.with_exec(
+                "fmt -check -diff .".split(),
+            )
         )
 
-        return_list.append(
+        lint_sub_dict.results.append(
             LintReturnObj(
                 "packer-fmt",
-                packer_fmt_version.stdout.decode().strip(),
-                packer_fmt_version.stdout.decode(),
-                packer_fmt_results.returncode,
-                packer_fmt_results.stdout.decode(),
-                packer_fmt_results.stderr.decode(),
+                packer_version.stdout.split()[1],
+                packer_version.stdout,
+                packer_fmt_results.exit_code,
+                packer_fmt_results.stdout,
+                packer_fmt_results.stderr,
+                folder,
             )
         )
-        packer_validate_results = s_run(
-            "packer validate .".split(),
-            cwd=folder,
-            stdout=PIPE,
-            stderr=PIPE,
-            check=False,
+        packer_validate_results = await dagger_handle_query_error(
+            relative_packer.with_exec(
+                "validate .".split(),
+            )
         )
 
-        return_list.append(
+        lint_sub_dict.results.append(
             LintReturnObj(
                 "packer-validate",
-                packer_fmt_version.stdout.decode().strip(),
-                packer_fmt_version.stdout.decode(),
-                packer_validate_results.returncode,
-                packer_validate_results.stdout.decode(),
-                packer_validate_results.stderr.decode(),
+                packer_version.stdout.split()[1],
+                packer_version.stdout,
+                packer_validate_results.exit_code,
+                packer_validate_results.stdout,
+                packer_validate_results.stderr,
+                folder,
             )
         )
-
-    return return_list
 
 
 def shell_lint(

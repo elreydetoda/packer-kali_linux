@@ -72,6 +72,11 @@ def check(ctx_obj: dict):
     is_flag=True,
     help="Lint shell files",
 )
+@click.option(
+    "--all",
+    is_flag=True,
+    help="Lint all files with all linters",
+)
 def lint(
     ctx_obj: dict,
     # ctx: click_Context,
@@ -80,6 +85,7 @@ def lint(
     terraform: bool,
     packer: bool,
     shell: bool,
+    all_lints: bool,
 ):
     """
     Lints files based on the parameters passed in
@@ -91,15 +97,15 @@ def lint(
     # conf: ConfigObj = ctx.obj["CONFIG"]
     # print(ctx.params)
 
-    if ansible:
+    if ansible or all_lints:
         linting.prep_lint("ansible", conf, lint_dict)
-    if python:
+    if python or all_lints:
         linting.prep_lint("python", conf, lint_dict)
-    if terraform:
+    if terraform or all_lints:
         linting.prep_lint("terraform", conf, lint_dict)
-    if packer:
+    if packer or all_lints:
         linting.prep_lint("packer", conf, lint_dict)
-    if shell:
+    if shell or all_lints:
         linting.prep_lint("shell", conf, lint_dict)
 
     resultz = anyio.run(main_lint, conf, lint_dict)
@@ -117,6 +123,8 @@ def lint(
         for result in results:
             click.echo(f"sub-tool: {result.tool_name}")
             click.echo(f"version: {result.tool_version}")
+            if result.cwd:
+                click.echo(f"cwd: {result.cwd}")
             click.echo(f"return code: {result.return_code}")
             click.echo(f"stdout: {result.return_stdout}")
             click.echo(f"stderr: {result.return_stderr}")
