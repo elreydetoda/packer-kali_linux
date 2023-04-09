@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 ## CI info
 # packet info
 if [[ -z "${PACKET_API_KEY}" ]]; then
