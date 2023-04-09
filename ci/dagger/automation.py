@@ -74,6 +74,7 @@ def check(ctx_obj: dict):
 )
 @click.option(
     "--all",
+    "all_lints",
     is_flag=True,
     help="Lint all files with all linters",
 )
