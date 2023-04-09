@@ -168,8 +168,8 @@ async def python_lint(
             black_version.stdout.split()[1],
             black_version.stdout,
             black_results.exit_code,
-            black_version.stdout,
-            black_version.stderr,
+            black_results.stdout,
+            black_results.stderr,
         )
     )
 
