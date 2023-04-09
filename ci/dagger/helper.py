@@ -1,10 +1,13 @@
 import re
+from os import getenv
 from pathlib import Path
+from json import dumps as j_dumps
 
 import click  # pylint: disable=unused-import
 
 from dagger import Client, Container
 from dagger.exceptions import QueryError
+from anyio import Path as AsyncPath
 
 from models.config import ConfigObj
 from models.misc import DaggerExecResult
@@ -118,6 +121,56 @@ def dagger_ansible_prep(
             f"{pipenv_cmd} ansible-galaxy role install -r ci/ansible/requirements.yml".split()
         )
     )
+
+
+async def dagger_terraform_prep(
+    client: Client,
+    container: Container,
+) -> Container:
+    """
+    prepare container for terraform specific needs
+    (i.e. install providers, initialize backends, etc.)
+    """
+
+    terraform_login_dict = {
+        "credentials": {
+            "app.terraform.io": {
+                "token": "",
+            },
+        },
+    }
+
+    prepped_container = None
+    credentials_file = AsyncPath("/root/.terraform.d/credentials.tfrc.json")
+    tf_login = client.set_secret("tf_cloud_login", getenv("TFC_AUTH_TOKEN", ""))
+    tf_plaintext = await tf_login.plaintext()
+
+    # require login token for terraform cloud
+    #   if in CI, raise an exception if empty
+    if getenv("CI"):
+        # if an empty string, or a falsy value, raise an exception
+        if not tf_plaintext:
+            raise click.ClickException(
+                "Terraform Cloud login token not found in secrets"
+            )
+
+    if tf_plaintext:
+        terraform_login_dict["credentials"]["app.terraform.io"]["token"] = tf_plaintext
+        tf_login_file = client.set_secret(
+            "tf_login_file",
+            j_dumps(
+                terraform_login_dict,
+                indent=4,
+                ensure_ascii=True,
+            ),
+        )
+        prepped_container = (
+            container
+            # create file for terraform login
+            .with_mounted_secret(str(credentials_file), tf_login_file)
+        )
+
+    return prepped_container or container
 
 
 ##################################################

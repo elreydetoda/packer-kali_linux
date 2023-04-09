@@ -7,6 +7,7 @@ from dagger import Client
 from helper import (
     dagger_ansible_prep,
     dagger_handle_query_error,
+    dagger_terraform_prep,
     find,
     dagger_general_prep,
     dagger_python_prep,
@@ -179,7 +180,8 @@ async def terraform_lint(
 
     folders = list({str(file.parent) for file in lint_sub_dict.files})
 
-    terraform_prep = dagger_general_prep(client, conf, "terraform")
+    base_prep = dagger_general_prep(client, conf, "terraform")
+    terraform_prep = await dagger_terraform_prep(client, base_prep)
 
     terraform_version = await dagger_handle_query_error(
         terraform_prep.with_exec(
@@ -190,10 +192,10 @@ async def terraform_lint(
     for folder in folders:
         relative_terraform = terraform_prep.with_workdir(f"/src/{folder}")
 
-        await relative_terraform.with_exec("init".split()).exit_code()
+        initialized_terraform = relative_terraform.with_exec("init".split())
 
         terraform_fmt_results = await dagger_handle_query_error(
-            relative_terraform.with_exec(
+            initialized_terraform.with_exec(
                 "fmt -check -diff".split(),
             )
         )
@@ -206,10 +208,11 @@ async def terraform_lint(
                 terraform_fmt_results.exit_code,
                 terraform_fmt_results.stdout,
                 terraform_fmt_results.stderr,
+                cwd=folder,
             )
         )
         terraform_validate_results = await dagger_handle_query_error(
-            relative_terraform.with_exec(
+            initialized_terraform.with_exec(
                 "validate".split(),
             )
         )
@@ -222,6 +225,7 @@ async def terraform_lint(
                 terraform_validate_results.exit_code,
                 terraform_validate_results.stdout,
                 terraform_validate_results.stderr,
+                cwd=folder,
             )
         )
 
