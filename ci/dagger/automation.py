@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
+from os import getenv
 from pathlib import Path
-from subprocess import run as s_run, PIPE
-from typing import List, Set
+from sys import exit as s_exit
 
-import anyio, click
+import anyio, click  # pylint: disable=multiple-imports
 from click.core import Context as click_Context
 from yaml import safe_load as y_safe_load
 
@@ -20,6 +20,9 @@ from models.config import ConfigObj
 def main(
     ctx: click_Context,
 ):
+    """
+    Main entry point for CI/CD automation
+    """
     ctx.ensure_object(dict)
     base_path = Path(__file__).resolve()
     git_root = base_path.parent.parent.parent
@@ -32,10 +35,10 @@ def main(
     )
 
 
-@main.command()
-@click.pass_obj
-def check(ctx_obj: dict):
-    click.echo(ctx_obj)
+# @main.command()
+# @click.pass_obj
+# def check(ctx_obj: dict):
+#     click.echo(ctx_obj)
 
 
 # ELREY_PKR_LINT_PYTHON=true
@@ -87,7 +90,7 @@ def lint(
     packer: bool,
     shell: bool,
     all_lints: bool,
-):
+):  # pylint: disable=too-many-arguments
     """
     Lints files based on the parameters passed in
     """
@@ -115,6 +118,8 @@ def lint(
     #     func_to_run = getattr(linting, f"{func_str}_lint")
     #     lint_dict_vals.results.extend(func_to_run(conf, lint_dict_vals.files))
 
+    failed = False
+
     for tool_name, tool_data in resultz.items():
         tool_data: LintSubDict
         results = tool_data.results
@@ -122,6 +127,7 @@ def lint(
         click.echo(f"tool: {tool_name}")
 
         for result in results:
+            result: LintReturnObj
             click.echo(f"sub-tool: {result.tool_name}")
             click.echo(f"version: {result.tool_version}")
             if result.cwd:
@@ -129,6 +135,13 @@ def lint(
             click.echo(f"return code: {result.return_code}")
             click.echo(f"stdout: {result.return_stdout}")
             click.echo(f"stderr: {result.return_stderr}")
+            if result.return_code != 0:
+                failed = True
+
+    if getenv("IGNORE_LINTING_ERRORS"):
+        s_exit(0)
+    if failed:
+        raise click.ClickException("Linting failed")
 
 
 # async def cli():
