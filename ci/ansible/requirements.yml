@@ -7,6 +7,8 @@ collections:
     version: 6.5.0
   - name: ansible.posix
     version: 1.5.1
+  - name: equinix.metal
+    version: 1.4.1
 
 roles:
   - name: elreydetoda.textbelt

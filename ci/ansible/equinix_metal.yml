@@ -1,0 +1,54 @@
+# https://github.com/equinix/ansible-collection-metal/blob/2f70c3097e9cfff4ea1caeca1cbc02aa6b8441c9/docs/equinix.metal.device_inventory.rst#examples
+# Example using constructed features to create groups and set ansible_host
+plugin: equinix.metal.device
+# keyed_groups may be used to create custom groups
+strict: False
+keyed_groups:
+  # Add hosts to tag_Name groups for each tag
+  - prefix: tag
+    key: tags
+  # Add hosts to e.g. equinix_metal_plan_c3_small_x86
+  # - prefix: equinix_metal_plan
+  #   key: plan
+  # Create a group per region e.g. equinix_metal_facility_am6
+  # - key: facility
+  #   prefix: equinix_metal_facility
+  # Create a group per device state e.g. equinix_metal_state_active
+  # - key: state
+  #   prefix: equinix_metal_state
+# Set individual variables with compose
+compose:
+  # Use the private IP address to connect to the host
+  # (note: this does not modify inventory_hostname, which is set via I(hostnames))
+  ansible_host: (ip_addresses | selectattr('address_family', 'equalto', 4) | selectattr('public', 'equalto', true) | first).address
+## example output from ansible-inventory --list
+# "all": {
+#         "children": [
+#             "ungrouped",
+#             "equinix_metal",
+#             "tag_qemu",
+#             "tag_virtualbox_iso",
+#             "tag_vmware"
+#         ]
+#     },
+#     "equinix_metal": {
+#         "hosts": [
+#             "packer-build-box-qemu",
+#             "packer-build-box-v"
+#         ]
+#     },
+#     "tag_qemu": {
+#         "hosts": [
+#             "packer-build-box-qemu"
+#         ]
+#     },
+#     "tag_virtualbox_iso": {
+#         "hosts": [
+#             "packer-build-box-v"
+#         ]
+#     },
+#     "tag_vmware": {
+#         "hosts": [
+#             "packer-build-box-v"
+#         ]
+#     }
