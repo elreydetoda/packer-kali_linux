@@ -4,7 +4,12 @@ from dagger import Client
 
 from models.misc import DaggerExecResult
 from models.config import ConfigObj
-from helper import dagger_general_prep, dagger_handle_query_error, dagger_terraform_prep
+from helper import (
+    dagger_general_prep,
+    dagger_handle_query_error,
+    dagger_terraform_deployment_prep,
+    dagger_terraform_prep,
+)
 
 
 async def deploy(client: Client, conf: ConfigObj) -> Tuple[str, DaggerExecResult]:
@@ -19,17 +24,10 @@ async def deploy(client: Client, conf: ConfigObj) -> Tuple[str, DaggerExecResult
         terraform_prep.with_exec("-version".split())
     )
 
+    deployment_prep = dagger_terraform_deployment_prep(client, terraform_prep, folder)
+
     terraform_deployed = (
-        terraform_prep
-        # setting CWD to deployment folder
-        .with_workdir(f"/src/{folder}")
-        # caching providers
-        .with_mounted_cache(
-            f"/src/{folder}/.terraform",
-            client.cache_volume("project_terraform_providers"),
-        )
-        # initializing terraform in that folder
-        .with_exec("init".split())
+        deployment_prep
         # deploying the servers
         .with_exec("apply -auto-approve".split())
     )

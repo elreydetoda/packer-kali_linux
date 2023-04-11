@@ -173,6 +173,29 @@ async def dagger_terraform_prep(
     return prepped_container or container
 
 
+def dagger_terraform_deployment_prep(
+    client: Client,
+    container: Container,
+    folder: str,
+) -> Container:
+    """
+    prepare container for terraform deployment specific needs
+    (i.e. install providers, initialize backends, etc.)
+    """
+    return (
+        container
+        # setting CWD to deployment folder
+        .with_workdir(f"/src/{folder}")
+        # caching providers
+        .with_mounted_cache(
+            f"/src/{folder}/.terraform",
+            client.cache_volume("project_terraform_providers"),
+        )
+        # initializing terraform in that folder
+        .with_exec("init".split())
+    )
+
+
 ##################################################
 # TEMPORARY
 
