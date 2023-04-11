@@ -10,7 +10,7 @@ from yaml import safe_load as y_safe_load
 
 
 import linting
-from async_interface import main_lint
+from async_interface import main_deploy, main_lint
 from models.linting import LintReturnObj, LintSubDict
 from models.config import ConfigObj
 
@@ -142,6 +142,35 @@ def lint(
         s_exit(0)
     if failed:
         raise click.ClickException("Linting failed")
+
+
+@main.command("deploy")
+@click.pass_obj
+@click.confirmation_option(prompt="Are you sure you want to deploy/destroy?")
+@click.option(
+    "-d",
+    "--destroy",
+    is_flag=True,
+    help="Destroy the servers instead of deploying them",
+)
+def deploy(
+    ctx_obj: dict,
+    destroy: bool,
+):
+    """
+    Deploys the servers for the builds to run on
+    """
+    conf: ConfigObj = ctx_obj["CONFIG"]
+
+    if destroy:
+        pass
+    else:
+        terraform_version, terraform_deployed_results = anyio.run(main_deploy, conf)
+
+    click.echo(f"Terraform Version: {terraform_version}")
+    click.echo(f"Return Code: {terraform_deployed_results.exit_code}")
+    click.echo(f"Output: {terraform_deployed_results.stdout}")
+    click.echo(f"Error: {terraform_deployed_results.stderr}")
 
 
 # async def cli():

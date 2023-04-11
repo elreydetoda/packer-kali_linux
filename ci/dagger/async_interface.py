@@ -4,6 +4,7 @@ from copy import deepcopy
 import dagger, anyio  # pylint: disable=multiple-imports
 
 import linting
+from deployment import deploy
 from models.config import ConfigObj
 from models.linting import LintSubDict
 
@@ -26,3 +27,16 @@ async def main_lint(conf: ConfigObj, lint_dict: dict) -> dict:
                 func_to_run = getattr(linting, f"{func_str}_lint")
                 task_group.start_soon(func_to_run, client, conf, lint_dict_vals)
     return new_lint_dict
+
+
+async def main_deploy(conf: ConfigObj):
+    """
+    Thin async wrapper around the main deploy function
+    """
+    async with dagger.Connection(
+        dagger.Config(
+            workdir=conf.git_root,
+            log_output=sys.stderr,
+        )
+    ) as client:
+        return await deploy(client, conf)

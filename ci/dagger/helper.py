@@ -177,41 +177,51 @@ async def dagger_terraform_prep(
 # TEMPORARY
 
 
-async def dagger_handle_query_error(container: Container) -> DaggerExecResult:
+async def dagger_handle_query_error(
+    container: Container, handle_error=True
+) -> DaggerExecResult:
     """
     handle dagger query errors, and return all relevant data based on error or not
     """
-    try:
-        return DaggerExecResult(
-            await container.stdout(),
-            await container.stderr(),
-            await container.exit_code(),
-        )
-    except QueryError as query_err:
-        # FIXME: hack till there's an official process, based off of
-        msg = str(query_err)
-        # https://github.com/dagger/dagger/issues/4706#issuecomment-1499371201
-        if "exit code:" not in msg:
-            # this could be a network error for example
-            raise
+    if handle_error:
+        try:
+            return DaggerExecResult(
+                await container.stdout(),
+                await container.stderr(),
+                await container.exit_code(),
+            )
+        except QueryError as query_err:
+            # FIXME: hack till there's an official process, based off of
+            msg = str(query_err)
+            # https://github.com/dagger/dagger/issues/4706#issuecomment-1499371201
+            if "exit code:" not in msg:
+                # this could be a network error for example
+                raise
 
-        # pylint: disable=line-too-long
-        matched_dict = re.search(
-            r"(?P<error_msg>.*?)(?:exit\s+code:\s+)(?P<exit_code>\d+).(?:Stdout:)(?P<stdout>.*?)(?:Stderr:)(?P<stderr>.*?)(?:CUSTOM_EOF)",
-            msg + "CUSTOM_EOF",
-            re.MULTILINE | re.DOTALL,
-        ).groupdict()
+            # pylint: disable=line-too-long
+            matched_dict = re.search(
+                r"(?P<error_msg>.*?)(?:exit\s+code:\s+)(?P<exit_code>\d+).(?:Stdout:)(?P<stdout>.*?)(?:Stderr:)(?P<stderr>.*?)(?:CUSTOM_EOF)",
+                msg + "CUSTOM_EOF",
+                re.MULTILINE | re.DOTALL,
+            ).groupdict()
 
-        # TODO: add more error handling here
-        #   i.e. expected errors for specific tools
-        #   based on the error_msg extrated text
-        return DaggerExecResult(
-            matched_dict.get("stdout").strip(),
-            matched_dict.get("stderr").strip(),
-            matched_dict.get("exit_code"),
-            matched_dict.get("error_msg").strip(),
-            # _raw=msg,
-        )
+            # TODO: add more error handling here
+            #   i.e. expected errors for specific tools
+            #   based on the error_msg extrated text
+            return DaggerExecResult(
+                matched_dict.get("stdout").strip(),
+                matched_dict.get("stderr").strip(),
+                matched_dict.get("exit_code"),
+                matched_dict.get("error_msg").strip(),
+                # _raw=msg,
+            )
+
+    # if we don't handle errors, just return the data
+    return DaggerExecResult(
+        await container.stdout(),
+        await container.stderr(),
+        await container.exit_code(),
+    )
 
 
 ##################################################
