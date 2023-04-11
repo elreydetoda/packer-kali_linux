@@ -53,3 +53,83 @@ compose:
 #             "packer-build-box-v"
 #         ]
 #     }
+
+## example host vars
+# "always_pxe": false,
+# "ansible_host": "147.75.61.7",
+# "ansible_ssh_user": "root",
+# "billing_cycle": "hourly",
+# "bonding_mode": 4,
+# "created_at": "2023-04-11T04:11:59Z",
+# "description": "",
+# "facility": "dc13",
+# "hardware_reservation_id": "",
+# "hostname": "packer-build-box-qemu",
+# "href": "/devices/05008174-6efb-4d7a-87ad-a066f7a19777",
+# "id": "05008174-6efb-4d7a-87ad-a066f7a19777",
+# "image_url": "",
+# "ip_addresses": [
+#     {
+#         "address": "147.75.61.7",
+#         "address_family": 4,
+#         "cidr": 31,
+#         "enabled": true,
+#         "gateway": "147.75.61.6",
+#         "global_ip": false,
+#         "manageable": true,
+#         "management": true,
+#         "netmask": "255.255.255.254",
+#         "network": "147.75.61.6",
+#         "public": true,
+#         "tags": []
+#     },
+#     {
+#         "address": "2604:1380:45f1:f300::3",
+#         "address_family": 6,
+#         "cidr": 127,
+#         "enabled": true,
+#         "gateway": "2604:1380:45f1:f300::2",
+#         "global_ip": false,
+#         "manageable": true,
+#         "management": true,
+#         "netmask": "ffff:ffff:ffff:ffff:ffff:ffff:ffff:fffe",
+#         "network": "2604:1380:45f1:f300::2",
+#         "public": true,
+#         "tags": []
+#     },
+#     {
+#         "address": "10.68.153.131",
+#         "address_family": 4,
+#         "cidr": 31,
+#         "enabled": true,
+#         "gateway": "10.68.153.130",
+#         "global_ip": false,
+#         "manageable": true,
+#         "management": true,
+#         "netmask": "255.255.255.254",
+#         "network": "10.68.153.130",
+#         "public": false,
+#         "tags": []
+#     }
+# ],
+# "ipxe_script_url": "",
+# "iqn": "iqn.2023-04.net.packet:device.05008174",
+# "locked": false,
+# "operating_system": "ubuntu_22_04",
+# "plan": "c3.small.x86",
+# "project": "<project_id>",
+# "provisioning_percentage": "",
+# "root_password": "tfZo5$@_8S",
+# "short_id": "05008174",
+# "spot_instance": false,
+# "spot_price_max": "",
+# "state": "active",
+# "storage": "",
+# "switch_uuid": "6a5a42d0",
+# "tags": [
+#     "qemu"
+# ],
+# "termination_time": "",
+# "updated_at": "2023-04-11T04:14:19Z",
+# "user": "root",
+# "userdata": ""
