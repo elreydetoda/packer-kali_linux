@@ -10,7 +10,7 @@ from yaml import safe_load as y_safe_load
 
 
 import linting
-from async_interface import main_deploy, main_lint
+from async_interface import main_deploy, main_lint, main_destroy
 from models.linting import LintReturnObj, LintSubDict
 from models.config import ConfigObj
 
@@ -163,7 +163,7 @@ def deploy(
     conf: ConfigObj = ctx_obj["CONFIG"]
 
     if destroy:
-        pass
+        terraform_version, terraform_deployed_results = anyio.run(main_destroy, conf)
     else:
         terraform_version, terraform_deployed_results = anyio.run(main_deploy, conf)
 

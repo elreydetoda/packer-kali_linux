@@ -26,6 +26,7 @@ shell:
 terraform:
   patterns:
     - "*.tf"
+  deployment_folder: ci/terraform/equinix
 packer:
   patterns:
     - "*.pkr.hcl"
