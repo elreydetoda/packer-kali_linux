@@ -13,6 +13,8 @@ ansible-lint = "*"
 molecule = "*"
 # for python aws mfa (sts)
 boto3 = "*"
+# for ansible local development
+ansible-navigator = "*"
 
 [packages]
 # for python prompt
