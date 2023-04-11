@@ -50,7 +50,7 @@ variable "provision_plan" {
 ##  Packet server provisioning
 # defining the packet provider
 provider "equinix" {
-  auth_token = var.packet_auth_token
+  auth_token = var.auth_token
 }
 
 locals {
@@ -85,9 +85,9 @@ data "equinix_metal_operating_system" "ubuntu_lts" {
 resource "equinix_metal_device" "v_packer_build_server" {
   hostname         = local.v_server_hostname
   project_id       = var.project_id
-  operating_system = data.metal_operating_system.ubuntu_lts.id
+  operating_system = data.equinix_metal_operating_system.ubuntu_lts.id
   plan             = var.provision_plan
-  facilities       = "any"
+  facilities       = ["any"]
   billing_cycle    = "hourly"
   tags = [
     "virtualbox-iso", "vmware"
@@ -97,9 +97,9 @@ resource "equinix_metal_device" "v_packer_build_server" {
 resource "equinix_metal_device" "q_packer_build_server" {
   hostname         = local.q_server_hostname
   project_id       = var.project_id
-  operating_system = data.metal_operating_system.ubuntu_lts.id
+  operating_system = data.equinix_metal_operating_system.ubuntu_lts.id
   plan             = var.provision_plan
-  facilities       = "any"
+  facilities       = ["any"]
   billing_cycle    = "hourly"
   tags = [
     "qemu"
