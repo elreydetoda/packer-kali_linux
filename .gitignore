@@ -10,6 +10,7 @@ tmp/
 *.box
 *.log
 .vscode/
+.navigator-artifact/
 
 # backup files
 *.bak*

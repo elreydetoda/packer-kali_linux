@@ -20,6 +20,7 @@ keyed_groups:
 compose:
   # Use the private IP address to connect to the host
   # (note: this does not modify inventory_hostname, which is set via I(hostnames))
+  ansible_ssh_user: user
   ansible_host: (ip_addresses | selectattr('address_family', 'equalto', 4) | selectattr('public', 'equalto', true) | first).address
 ## example output from ansible-inventory --list
 # "all": {

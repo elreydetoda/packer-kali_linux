@@ -1,0 +1,115 @@
+# # cspell:ignore cmdline, workdir
+---
+ansible-navigator:
+  #
+  ansible:
+    config:
+      help: true
+      path: ansible.cfg
+    #     cmdline: "--forks 15"
+    #     doc:
+    #       help: False
+    #       plugin:
+    #         name: shell
+    #         type: become
+    inventory:
+      # help: False
+      entries:
+        ## development
+        # - ci/ansible/local/vagrant-inventory.yml
+        - ci/ansible/local/equinix_ssh-inventory.yml
+        ## production
+        - ci/ansible/equinix_metal.yml
+  #     playbook:
+  #       help: False
+  #       path: /tmp/test_playbook.yml
+  #
+  # ansible-builder:
+  #   help: True
+  #   workdir: /tmp/
+  #
+  #   ansible-lint:
+  #     config: ~/ansible-lint.yml
+  #     lintables: ~/myproject/
+  #
+  #   ansible-runner:
+  #     artifact-dir: /tmp/test1
+  #     rotate-artifacts-count: 10
+  #     timeout: 300
+  #
+  #   app: run
+  #
+  #   collection-doc-cache-path: /tmp/cache.db
+  #
+  #   color:
+  #     enable: False
+  #     osc4: False
+  #
+  editor:
+    command: code -g {filename}:{line_number}
+    console: False
+  #
+  #   enable-prompts: False
+  #
+  #   exec:
+  #     shell: False
+  #     command: /bin/foo
+  #
+  execution-environment:
+    # container-engine: docker
+    #     enabled: False
+    environment-variables:
+      #       pass:
+      #         - ONE
+      #         - TWO
+      #         - THREE
+      set:
+        METAL_API_TOKEN: <API_TOKEN>
+    #         KEY2: VALUE2
+    #         KEY3: VALUE3
+    # image: quay.io/ansible/creator-ee:v0.14.1
+    # image: quay.io/ansible/creator-ee:latest
+    # needed to add packet-python via pip
+    image: quay.io/elrey741/equinix-metal_creator-ee:latest
+    pull:
+      #       arguments:
+      #         - "--tls-verify=false"
+      policy: tag
+    volume-mounts:
+      - src: "/home/<username>/.ansible"
+        dest: "/home/runner/.ansible/"
+    #   options: "ro"
+    container-options:
+      - "--net=host"
+  #
+  #   format: json
+  #
+  #   images:
+  #     details:
+  #       - ansible_version
+  #       - python_version
+  #
+  #   inventory-columns:
+  #     - ansible_network_os
+  #     - ansible_network_cli_ssh_type
+  #     - ansible_connection
+  #
+  logging:
+    level: critical
+  #     append: False
+  #     file: /tmp/log.txt
+  #
+  #   mode: stdout
+  #
+  playbook-artifact:
+    enable: True
+    # replay: /tmp/test_artifact.json
+    save-as: "{playbook_dir}/.navigator-artifact/{playbook_name}-artifact-{time_stamp}.json"
+  #
+  #   settings:
+  #     effective: False
+  #     sample: False
+  #     schema: json
+  #     sources: False
+  #
+  time-zone: America/New_York

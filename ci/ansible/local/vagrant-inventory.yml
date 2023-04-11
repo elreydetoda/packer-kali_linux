@@ -1,0 +1,23 @@
+---
+all:
+  hosts:
+  children:
+    build_machine:
+      # on virtualbox
+      # hosts: 192.168.34.23
+      # dynamic on libvirt
+      hosts: 192.168.121.144
+      vars:
+        ansible_private_key_file: .vagrant/machines/builder/libvirt/private_key
+    tag_qemu:
+      children:
+        build_machine:
+    tag_virtualbox_iso:
+      children:
+        build_machine:
+    tag_vmware:
+      children:
+        build_machine:
+  vars:
+    ansible_python_interpreter: "/usr/bin/env python3"
+    ansible_ssh_user: "vagrant"
