@@ -16,10 +16,10 @@ ansible-navigator:
       # help: False
       entries:
         ## development
-        # - ci/ansible/local/vagrant-inventory.yml
-        - ci/ansible/local/equinix_ssh-inventory.yml
+        - ci/ansible/local/vagrant-inventory.yml
+        # - ci/ansible/local/equinix_ssh-inventory.yml
         ## production
-        - ci/ansible/equinix_metal.yml
+        # - ci/ansible/equinix_metal.yml
   #     playbook:
   #       help: False
   #       path: /tmp/test_playbook.yml
