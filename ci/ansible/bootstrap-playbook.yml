@@ -1,61 +1,60 @@
 ---
-- hosts: all
+- name: Bootstrap build servers
+  hosts: all
   become: true
-  collections:
-    - elreydetoda.virtualization
   tasks:
 
-    - name: installation of software
+    - name: Installation of software
       block:
 
-        - name: installing hypervisors
+        - name: Installing hypervisors
           block:
 
-            - name: installation of virtualbox
-              include_role:
-                name: virtualbox
+            - name: Installation of virtualbox
+              ansible.builtin.include_role:
+                name: elreydetoda.virtualization.virtualbox
 
-            - name: installation of vmware workstation
-              import_role:
-                name: vmware
+            - name: Installation of vmware workstation
+              ansible.builtin.import_role:
+                name: elreydetoda.virtualization.vmware
               vars:
                 vmware_bundle_checksum: ''
                 vmware_license_key: '{{ vmware_license | default() }}'
 
-            - name: installation of kvm
-              import_role:
-                name: kvm
+            - name: Installation of kvm
+              ansible.builtin.import_role:
+                name: elreydetoda.virtualization.kvm
 
-        - name: installing building software
+        - name: Installing building software
           block:
 
-            - name: installation of packer
-              include_role:
-                name: packer
+            - name: Installation of packer
+              ansible.builtin.include_role:
+                name: elreydetoda.virtualization.packer
 
-            - name: install vagrant
-              include_role:
+            - name: Install vagrant
+              ansible.builtin.include_role:
                 # currently not working: https://github.com/elreydetoda/packer-kali_linux/issues/51
-                name: vagrant
+                name: elreydetoda.virtualization.vagrant
                 # name: diodonfrost.vagrant
 
-    - name: ufw setup
+    - name: Ufw setup
       block:
 
-        - name: install ufw
-          package:
+        - name: Install ufw
+          ansible.builtin.package:
             name: ufw
             state: present
 
-        - name: adding ssh to allow
-          ufw:
+        - name: Adding ssh to allow
+          community.general.ufw:
             # rule: limit
             # setting it to this for now
             rule: allow
             name: OpenSSH
 
-        - name: adding vmware access through ufw
-          ufw:
+        - name: Adding vmware access through ufw
+          community.general.ufw:
             # rule: limit
             # setting it to this for now
             rule: allow
@@ -64,8 +63,8 @@
             interface: 'vmnet8'
             comment: 'for vmware builder'
 
-        - name: adding vmware access through ufw
-          ufw:
+        - name: Adding vmware access through ufw
+          community.general.ufw:
             # rule: limit
             # setting it to this for now
             rule: allow
@@ -74,26 +73,26 @@
             interface: 'virbr0'
             comment: 'for libvirt builder'
 
-        - name: enabling ufw
-          ufw:
+        - name: Enabling ufw
+          community.general.ufw:
             state: enabled
 
-    - name: building block prep
+    - name: Building block prep
       vars:
         kali_project_folder: '/opt/packerAutoKali/'
-        project_folder: "{{ lookup('env','HOME') }}/project/"
+        project_folder: "{{ lookup('env', 'HOME') }}/project/"
       block:
 
-        - name: making sure build folder exists
-          file:
+        - name: Making sure build folder exists
+          ansible.builtin.file:
             path: '{{ kali_project_folder }}'
             state: directory
             mode: '640'
             owner: root
             group: root
 
-        - name: rsync'ing to build server
-          synchronize:
+        - name: Rsync'ing to build server
+          ansible.posix.synchronize:
             partial: true
             src: '{{ project_folder }}/'
             dest: '{{ kali_project_folder }}'

@@ -112,7 +112,7 @@ Vagrant.configure("2") do |config|
       override.vm.allowed_synced_folder_types = [:libvirt, :nfs]
     end
     remote.vm.provision 'remote-setup', type: 'ansible' do |ansible|
-      ansible.playbook = 'prov_vagrant/base.yml'
+      ansible.playbook = 'prov_vagrant/base-playbook.yml'
       ansible.version = 'latest'
     end
   end

@@ -1,5 +1,6 @@
 ---
-- hosts: all
+- name: Actual build playbook
+  hosts: all
   become: true
   vars:
     kali_project_folder: '/opt/packerAutoKali/'
@@ -7,34 +8,34 @@
     local_ci_scripts_dir: 'scripts'
   tasks:
 
-    - name: building block
+    - name: Building block
       block:
 
-        - name: sending initial text message for start
-          import_role:
+        - name: Sending initial text message for start
+          ansible.builtin.import_role:
             name: elreydetoda.textbelt
           vars:
             api_key: '{{ api_key_from_env }}'
             phone_number: '{{ phone_from_env }}'
             message_contents: 'starting build: {{ ansible_hostname }}'
-          when: (( api_key_from_env is defined ) and ( api_key_from_env | length > 0 )) and
-                ((phone_from_env is defined ) and ( phone_from_env | length > 0 ))
+          when: ((api_key_from_env is defined) and (api_key_from_env | length > 0)) and
+                ((phone_from_env is defined) and (phone_from_env | length > 0))
 
-        - name: initial upload to vagrant cloud
+        - name: Initial upload to vagrant cloud
           block:
 
-            - name: setting provider string for vbox & vmware
-              set_fact:
+            - name: Setting provider string for vbox & vmware
+              ansible.builtin.set_fact:
                 provider_string: 'virtualbox-iso|vmware-iso'
               when: ansible_hostname == 'packer-build-box-v'
 
-            - name: setting provider string for qemu
-              set_fact:
+            - name: Setting provider string for qemu
+              ansible.builtin.set_fact:
                 provider_string: 'qemu'
               when: ansible_hostname == 'packer-build-box-qemu'
 
-            - name: launching the packer build process
-              shell:
+            - name: Launching the packer build process
+              ansible.builtin.shell:
                 cmd: |
                   export DEBUG=true
                   "{{ local_ci_scripts_dir }}/packer_build-wrapper.sh '{{ provider_string }}' '{{ build_version | default() }}'"
@@ -42,40 +43,40 @@
               args:
                 creates: '{{ kali_project_folder }}/packer_build-{{ build_version | default() }}.log'
 
-            - name: sending last text message for end
-              import_role:
+            - name: Sending last text message for end
+              ansible.builtin.import_role:
                 name: elreydetoda.textbelt
               vars:
                 api_key: '{{ api_key_from_env }}'
                 phone_number: '{{ phone_from_env }}'
                 message_contents: 'finished successfuly, and ending build: {{ ansible_hostname }}'
-              when: (( api_key_from_env is defined ) and ( api_key_from_env | length > 0 )) and
-                    ((phone_from_env is defined ) and ( phone_from_env | length > 0 ))
+              when: ((api_key_from_env is defined) and (api_key_from_env | length > 0)) and
+                    ((phone_from_env is defined) and (phone_from_env | length > 0))
 
           rescue:
 
-            - name: sending last text message for end
-              import_role:
+            - name: Sending last text message for end
+              ansible.builtin.import_role:
                 name: elreydetoda.textbelt
               vars:
                 api_key: '{{ api_key_from_env }}'
                 phone_number: '{{ phone_from_env }}'
                 message_contents: 'build failed (probably upload), but trying to upload with curl script: {{ ansible_hostname }}'
-              when: (( api_key_from_env is defined ) and ( api_key_from_env | length > 0 )) and
-                    ((phone_from_env is defined ) and ( phone_from_env | length > 0 ))
+              when: ((api_key_from_env is defined) and (api_key_from_env | length > 0)) and
+                    ((phone_from_env is defined) and (phone_from_env | length > 0))
 
-            - name: setting new_build_version to default
-              set_fact:
+            - name: Setting new_build_version to default
+              ansible.builtin.set_fact:
                 new_build_version: 'default'
-              when: ( build_version | length == 0 )
+              when: (build_version | length == 0)
 
-            - name: setting new_build_version for other builders
-              set_fact:
+            - name: Setting new_build_version for other builders
+              ansible.builtin.set_fact:
                 new_build_version: '{{ build_version }}'
-              when: ( build_version | length > 0 )
+              when: (build_version | length > 0)
 
-            - name: getting path for all files to remove
-              find:
+            - name: Getting path for all files to remove
+              ansible.builtin.find:
                 paths: "{{ kali_project_folder }}/{{ new_build_version }}"
                 recurse: true
                 hidden: true
@@ -86,38 +87,39 @@
                 - "vagrant_boxes_for_upload.matched == 0"
                 - "vagrant_boxes_for_upload.matched > 2"
 
-            - name: launching the upload process
-              shell:
+            - name: Launching the upload process
+              ansible.builtin.shell:
                 cmd: |
                   export CIRCLECI='{{ CIRCLECI | default('') }}' DEBUG=true
                   ci/scripts/manual_upload.sh '{{ item.path }}' '{{ build_version | default() }}' > curl-upload.log 2>&1
                 chdir: '{{ kali_project_folder }}'
+              changed_when: false
               loop: '{{ vagrant_boxes_for_upload.files }}'
 
-            - name: sending last text message for end
-              import_role:
+            - name: Sending last text message for end
+              ansible.builtin.import_role:
                 name: elreydetoda.textbelt
               vars:
                 api_key: '{{ api_key_from_env }}'
                 phone_number: '{{ phone_from_env }}'
                 message_contents: 'finished successfuly, and ending build: {{ ansible_hostname }}'
-              when: (( api_key_from_env is defined ) and ( api_key_from_env | length > 0 )) and
-                    ((phone_from_env is defined ) and ( phone_from_env | length > 0 ))
+              when: ((api_key_from_env is defined) and (api_key_from_env | length > 0)) and
+                    ((phone_from_env is defined) and (phone_from_env | length > 0))
 
       rescue:
 
-        - name: sending last text message for end
-          import_role:
+        - name: Sending last text message for end
+          ansible.builtin.import_role:
             name: elreydetoda.textbelt
           vars:
             api_key: '{{ api_key_from_env }}'
             phone_number: '{{ phone_from_env }}'
             message_contents: "didn't complete properly, and ending build: {{ ansible_hostname }}"
-          when: (( api_key_from_env is defined ) and ( api_key_from_env | length > 0 )) and
-                ((phone_from_env is defined ) and ( phone_from_env | length > 0 ))
+          when: ((api_key_from_env is defined) and (api_key_from_env | length > 0)) and
+                ((phone_from_env is defined) and (phone_from_env | length > 0))
 
-        - name: getting path for all files to remove
-          find:
+        - name: Getting path for all files to remove
+          ansible.builtin.find:
             paths: '{{ kali_project_folder }}'
             recurse: true
             file_type: any
@@ -126,28 +128,28 @@
               - 'packer-*'
           register: files_to_remove
 
-        - name: removing files made during build
-          file:
+        - name: Removing files made during build
+          ansible.builtin.file:
             state: absent
             path: '{{ item.path }}'
           loop: '{{ files_to_remove.files }}'
 
-        - name: failing, since previous failed but wanted logs...
+        - name: Failing, since previous failed but wanted logs...
           ansible.builtin.fail:
             msg: "upload failed, so check the logs for issues"
 
-    - name: log block
+    - name: Log block
       block:
 
-        - name: getting path for all files to copy from server
-          find:
+        - name: Getting path for all files to copy from server
+          ansible.builtin.find:
             paths: '{{ kali_project_folder }}'
             patterns:
               - '*.log'
           register: files_to_copy
 
-        - name: copying files from server
-          fetch:
+        - name: Copying files from server
+          ansible.builtin.fetch:
             src: '{{ item.path }}'
             dest: '{{ project_folder }}'
             flat: true
