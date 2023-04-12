@@ -1,16 +1,17 @@
 ---
-- hosts: all
-  become: yes
+- name: Update and upgrade build machine
+  hosts: all
+  become: true
   tasks:
-    - name: updating cache and dist-upgrade
-      apt:
-        update_cache: yes
+    - name: Updating cache and dist-upgrade
+      ansible.builtin.apt:
+        update_cache: true
         cache_valid_time: 3600
         upgrade: dist
-        autoremove: yes
-        autoclean: yes
-    - name: cleaning & removeing
-      apt:
-        update_cache: no
-        autoremove: yes
-        autoclean: yes
+        autoremove: true
+        autoclean: true
+    - name: Cleaning & removeing
+      ansible.builtin.apt:
+        update_cache: false
+        autoremove: true
+        autoclean: true
