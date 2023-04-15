@@ -112,6 +112,11 @@ def dagger_ansible_prep(
             "/root/.ansible/collections",
             client.cache_volume("project_ansible_collections"),
         )
+        # adding a system cache for packages
+        .with_mounted_cache(
+            "/var/lib/apt/lists/",
+            client.cache_volume("system_packages"),
+        )
         # installing collections
         .with_exec(
             f"{pipenv_cmd} ansible-galaxy collection install -r ci/ansible/requirements.yml".split()
@@ -120,6 +125,10 @@ def dagger_ansible_prep(
         .with_exec(
             f"{pipenv_cmd} ansible-galaxy role install -r ci/ansible/requirements.yml".split()
         )
+        # update system dependencies
+        .with_exec("apt-get update".split())
+        # install system dependencies
+        .with_exec("apt-get install -y rsync".split())
     )
 
 
@@ -142,7 +151,7 @@ async def dagger_terraform_prep(
 
     prepped_container = None
     credentials_file = AsyncPath("/root/.terraform.d/credentials.tfrc.json")
-    tf_login = client.set_secret("tf_cloud_login", getenv("TFC_AUTH_TOKEN", ""))
+    tf_login = client.set_secret("tf_cloud_login", getenv("TFC_AUTH_TOKEN"))
     tf_plaintext = await tf_login.plaintext()
 
     # require login token for terraform cloud
