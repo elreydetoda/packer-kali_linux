@@ -10,7 +10,13 @@ from yaml import safe_load as y_safe_load
 
 
 import linting
-from async_interface import main_deploy, main_lint, main_destroy
+from async_interface import (
+    main_builder,
+    main_deploy,
+    main_lint,
+    main_destroy,
+    main_provision,
+)
 from models.linting import LintReturnObj, LintSubDict
 from models.config import ConfigObj
 
@@ -173,12 +179,65 @@ def deploy(
     click.echo(f"Error: {terraform_deployed_results.stderr}")
 
 
-# async def cli():
-#     cfg = dagger.Config(log_output=sys.stderr)
+@main.command("build")
+@click.pass_obj
+@click.option(
+    "-p/-np",
+    "--provision/--no-provision",
+    is_flag=True,
+    help="Provision the servers before building (default: True)",
+    default=True,
+)
+@click.option(
+    "-vb",
+    "--virtualbox",
+    is_flag=True,
+    help="Build the virtualbox images",
+)
+@click.option(
+    "-vm",
+    "--vmware",
+    is_flag=True,
+    help="Build the vmware images",
+)
+@click.option(
+    "-q",
+    "--qemu",
+    is_flag=True,
+    help="Build the qemu images",
+)
+@click.option(
+    "--all",
+    "all_builders",
+    is_flag=True,
+    help="Build all images with all builders",
+)
+def build(
+    ctx_obj: dict,
+    provision: bool,
+    virtualbox: bool,
+    vmware: bool,
+    qemu: bool,
+    all_builders: bool,
+):
+    """
+    Provisions the servers for the builds to run on
+    """
+    conf: ConfigObj = ctx_obj["CONFIG"]
+    builder_list = []
 
-#     async with dagger.Connection(cfg) as client:
-#         ctr = client.container().from_("python:3.9")
-# ctr.
+    if provision:
+        click.echo(f"Provisioning servers: {provision}")
+        anyio.run(main_provision, conf)
+
+    if virtualbox or all_builders:
+        builder_list.append("virtualbox")
+    if vmware or all_builders:
+        builder_list.append("vmware")
+    if qemu or all_builders:
+        builder_list.append("qemu")
+    click.echo("Building on build servers")
+    anyio.run(main_builder, conf, builder_list)
 
 
 if __name__ == "__main__":
