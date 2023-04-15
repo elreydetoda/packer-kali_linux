@@ -12,13 +12,10 @@ class LintReturnObj:
     tool_name: str
     tool_version: PydanticVersion
     full_version: str
-    return_code: int
+    exit_code: int
     return_stdout: str
     return_stderr: Optional[str] = None
     cwd: Optional[Path] = None
-
-    def __hash__(self) -> int:
-        return hash(self.tool_name) ^ hash(self.return_code)
 
     class Config:
         arbitrary_types_allowed = True

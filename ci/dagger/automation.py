@@ -9,8 +9,8 @@ from click.core import Context as click_Context
 from yaml import safe_load as y_safe_load
 
 
-import linting
-from async_interface import (
+import libs.linting as linting
+from libs.async_interface import (
     main_builder,
     main_deploy,
     main_lint,
@@ -19,6 +19,7 @@ from async_interface import (
 )
 from models.linting import LintReturnObj, LintSubDict
 from models.config import ConfigObj
+from models.packer_building import BuildMetaObj
 
 
 @click.group()
@@ -138,10 +139,10 @@ def lint(
             click.echo(f"version: {result.tool_version}")
             if result.cwd:
                 click.echo(f"cwd: {result.cwd}")
-            click.echo(f"return code: {result.return_code}")
+            click.echo(f"return code: {result.exit_code}")
             click.echo(f"stdout: {result.return_stdout}")
             click.echo(f"stderr: {result.return_stderr}")
-            if result.return_code != 0:
+            if result.exit_code != 0:
                 failed = True
 
     if getenv("IGNORE_LINTING_ERRORS"):
@@ -228,6 +229,7 @@ def build(
 
     if provision:
         click.echo(f"Provisioning servers: {provision}")
+        # TODO: return packer & vagrant versions + Assign to BuildMetaObj
         anyio.run(main_provision, conf)
 
     if virtualbox or all_builders:
@@ -237,7 +239,15 @@ def build(
     if qemu or all_builders:
         builder_list.append("qemu")
     click.echo("Building on build servers")
-    anyio.run(main_builder, conf, builder_list)
+    results = BuildMetaObj(build_results=anyio.run(main_builder, conf, builder_list))
+
+    # for result in results.build_results:
+    #     click.echo(f"Build Version: {result.build_version}")
+    #     click.echo(f"Builder: {result.builder_name}")
+    #     click.echo(f"Version: {result.builder_version}")
+    #     click.echo(f"Exit Code: {result.exit_code}")
+    #     click.echo(f"Output: {result.stdout}")
+    #     click.echo(f"Error: {result.stderr}")
 
 
 if __name__ == "__main__":

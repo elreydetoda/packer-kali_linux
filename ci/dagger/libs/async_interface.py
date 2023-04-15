@@ -4,10 +4,10 @@ from typing import List, Literal
 
 import dagger, anyio  # pylint: disable=multiple-imports
 
-import linting
-import packer_building as building
-from deployment import deploy, destroy
-from provisioning import provision
+import libs.linting as linting
+import libs.packer_building as building
+from libs.deployment import deploy, destroy
+from libs.provisioning import provision
 from models.config import ConfigObj
 from models.linting import LintSubDict
 
