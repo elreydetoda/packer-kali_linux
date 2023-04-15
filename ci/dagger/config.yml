@@ -28,6 +28,11 @@ terraform:
     - "*.tf"
   deployment_folder: ci/terraform/equinix
 packer:
+  build_base: ci/packer
+  build_versions:
+    - min
+    - light
+    - default
   patterns:
     - "*.pkr.hcl"
 python:
