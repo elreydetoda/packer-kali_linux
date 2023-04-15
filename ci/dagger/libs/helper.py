@@ -1,3 +1,4 @@
+from base64 import b64decode
 import re
 from os import getenv
 from pathlib import Path
@@ -203,6 +204,78 @@ def dagger_terraform_deployment_prep(
         # initializing terraform in that folder
         .with_exec("init".split())
     )
+
+
+def dagger_ansible_production_prep(
+    client: Client,
+    container: Container,
+) -> Container:
+    """
+    prepare container for ansible production specific needs
+    (i.e. install collections, roles, etc.)
+    """
+    ssh_key = getenv("B64_METAL_SSH_KEY")
+    if ssh_key:
+        container = (
+            container
+            # adding environment variables for equinix metal ssh key to hosts
+            .with_mounted_secret(
+                "/root/.ssh/id_rsa",
+                client.set_secret(
+                    "metal_ssh_key",
+                    b64decode(ssh_key).decode("utf-8"),
+                ),
+            )
+            # chmod ssh key
+            # .with_exec("chmod 600 /root/.ssh/id_rsa".split())
+        )
+    metal_api_token = getenv("METAL_API_TOKEN")
+    if metal_api_token:
+        container = (
+            container
+            # adding environment variables for equinix metal (inventory)
+            .with_secret_variable(
+                "METAL_API_TOKEN",
+                client.set_secret(
+                    "metal_auth_token",
+                    metal_api_token,
+                ),
+            )
+        )
+    return container
+
+
+def ansible_prep_cmd(inventory_file_path: str) -> str:
+    """
+    return the ansible-playbook command w/inventory file(s)
+    """
+    multiple_inventory_files = ""
+    if "|" in inventory_file_path:
+        for inventory_file in inventory_file_path.split("|"):
+            multiple_inventory_files += f"-i {inventory_file} "
+    else:
+        inventory_file_path = f"-i {inventory_file_path}"
+    return (
+        f"pipenv run ansible-playbook {multiple_inventory_files or inventory_file_path}"
+    )
+
+
+def ansible_playbook_cmd(
+    inventory_file_path: str,
+    playbook_file_path: str,
+    extra_flags="",
+    debug=False,
+) -> str:
+    """
+    return the ansible-playbook command
+    """
+    final_cmd = ansible_prep_cmd(inventory_file_path)
+    if debug:
+        final_cmd += " -vvvv"
+    if extra_flags:
+        final_cmd += f" {extra_flags}"
+
+    return f"{final_cmd} {playbook_file_path}"
 
 
 ##################################################

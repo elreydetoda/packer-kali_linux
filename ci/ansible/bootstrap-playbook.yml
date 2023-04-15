@@ -80,7 +80,6 @@
     - name: Building block prep
       vars:
         kali_project_folder: '/opt/packerAutoKali/'
-        project_folder: "{{ lookup('env', 'HOME') }}/project/"
       block:
 
         - name: Making sure build folder exists
@@ -91,9 +90,21 @@
             owner: root
             group: root
 
+        # when local_only the key's path is relative, but rsync's directory is the
+        #   cwd of the playbook, so it breaks because the key is not found
+        - name: Setting rsync private key only on local_only
+          ansible.builtin.set_fact:
+            rsync_private_key: '/src/{{ ansible_ssh_private_key_file }}'
+          when:
+            - local_only is defined
+            - local_only | bool
+
         - name: Rsync'ing to build server
           ansible.posix.synchronize:
             partial: true
-            src: '{{ project_folder }}/'
+            # directory location inside of dagger container
+            #   rsync changes the CWD to the playbook's directory
+            src: '/src'
             dest: '{{ kali_project_folder }}'
             compress: true
+            private_key: '{{ rsync_private_key | default("~/.ssh/id_rsa") }}'

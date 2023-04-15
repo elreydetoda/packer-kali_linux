@@ -17,6 +17,9 @@ container_images:
 python_version: 3.10
 pipenv_version: 2023.3.20
 ansible:
+  inventories:
+    local: ci/ansible/local/vagrant-inventory.yml
+    prod: ci/ansible/equinix_metal.yml
   patterns:
     - "*-playbook.yml"
     - "requirements.yml"

@@ -230,7 +230,10 @@ def build(
     if provision:
         click.echo(f"Provisioning servers: {provision}")
         # TODO: return packer & vagrant versions + Assign to BuildMetaObj
-        anyio.run(main_provision, conf)
+        provisioning_result = anyio.run(main_provision, conf)
+        click.echo(f"exit code: {provisioning_result.exit_code}")
+        click.echo(f"stdout: {provisioning_result.stdout}")
+        click.echo(f"stderr: {provisioning_result.stderr}")
 
     if virtualbox or all_builders:
         builder_list.append("virtualbox")
