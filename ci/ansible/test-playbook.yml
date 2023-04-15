@@ -3,3 +3,28 @@
   tasks:
     - name: Ping the host
       ansible.builtin.ping:
+    # - name: Getting all ansible information
+    #   ansible.builtin.debug:
+    #     var: ansible_facts
+    # - name: Getting all host variables
+    #   ansible.builtin.debug:
+    #     var: hostvars
+    # - name: Getting all host variables for a specific host
+    #   ansible.builtin.debug:
+    #     var: hostvars[inventory_hostname]
+    ## Generated via Copilot
+    # - name: Getting all group variables
+    #   ansible.builtin.debug:
+    #     var: groupvars
+    # - name: Getting all groups
+    #   ansible.builtin.debug:
+    #     var: groups
+    # - name: Getting all inventory
+    #   ansible.builtin.debug:
+    #     var: inventory
+    # - name: Getting all inventory_hostname
+    #   ansible.builtin.debug:
+    #     var: inventory_hostname
+    # - name: Getting all inventory_hostname_short
+    #   ansible.builtin.debug:
+    #     var: inventory_hostname_short

@@ -13,6 +13,8 @@
             - name: Installation of virtualbox
               ansible.builtin.include_role:
                 name: elreydetoda.virtualization.virtualbox
+              # when:
+              #   - '"tag_virtualbox_iso" in hostvars[inventory_hostname]["group_names"]'
 
             - name: Installation of vmware workstation
               ansible.builtin.import_role:
@@ -34,9 +36,7 @@
 
             - name: Install vagrant
               ansible.builtin.include_role:
-                # currently not working: https://github.com/elreydetoda/packer-kali_linux/issues/51
                 name: elreydetoda.virtualization.vagrant
-                # name: diodonfrost.vagrant
 
     - name: Ufw setup
       block:

@@ -6,7 +6,7 @@ all:
       # on virtualbox
       # hosts: 192.168.34.23
       # dynamic on libvirt
-      hosts: 192.168.121.144
+      hosts: 192.168.121.73
       vars:
         ansible_private_key_file: .vagrant/machines/builder/libvirt/private_key
     tag_qemu:
