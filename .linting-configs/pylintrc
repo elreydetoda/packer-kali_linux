@@ -1,6 +1,8 @@
 # https://github.com/pydantic/pydantic/issues/1961#issuecomment-759522422
 [MASTER]
 extension-pkg-whitelist=pydantic
+# https://stackoverflow.com/a/3065082
+init-hook='import sys; sys.path.append("ci/dagger")'
 # copied from https://github.com/PyCQA/pylint/blob/98d2c060ba0dbae6abecff2393cb6dd8a9bde97b/pylintrc
 [MESSAGES CONTROL]
 
