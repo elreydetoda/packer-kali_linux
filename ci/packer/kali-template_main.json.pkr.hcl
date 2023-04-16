@@ -20,14 +20,49 @@ packer {
   }
 }
 
-variable "box_basename" {
-  type    = string
-  default = "red-automated_kali"
-}
-
+##################################################
+# need input
 variable "build_version" {
   type    = string
   default = "min"
+}
+
+variable "iso_checksum" {
+  type = string
+  default = "344a8c948af62f7a288e3dc658291ec3d3cfcdbe5ad1e2f45334740bd6ff481d"
+}
+
+variable "iso_url" {
+  type = string
+  default = "https://cdimage.kali.org/current/kali-linux-2023.1-installer-netinst-amd64.iso"
+}
+
+variable "headless" {
+  type    = bool
+  default = false
+}
+
+variable "vm_name" {
+  type    = string
+  default = "kali-linux_amd64"
+}
+
+# I don't need to change
+variable "vm_box_provider" {
+  type    = string
+  default = "elrey741"
+}
+
+variable "vm_version" {
+  type    = string
+  default = "0.0.0"
+}
+
+##################################################
+
+variable "box_basename" {
+  type    = string
+  default = "red-automated_kali"
 }
 
 variable "cpus" {
@@ -38,11 +73,6 @@ variable "cpus" {
 variable "disk_size" {
   type    = string
   default = "65536"
-}
-
-variable "headless" {
-  type    = bool
-  default = false
 }
 
 variable "http_proxy" {
@@ -58,16 +88,6 @@ variable "https_proxy" {
 variable "no_proxy" {
   type    = string
   default = "${env("no_proxy")}"
-}
-
-variable "iso_checksum" {
-  type = string
-  default = "344a8c948af62f7a288e3dc658291ec3d3cfcdbe5ad1e2f45334740bd6ff481d"
-}
-
-variable "iso_url" {
-  type = string
-  default = "https://cdimage.kali.org/current/kali-linux-2023.1-installer-netinst-amd64.iso"
 }
 
 variable "memory" {
@@ -89,21 +109,6 @@ variable "template" {
 variable "vagrantfile" {
   type    = string
   default = "templates/vagrantfile-kali_linux.template"
-}
-
-variable "vm_name" {
-  type    = string
-  default = "kali-linux_amd64"
-}
-
-variable "vm_box_provider" {
-  type    = string
-  default = "elrey741"
-}
-
-variable "vm_version" {
-  type    = string
-  default = "0.0.0"
 }
 
 locals {
