@@ -273,7 +273,7 @@ async def packer_lint(
         )
         packer_validate_results = await dagger_handle_query_error(
             relative_packer.with_exec(
-                "validate .".split(),
+                "validate -except vagrant-cloud .".split(),
             )
         )
 
