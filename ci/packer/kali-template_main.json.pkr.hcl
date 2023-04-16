@@ -249,10 +249,10 @@ build {
       output               = "${local.build_directory}/${var.box_basename}.{{ .Provider }}-${var.build_version}.box"
       vagrantfile_template = "${path.root}/${var.vagrantfile}"
     }
-    // post-processor "vagrant-cloud" {
-    //   // access_token = "${var.vagrant_cloud_token}"
-    //   box_tag = "${var.vm_box_provider}/${var.vm_name}"
-    //   version = var.vm_version
-    // }
+    post-processor "vagrant-cloud" {
+      // access_token = "${var.vagrant_cloud_token}"
+      box_tag = "${var.vm_box_provider}/${var.vm_name}"
+      version = var.vm_version
+    }
   }
 }
