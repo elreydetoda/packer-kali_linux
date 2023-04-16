@@ -24,7 +24,7 @@ async def provision(client: Client, conf: ConfigObj):
 
     ansible_cfg_data = conf.config_data["ansible"]
     ansible_base = dagger_general_prep(client, conf, "python")
-    python_prepped = await dagger_python_prep(client, conf, ansible_base)
+    python_prepped = await dagger_python_prep(client, conf, ansible_base, prod=True)
     ansible_prepped = dagger_ansible_prep(client, python_prepped)
     provisioning_prepped = dagger_ansible_production_prep(client, ansible_prepped)
 
