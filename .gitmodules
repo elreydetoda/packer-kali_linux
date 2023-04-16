@@ -1,0 +1,3 @@
+[submodule "ci/packer/provisioning/bento"]
+	path = ci/packer/provisioning/bento
+	url = https://github.com/chef/bento.git
