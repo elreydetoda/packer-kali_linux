@@ -90,7 +90,7 @@
             - name: Launching the upload process
               ansible.builtin.shell:
                 cmd: |
-                  export CIRCLECI='{{ CIRCLECI | default('') }}' DEBUG=true
+                  export CI='{{ CI | default('') }}' DEBUG=true
                   ci/scripts/manual_upload.sh '{{ item.path }}' '{{ build_version | default() }}' > curl-upload.log 2>&1
                 chdir: '{{ kali_project_folder }}'
               changed_when: false

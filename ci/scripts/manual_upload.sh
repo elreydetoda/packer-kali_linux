@@ -218,7 +218,7 @@ function main() {
 
   if [[ $# -eq 5 ]]; then
     help
-  elif [[ -n "${CIRCLECI:-}" ]]; then
+  elif [[ -n "${CI:-}" ]]; then
 
     file_location="${1}"
     build_version="${2}"
