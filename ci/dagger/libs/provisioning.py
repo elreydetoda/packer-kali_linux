@@ -28,12 +28,12 @@ async def provision(client: Client, conf: ConfigObj):
     ansible_prepped = dagger_ansible_prep(client, python_prepped)
     provisioning_prepped = dagger_ansible_production_prep(client, ansible_prepped)
 
-    if getenv("LOCAL_ONLY"):
+    if getenv("CI"):
+        inventory = ansible_cfg_data["inventories"]["prod"]
+    else:
         inventory = ansible_cfg_data["inventories"]["local"]
         extra_flags = "--become"
         extra_vars["local_only"] = True
-    else:
-        inventory = ansible_cfg_data["inventories"]["prod"]
 
     vmware_lic = getenv("VMWARE_LICENSE")
     if vmware_lic:
