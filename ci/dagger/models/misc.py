@@ -22,7 +22,8 @@ class DaggerExecResult:
     raw: Optional[str] = Field(default=None, alias="_raw")
 
 
-class PydanticVersion(Version):
+# new_version = Version(f"{tmpz.major}.{tmpz.minor}.{tmpz.micro+1}")
+class SemanticVersion(Version):
     @classmethod
     def __get_validators__(cls):
         yield cls.validate

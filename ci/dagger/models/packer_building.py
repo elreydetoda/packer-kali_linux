@@ -2,7 +2,7 @@ from typing import List, Literal, Optional
 from pydantic import BaseModel
 from pydantic.dataclasses import dataclass as py_dataclass
 
-from models.misc import PydanticVersion
+from models.misc import SemanticVersion
 
 
 @py_dataclass
@@ -13,7 +13,7 @@ class BuildReturnObj:
 
     build_version: Literal["default", "light", "min"]
     builder_name: Literal["virtualbox", "vmware", "qemu"]
-    builder_version: PydanticVersion
+    builder_version: SemanticVersion
     exit_code: int
     return_stdout: str
     return_stderr: Optional[str] = None
