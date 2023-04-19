@@ -7,33 +7,27 @@ from dagger import Client
 from models.config import ConfigObj
 from libs.helper import (
     ansible_playbook_cmd,
-    dagger_ansible_prep,
-    dagger_ansible_production_prep,
-    dagger_general_prep,
     dagger_handle_query_error,
-    dagger_python_prep,
+    dagger_prod_ansible_full_wrapper,
 )
 
 
 async def provision(client: Client, conf: ConfigObj):
     """Bootstrap the provisioning process."""
     # default values
-    extra_flags = ""
+    # extra_flags = ""
     extra_vars = {}
     extra_vars_list = None
 
-    ansible_cfg_data = conf.config_data["ansible"]
-    ansible_base = dagger_general_prep(client, conf, "python")
-    python_prepped = await dagger_python_prep(client, conf, ansible_base, prod=True)
-    ansible_prepped = dagger_ansible_prep(client, python_prepped)
-    provisioning_prepped = dagger_ansible_production_prep(client, ansible_prepped)
-
-    if getenv("CI"):
-        inventory = ansible_cfg_data["inventories"]["prod"]
-    else:
-        inventory = ansible_cfg_data["inventories"]["local"]
-        extra_flags = "--become"
-        extra_vars["local_only"] = True
+    (
+        provisioning_prepped,
+        inventory,
+        extra_flags,
+    ) = await dagger_prod_ansible_full_wrapper(
+        client,
+        conf,
+        extra_vars,
+    )
 
     vmware_lic = getenv("VMWARE_LICENSE")
     if vmware_lic:
