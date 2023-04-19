@@ -95,7 +95,7 @@ class KaliIso(ABC):
         gpg.import_keys(self._get_public_key())
 
         with TemporaryDirectory() as tmpdir:
-            logger.debug(f"Temp dir: {tmpdir}")
+            logger.trace(f"Temp dir: {tmpdir}")
             checksum = Path(f"{tmpdir}/checksums")
             checksum.write_bytes(self._get_checksum_file())
             sig_file = Path(f"{tmpdir}/SHA256SUMS.gpg")
