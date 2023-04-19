@@ -17,6 +17,10 @@ KALI_ISO_RE: Final[
 
 
 class KaliIso(ABC):
+    """
+    Used to handle all Kali ISO related information
+    """
+
     def __init__(self, kali_iso_name: Optional[str] = None) -> None:
         super().__init__()
         self._kali_iso_name = kali_iso_name

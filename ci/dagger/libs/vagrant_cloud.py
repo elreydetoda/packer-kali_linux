@@ -6,6 +6,10 @@ from requests import get as r_get
 
 
 class VagrantCloud(ABC):
+    """
+    Used to handle all Vagrant Cloud API calls
+    """
+
     def __init__(
         self,
         username: str,
