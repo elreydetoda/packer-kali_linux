@@ -49,7 +49,7 @@ def main(
 
 
 # ELREY_PKR_LINT_PYTHON=true
-@main.command("lint")
+@main.command()
 @click.pass_obj
 # @click.pass_context
 @click.option(
@@ -151,7 +151,7 @@ def lint(
         raise click.ClickException("Linting failed")
 
 
-@main.command("deploy")
+@main.command()
 @click.pass_obj
 @click.confirmation_option(prompt="Are you sure you want to deploy/destroy?")
 @click.option(
@@ -180,7 +180,7 @@ def deploy(
     click.echo(f"Error: {terraform_deployed_results.stderr}")
 
 
-@main.command("build")
+@main.command()
 @click.pass_obj
 @click.option(
     "-p/-np",

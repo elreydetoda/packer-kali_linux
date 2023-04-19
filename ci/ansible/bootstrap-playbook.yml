@@ -104,7 +104,7 @@
             partial: true
             # directory location inside of dagger container
             #   rsync changes the CWD to the playbook's directory
-            src: '/src'
+            src: '/src/'
             dest: '{{ kali_project_folder }}'
             compress: true
             private_key: '{{ rsync_private_key | default("~/.ssh/id_rsa") }}'

@@ -1,8 +1,8 @@
 import sys
 from copy import deepcopy
-from typing import List, Literal
+from typing import List, Literal, Optional
 
-import dagger, anyio  # pylint: disable=multiple-imports
+import dagger, anyio
 
 import libs.linting as linting
 import libs.packer_building as building
@@ -10,6 +10,7 @@ from libs.deployment import deploy, destroy
 from libs.provisioning import provision
 from models.config import ConfigObj
 from models.linting import LintSubDict
+from models.packer_building import BuildReturnObj  # pylint: disable=multiple-imports
 
 
 async def main_lint(conf: ConfigObj, lint_dict: dict) -> dict:
@@ -78,7 +79,7 @@ async def main_builder(
     """
     Thin async wrapper around the main build function
     """
-    build_results = []
+    build_results: List[Optional[BuildReturnObj]] = []
     build_versions: List[
         Literal[
             "default",

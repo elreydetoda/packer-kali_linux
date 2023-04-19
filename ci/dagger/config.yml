@@ -31,7 +31,7 @@ terraform:
     - "*.tf"
   deployment_folder: ci/terraform/equinix
 packer:
-  build_base: ci/packer
+  build_folder: ci/packer
   build_versions:
     - min
     - light
