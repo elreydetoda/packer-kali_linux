@@ -24,6 +24,11 @@ dagger-io = "*"
 click = "*"
 pyyaml = "*"
 pydantic = "*"
+requests = "*"
+# used for logging
+loguru = "*"
+# used for validating Kali's Key signing
+python-gnupg = "*"
 # for distutils.version: https://peps.python.org/pep-0632/#migration-advice
 packaging = "*"
 # for infra prov
